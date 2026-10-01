@@ -1,0 +1,2663 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Random Stock — Verified Sneakers & Streetwear</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="preconnect" href="https://images.unsplash.com">
+  <link href="https://fonts.googleapis.com/css2?family=DM+Mono:ital,wght@0,400;0,500;1,400&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --ink: #151515;
+      --paper: #f5f4f1;
+      --paper-subtle: #eae9e5;
+      --white: #ffffff;
+      --line: #dedcd7;
+      --muted: #4f4d49;
+      --lime: #d7ff3f;
+      --radius: 4px;
+      --transition: 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      background: var(--paper);
+      color: var(--ink);
+      font: 14px/1.5 'Manrope', -apple-system, BlinkMacSystemFont, Arial, sans-serif;
+      -webkit-font-smoothing: antialiased;
+    }
+    button, input, select, textarea { font: inherit; }
+    button { cursor: pointer; border: 0; background: transparent; }
+    a { color: inherit; text-decoration: none; cursor: pointer; }
+    img { width: 100%; display: block; object-fit: cover; }
+    :focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
+
+    .mono { font-family: 'DM Mono', monospace; letter-spacing: 0.08em; text-transform: uppercase; }
+    .eyebrow {
+      font: 11px/1.3 'DM Mono', monospace;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--muted);
+      font-weight: 500;
+    }
+
+    /* Announcement Bar */
+    .announce {
+      height: 38px;
+      background: var(--ink);
+      color: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      font: 11px/1 'DM Mono', monospace;
+      letter-spacing: 0.12em;
+      padding: 0 45px;
+      text-align: center;
+      z-index: 25;
+    }
+    .announce button {
+      position: absolute;
+      right: 18px;
+      color: #fff;
+      font-size: 18px;
+      line-height: 1;
+      padding: 4px 8px;
+      opacity: 0.8;
+      transition: var(--transition);
+    }
+    .announce button:hover { opacity: 1; }
+    .announce.hide { display: none; }
+
+    /* Navigation */
+    .nav {
+      height: 76px;
+      padding: 0 clamp(18px, 4vw, 56px);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid var(--line);
+      background: rgba(245, 244, 241, 0.94);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      position: sticky;
+      top: 0;
+      z-index: 30;
+    }
+    .logo {
+      font-size: 22px;
+      font-weight: 800;
+      letter-spacing: -1.4px;
+      display: inline-flex;
+      align-items: center;
+      user-select: none;
+    }
+    .logo i { font-style: normal; color: #777; font-weight: 700; }
+    .nav-links {
+      display: flex;
+      gap: 28px;
+      margin-left: 45px;
+      flex: 1;
+    }
+    .nav-links a {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      position: relative;
+      padding: 8px 0;
+      color: var(--ink);
+      transition: color var(--transition);
+    }
+    .nav-links a:hover, .nav-links a.active {
+      color: var(--ink);
+      text-decoration: underline;
+      text-underline-offset: 8px;
+    }
+    .actions { display: flex; gap: 14px; align-items: center; }
+    .icon-btn {
+      background: none;
+      padding: 6px;
+      font-size: 18px;
+      line-height: 1;
+      color: var(--ink);
+      position: relative;
+      border-radius: var(--radius);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background var(--transition);
+    }
+    .icon-btn:hover { background: rgba(0,0,0,0.05); }
+    .hamb {
+      display: none;
+      font-size: 22px;
+      padding: 6px;
+      margin-right: 8px;
+    }
+
+    /* Page View Controller */
+    .page { display: none; }
+    .page.active { display: block; animation: fadeIn 0.25s ease-out; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+
+    /* Hero Section */
+    .hero {
+      min-height: calc(100vh - 114px);
+      display: grid;
+      grid-template-columns: 1.15fr 0.85fr;
+      background: #dfdeda;
+      position: relative;
+      border-bottom: 1px solid var(--line);
+    }
+    .hero-copy {
+      padding: clamp(48px, 8vw, 130px) clamp(22px, 6vw, 90px);
+      align-self: center;
+    }
+    .hero h1 {
+      font-size: clamp(46px, 6.2vw, 98px);
+      line-height: 0.92;
+      letter-spacing: -0.075em;
+      margin: 20px 0 24px;
+      max-width: 720px;
+      font-weight: 800;
+    }
+    .hero p {
+      max-width: 420px;
+      color: #3b3936;
+      font-size: 15px;
+      line-height: 1.65;
+      margin-bottom: 34px;
+    }
+    .hero-image {
+      min-height: 520px;
+      position: relative;
+      overflow: hidden;
+      background: #cfceca;
+    }
+    .hero-image img {
+      height: 100%;
+      object-fit: cover;
+      object-position: center;
+      transition: transform 1.2s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .hero:hover .hero-image img { transform: scale(1.03); }
+    .hero-stamp {
+      position: absolute;
+      bottom: 28px;
+      right: 28px;
+      color: #fff;
+      background: rgba(21, 21, 21, 0.9);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      width: 110px;
+      height: 110px;
+      border-radius: 50%;
+      display: grid;
+      place-items: center;
+      font: 9px/1.35 'DM Mono', monospace;
+      letter-spacing: 0.12em;
+      text-align: center;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.22);
+      user-select: none;
+    }
+
+    /* Shared Buttons */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      background: var(--ink);
+      color: #fff;
+      border: 1px solid var(--ink);
+      padding: 14px 26px;
+      font: 11px/1 'Manrope', sans-serif;
+      font-weight: 800;
+      letter-spacing: 0.09em;
+      text-transform: uppercase;
+      border-radius: var(--radius);
+      transition: var(--transition);
+      cursor: pointer;
+    }
+    .btn:hover {
+      background: #2b2b2b;
+      border-color: #2b2b2b;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 14px rgba(0,0,0,0.12);
+    }
+    .btn.light {
+      background: transparent;
+      color: var(--ink);
+      border-color: var(--ink);
+    }
+    .btn.light:hover {
+      background: var(--ink);
+      color: #fff;
+      transform: translateY(-2px);
+    }
+    .btn.white {
+      background: #fff;
+      color: var(--ink);
+      border-color: #fff;
+    }
+    .btn.white:hover {
+      background: var(--paper);
+      border-color: var(--paper);
+      transform: translateY(-2px);
+    }
+    .btn-row { display: flex; gap: 12px; flex-wrap: wrap; }
+
+    /* Layout Sections */
+    .section {
+      padding: clamp(55px, 6.5vw, 100px) clamp(18px, 4vw, 56px);
+      max-width: 1600px;
+      margin: auto;
+    }
+    .section-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      margin-bottom: 32px;
+      gap: 16px;
+    }
+    .section h2 {
+      font-size: clamp(32px, 4.2vw, 56px);
+      letter-spacing: -0.065em;
+      line-height: 1;
+      margin: 8px 0 0;
+      font-weight: 800;
+    }
+    .text-link {
+      font-weight: 800;
+      font-size: 11px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      border-bottom: 1px solid;
+      padding-bottom: 4px;
+      color: var(--ink);
+      transition: opacity var(--transition);
+      white-space: nowrap;
+    }
+    .text-link:hover { opacity: 0.7; }
+
+    /* Product Grid & Cards */
+    .products {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 20px;
+    }
+    .product {
+      min-width: 0;
+      position: relative;
+      background: #fff;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      transition: transform var(--transition), box-shadow var(--transition);
+    }
+    .product:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 12px 30px rgba(0,0,0,0.06);
+    }
+    .product-image {
+      background: #edece9;
+      aspect-ratio: 1;
+      overflow: hidden;
+      position: relative;
+      cursor: pointer;
+    }
+    .product-image img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain; /* never crop — the whole sneaker stays visible */
+      transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .product:hover .product-image img { transform: scale(1.06); }
+    .p-info {
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      flex: 1;
+    }
+    .p-info .brand {
+      font: 10px/1.2 'DM Mono', monospace;
+      color: var(--muted);
+      text-transform: uppercase;
+      font-weight: 500;
+    }
+    .p-info .name {
+      font-weight: 800;
+      font-size: 14px;
+      line-height: 1.3;
+      margin: 5px 0 3px;
+      min-height: 2.6em; /* reserve two lines so cards line up */
+      display: -webkit-box;
+      -webkit-box-orient: vertical;
+      -webkit-line-clamp: 2;
+      line-clamp: 2;
+      overflow: hidden;
+      overflow-wrap: anywhere;
+      cursor: pointer;
+    }
+    .p-info .name:hover { text-decoration: underline; }
+    .p-info .color, .p-info .sizes {
+      color: var(--muted);
+      font-size: 11px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .p-info .sizes { margin-bottom: 12px; }
+    .quick {
+      width: 100%;
+      margin-top: auto;
+      padding: 10px 12px;
+      background: var(--ink);
+      color: #fff;
+      font: 10px/1 'Manrope', sans-serif;
+      font-weight: 800;
+      letter-spacing: 0.09em;
+      text-transform: uppercase;
+      border-radius: var(--radius);
+      transition: var(--transition);
+      opacity: 0.9;
+    }
+    .quick:hover {
+      background: #2c2c2c;
+      opacity: 1;
+    }
+
+    /* Brand Grid Section */
+    .brand-grid {
+      display: grid;
+      grid-template-columns: repeat(8, 1fr);
+      gap: 10px;
+    }
+    .brand-tile {
+      height: 120px;
+      background: #eae9e5;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      display: grid;
+      place-items: center;
+      font-size: 13px;
+      font-weight: 800;
+      letter-spacing: -0.04em;
+      text-transform: uppercase;
+      transition: var(--transition);
+      cursor: pointer;
+      padding: 12px;
+      text-align: center;
+      user-select: none;
+    }
+    .brand-tile:hover, .brand-tile.selected {
+      background: var(--lime);
+      border-color: #b4db1b;
+      transform: translateY(-3px);
+      box-shadow: 0 6px 16px rgba(0,0,0,0.06);
+    }
+
+    /* Heat Section */
+    .heat {
+      display: grid;
+      grid-template-columns: 1.25fr 0.75fr;
+      min-height: 600px;
+      background: var(--ink);
+      color: #fff;
+    }
+    .heat-main {
+      position: relative;
+      overflow: hidden;
+      min-height: 420px;
+    }
+    .heat-main img {
+      height: 100%;
+      width: 100%;
+      object-fit: cover;
+      opacity: 0.85;
+      transition: transform 1.2s ease;
+    }
+    .heat:hover .heat-main img { transform: scale(1.04); }
+    .heat-main .heat-overlay {
+      position: absolute;
+      left: clamp(24px, 5vw, 64px);
+      bottom: clamp(32px, 5vw, 64px);
+      z-index: 2;
+    }
+    .heat-main::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(to top, rgba(21,21,21,0.85) 0%, rgba(21,21,21,0.2) 60%);
+      pointer-events: none;
+    }
+    .heat h2 {
+      font-size: clamp(38px, 5vw, 72px);
+      letter-spacing: -0.06em;
+      line-height: 0.95;
+      margin: 12px 0 24px;
+      max-width: 520px;
+      font-weight: 800;
+    }
+    .heat-side {
+      padding: clamp(32px, 5vw, 64px);
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      border-left: 1px solid #292929;
+    }
+    .heat-side p {
+      color: #c4c4c0;
+      max-width: 310px;
+      line-height: 1.7;
+      font-size: 14px;
+      margin: 14px 0 0;
+    }
+    .heat-count { font: 11px 'DM Mono', monospace; color: var(--lime); font-weight: 500; }
+
+    /* Authenticity Banner */
+    .auth {
+      background: #e3e0da;
+      max-width: none;
+      border-top: 1px solid var(--line);
+      border-bottom: 1px solid var(--line);
+    }
+    .auth-inner { max-width: 1488px; margin: auto; }
+    .auth-grid {
+      display: grid;
+      grid-template-columns: 1.2fr 0.8fr;
+      gap: 6vw;
+      align-items: center;
+    }
+    .auth h2 {
+      font-size: clamp(38px, 4.8vw, 70px);
+      letter-spacing: -0.06em;
+      line-height: 0.98;
+      max-width: 660px;
+      margin: 10px 0 18px;
+    }
+    .auth p {
+      color: #3f3e3a;
+      max-width: 460px;
+      font-size: 15px;
+      line-height: 1.6;
+    }
+    .steps { border-top: 1px solid #a8a49c; margin-top: 10px; }
+    .step {
+      display: flex;
+      align-items: center;
+      gap: 24px;
+      padding: 18px 0;
+      border-bottom: 1px solid #a8a49c;
+    }
+    .step b { font: 12px 'DM Mono', monospace; color: #555; }
+    .step span { font-size: 19px; font-weight: 800; letter-spacing: -0.02em; }
+
+    /* Streetwear Feature */
+    .streetwear {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 20px;
+    }
+    .feature-card {
+      position: relative;
+      width: 100%;
+      min-height: 480px;
+      color: #fff;
+      overflow: hidden;
+      border-radius: var(--radius);
+      display: flex;
+      align-items: flex-end;
+      padding: clamp(28px, 5vw, 60px);
+    }
+    .feature-card img {
+      position: absolute;
+      inset: 0;
+      height: 100%;
+      width: 100%;
+      object-fit: cover;
+      object-position: center 30%;
+      transition: transform 1s ease;
+    }
+    .feature-card:hover img { transform: scale(1.03); }
+    .feature-card::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      z-index: 1;
+      pointer-events: none;
+      background: linear-gradient(to top, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0.3) 50%, rgba(0,0,0,0.05) 100%);
+    }
+    .feature-card .content {
+      position: relative;
+      z-index: 2;
+      max-width: 580px;
+    }
+    .feature-card h3 {
+      font-size: clamp(32px, 4.5vw, 54px);
+      letter-spacing: -0.06em;
+      line-height: 1;
+      margin: 10px 0 20px;
+    }
+
+    /* Supreme portrait shot: show the whole photo (no crop / no zoom) */
+    .feature-card.full-shot { min-height: clamp(520px, 64vh, 700px); }
+    .feature-card.full-shot::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: url('supreme.jpg') center / cover no-repeat;
+      filter: blur(20px);
+      transform: scale(1.1);
+    }
+    .feature-card.full-shot img { object-fit: contain; }
+    .feature-card.full-shot:hover img { transform: none; }
+
+    /* Footer */
+    .footer {
+      background: var(--ink);
+      color: #fff;
+      padding: 64px clamp(18px, 4vw, 56px) 28px;
+    }
+    .foot-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 32px;
+      max-width: 1600px;
+      margin: auto;
+    }
+    .foot-grid h4 {
+      font: 11px 'DM Mono', monospace;
+      color: #aaa;
+      letter-spacing: 0.1em;
+      margin: 0 0 16px;
+      text-transform: uppercase;
+    }
+    .foot-grid a {
+      display: block;
+      margin: 9px 0;
+      font-size: 13px;
+      color: #dfdedc;
+      transition: color var(--transition);
+    }
+    .foot-grid a:hover { color: #fff; text-decoration: underline; }
+    .foot-bottom {
+      border-top: 1px solid #333;
+      margin-top: 56px;
+      padding-top: 22px;
+      font: 11px 'DM Mono', monospace;
+      color: #b0ada6;
+      display: flex;
+      justify-content: space-between;
+      max-width: 1600px;
+      margin-left: auto;
+      margin-right: auto;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+
+    /* Shop View */
+    .shop-top {
+      padding: 50px clamp(18px, 4vw, 56px) 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      max-width: 1600px;
+      margin: auto;
+    }
+    .shop-top h1, .about h1 {
+      font-size: clamp(42px, 6vw, 84px);
+      letter-spacing: -0.08em;
+      line-height: 0.92;
+      margin: 10px 0 0;
+      font-weight: 800;
+    }
+    .shop-layout {
+      display: grid;
+      grid-template-columns: 240px 1fr;
+      gap: 40px;
+    }
+    .filters {
+      border-top: 1px solid var(--line);
+    }
+    .filter {
+      border-bottom: 1px solid var(--line);
+      padding: 18px 0;
+    }
+    .filter label {
+      font: 11px/1 'DM Mono', monospace;
+      letter-spacing: 0.08em;
+      font-weight: 700;
+      display: block;
+      margin-bottom: 10px;
+      color: var(--ink);
+    }
+    .filter select, .filter input {
+      width: 100%;
+      padding: 10px 12px;
+      border: 1px solid #d0cdc6;
+      background: #fff;
+      border-radius: var(--radius);
+      font-size: 13px;
+    }
+    .shop-actions {
+      display: flex;
+      gap: 12px;
+      margin-bottom: 24px;
+      justify-content: space-between;
+    }
+    .shop-actions input {
+      padding: 11px 16px;
+      border: 1px solid #ccc;
+      background: #fff;
+      flex: 1;
+      max-width: 360px;
+      border-radius: var(--radius);
+      font-size: 13px;
+    }
+    .filter-toggle {
+      display: none;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 11px 16px;
+      border: 1px solid var(--ink);
+      border-radius: var(--radius);
+      background: #fff;
+      color: var(--ink);
+      font: 11px/1 'Manrope', sans-serif;
+      font-weight: 800;
+      letter-spacing: 0.09em;
+      text-transform: uppercase;
+    }
+    .filter-toggle[aria-expanded="true"] { background: var(--ink); color: #fff; }
+    .shop-actions select {
+      padding: 11px 16px;
+      border: 1px solid #ccc;
+      background: #fff;
+      border-radius: var(--radius);
+      font-size: 13px;
+    }
+    .clear-filters-btn {
+      margin-top: 18px;
+      width: 100%;
+      padding: 10px;
+      font: 10px 'DM Mono', monospace;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      border: 1px dashed var(--muted);
+      border-radius: var(--radius);
+      color: var(--ink);
+    }
+    .clear-filters-btn:hover { background: #eae8e3; }
+
+    /* Product Detail View */
+    .product-page {
+      padding: 36px clamp(18px, 4vw, 56px) 90px;
+      max-width: 1480px;
+      margin: auto;
+    }
+    .back {
+      font: 11px 'DM Mono', monospace;
+      letter-spacing: 0.08em;
+      font-weight: 700;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      margin-bottom: 24px;
+      color: var(--ink);
+    }
+    .back:hover { text-decoration: underline; }
+    .detail {
+      display: grid;
+      grid-template-columns: 1.15fr 0.85fr;
+      gap: 5vw;
+    }
+    .gallery {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+    .gallery img {
+      aspect-ratio: 1;
+      object-fit: contain; /* never crop — the whole sneaker stays visible */
+      background: #e7e5e0;
+      border-radius: var(--radius);
+      border: 1px solid var(--line);
+    }
+    /* Single-photo listings: span the full gallery width */
+    .gallery img:only-child { grid-column: 1 / -1; }
+    .details {
+      position: sticky;
+      top: 100px;
+      align-self: start;
+    }
+    .details h1 {
+      font-size: clamp(32px, 3.8vw, 48px);
+      letter-spacing: -0.06em;
+      line-height: 1.05;
+      margin: 8px 0;
+      font-weight: 800;
+    }
+    .meta {
+      font-size: 12px;
+      color: var(--muted);
+      line-height: 2;
+      border-top: 1px solid var(--line);
+      padding-top: 16px;
+      font-family: 'DM Mono', monospace;
+    }
+    .size-grid {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 8px;
+      margin: 12px 0 24px;
+    }
+    .size-btn {
+      padding: 12px 6px;
+      background: #fff;
+      border: 1px solid #ccc;
+      border-radius: var(--radius);
+      font-weight: 700;
+      font-size: 13px;
+      transition: var(--transition);
+      text-align: center;
+    }
+    .size-btn:hover { border-color: var(--ink); }
+    .size-btn.selected {
+      background: var(--ink);
+      color: #fff;
+      border-color: var(--ink);
+    }
+    .detail-btns {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-top: 8px;
+    }
+    .detail-btns .btn:first-child { grid-column: span 2; padding: 16px; font-size: 12px; }
+    .perks {
+      margin: 28px 0;
+      border-top: 1px solid var(--line);
+    }
+    .perks p {
+      margin: 0;
+      border-bottom: 1px solid var(--line);
+      padding: 12px 0;
+      font-size: 13px;
+      color: #333;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .perks p b { color: #151515; }
+
+    /* About View */
+    .about {
+      padding: 70px clamp(18px, 8vw, 130px) 100px;
+      max-width: 1400px;
+      margin: auto;
+    }
+    .about > p {
+      max-width: 620px;
+      font-size: 18px;
+      line-height: 1.7;
+      margin: 28px 0 45px;
+      color: #333;
+    }
+    .about-hero {
+      height: 480px;
+      margin: 50px 0;
+      border-radius: var(--radius);
+      overflow: hidden;
+    }
+    .about-hero img { height: 100%; object-fit: cover; }
+
+    /* Modals & Drawers */
+    .overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(20, 20, 20, 0.55);
+      backdrop-filter: blur(4px);
+      -webkit-backdrop-filter: blur(4px);
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+      z-index: 40;
+    }
+    .overlay.open { opacity: 1; pointer-events: auto; }
+
+    .drawer-close {
+      font-size: 24px;
+      line-height: 1;
+      padding: 4px 8px;
+      color: var(--ink);
+    }
+    .drawer-close:hover { opacity: 0.7; }
+
+    /* Mobile Menu Drawer */
+    .mobile-drawer {
+      position: fixed;
+      left: 0;
+      top: 0;
+      height: 100dvh;
+      width: min(320px, 85%);
+      background: #fff;
+      z-index: 50;
+      transform: translateX(-100%);
+      transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+      display: flex;
+      flex-direction: column;
+      box-shadow: 8px 0 35px rgba(0,0,0,0.15);
+    }
+    .mobile-drawer.open { transform: none; }
+    .mobile-drawer-head {
+      padding: 22px;
+      border-bottom: 1px solid var(--line);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .mobile-links {
+      display: flex;
+      flex-direction: column;
+      padding: 24px;
+      gap: 18px;
+    }
+    .mobile-links a {
+      font-size: 16px;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      color: var(--ink);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    /* Search Modal */
+    .search-modal {
+      position: fixed;
+      inset: 0;
+      background: var(--paper);
+      z-index: 60;
+      transform: translateY(-100%);
+      transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+      padding: 30px clamp(20px, 8vw, 120px);
+      overflow-y: auto;
+    }
+    .search-modal.open { transform: none; }
+    .search-modal-close {
+      position: absolute;
+      right: clamp(20px, 4vw, 50px);
+      top: 25px;
+      font-size: 32px;
+      line-height: 1;
+      padding: 8px;
+      color: var(--ink);
+    }
+    .search-bar {
+      display: flex;
+      border-bottom: 2px solid var(--ink);
+      margin-top: 75px;
+      padding-bottom: 8px;
+    }
+    .search-bar input {
+      font-size: clamp(26px, 4.5vw, 52px);
+      letter-spacing: -0.06em;
+      border: 0;
+      background: none;
+      outline: 0;
+      width: 100%;
+      font-weight: 700;
+    }
+    .suggestions { margin-top: 32px; }
+    .suggestions-chips {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-top: 12px;
+    }
+    .suggestions button {
+      background: #fff;
+      border: 1px solid var(--line);
+      padding: 9px 16px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 700;
+      transition: var(--transition);
+    }
+    .suggestions button:hover {
+      background: var(--ink);
+      color: #fff;
+      border-color: var(--ink);
+    }
+
+    /* Toast */
+    .toast {
+      position: fixed;
+      left: 50%;
+      bottom: 28px;
+      transform: translate(-50%, 120px);
+      background: var(--ink);
+      color: #fff;
+      padding: 12px 20px;
+      z-index: 90;
+      font-size: 13px;
+      font-weight: 600;
+      line-height: 1.4;
+      text-align: center;
+      border-radius: 999px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.25);
+      transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+      pointer-events: none;
+      max-width: min(480px, calc(100vw - 32px));
+      width: max-content;
+      box-sizing: border-box;
+    }
+    .toast.show { transform: translate(-50%, 0); }
+
+    /* Responsive Queries */
+    @media (max-width: 1024px) {
+      .products { grid-template-columns: repeat(3, 1fr); }
+      .brand-grid { grid-template-columns: repeat(4, 1fr); }
+    }
+    @media (max-width: 820px) {
+      .nav { height: 66px; }
+      .nav-links { display: none; }
+      .hamb { display: block; }
+      .hero { grid-template-columns: 1fr; min-height: auto; }
+      .hero-copy { padding: 50px 20px 40px; order: 1; }
+      .hero-image { min-height: 340px; order: 2; }
+      .hero-stamp { width: 90px; height: 90px; font-size: 8px; bottom: 18px; right: 18px; }
+      .products { grid-template-columns: repeat(2, 1fr); gap: 12px; }
+      .p-info { padding: 12px; }
+      .brand-grid { grid-template-columns: repeat(2, 1fr); }
+      .brand-tile { height: 80px; font-size: 13px; }
+      .heat, .auth-grid { grid-template-columns: 1fr; }
+      .heat { min-height: auto; }
+      .heat-main { min-height: 320px; }
+      .heat-side { border-left: 0; border-top: 1px solid #292929; }
+      .foot-grid { grid-template-columns: 1fr 1fr; }
+      .foot-grid > div:first-child { grid-column: span 2; }
+      .shop-layout { grid-template-columns: 1fr; gap: 0; }
+      .filters { display: none; }
+      .filters.open {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        column-gap: 12px;
+        margin-bottom: 20px;
+      }
+      .filters .filter:first-child { display: none; } /* search already sits above the grid on mobile */
+      .filters .clear-filters-btn { grid-column: 1 / -1; margin: 14px 0 0; }
+      .filter-toggle { display: inline-flex; flex: 1; }
+      .shop-actions { flex-wrap: wrap; }
+      .shop-actions input { max-width: none; flex: 1 1 100%; }
+      .shop-actions select { flex: 1; min-width: 0; }
+      .detail { grid-template-columns: 1fr; }
+      .details { position: static; }
+      .product-page { padding: 25px 18px 60px; }
+      .gallery { gap: 8px; }
+    }
+    @media (max-width: 480px) {
+      .products { grid-template-columns: 1fr; }
+      .hero h1 { font-size: 38px; }
+      .foot-grid { grid-template-columns: 1fr; }
+      .foot-grid > div:first-child { grid-column: span 1; }
+      .toast { border-radius: 16px; padding: 12px 18px; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Announcement Bar -->
+  <aside class="announce" id="announce" role="region" aria-label="Announcement">
+    <span>ORDERS SHIP WITHIN 1-2 BUSINESS DAYS · CONTACT ME FOR ORDERS <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="display:inline-block;vertical-align:-2px;margin-left:4px"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg></span>
+    <button onclick="document.getElementById('announce').classList.add('hide')" aria-label="Dismiss announcement">×</button>
+  </aside>
+
+  <!-- Navigation Header -->
+  <header>
+    <nav class="nav" aria-label="Main Navigation">
+      <div style="display: flex; align-items: center;">
+        <button class="hamb" onclick="menuOpen()" aria-label="Open mobile menu" aria-expanded="false" id="hambBtn">☰</button>
+        <a class="logo" href="#home" onclick="event.preventDefault(); go('home');">RANDOM&nbsp;<i>STOCK</i></a>
+      </div>
+
+      <div class="nav-links">
+        <a onclick="shopNav('all')" href="#shop">New Arrivals</a>
+        <a onclick="shopNav('all')" href="#shop">Sneakers</a>
+        <a onclick="scrollToSection('street')" href="#street">Streetwear</a>
+        <a onclick="scrollToSection('heat')" href="#heat">Collections</a>
+        <a onclick="go('about')" href="#about">About</a>
+      </div>
+
+      <div class="actions">
+        <button class="icon-btn" onclick="searchOpen()" aria-label="Open search">
+          <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+        </button>
+      </div>
+    </nav>
+  </header>
+
+  <!-- Mobile Menu Drawer -->
+  <aside class="mobile-drawer" id="mobileDrawer" role="dialog" aria-modal="true" aria-label="Navigation Menu">
+    <div class="mobile-drawer-head">
+      <span class="logo">RANDOM&nbsp;<i>STOCK</i></span>
+      <button class="drawer-close" onclick="menuClose()" aria-label="Close menu">×</button>
+    </div>
+    <nav class="mobile-links">
+      <a onclick="menuClose(); shopNav('all')">New Arrivals <span>→</span></a>
+      <a onclick="menuClose(); shopNav('all')">Sneakers <span>→</span></a>
+      <a onclick="menuClose(); scrollToSection('street')">Streetwear <span>→</span></a>
+      <a onclick="menuClose(); scrollToSection('heat')">Collections <span>→</span></a>
+      <a onclick="menuClose(); go('about')">About Random Stock <span>→</span></a>
+    </nav>
+  </aside>
+
+  <!-- MAIN CONTENT CONTAINER -->
+  <main id="main">
+    <!-- HOME PAGE -->
+    <div id="home" class="page active">
+      <!-- Hero Banner -->
+    <section class="hero">
+      <div class="hero-copy">
+        <span class="eyebrow">Verified culture / since 2021</span>
+        <h1>THE PAIRS YOU'VE BEEN LOOKING FOR.</h1>
+        <p>Authentic sneakers, streetwear &amp; random shit. Sourced from verified collectors, inspected by hand, and ready for your rotation.</p>
+        <div class="btn-row">
+          <button class="btn" onclick="go('shop')">SHOP SNEAKERS</button>
+          <button class="btn light" onclick="scrollToSection('heat')">EXPLORE DROP</button>
+        </div>
+      </div>
+      <div class="hero-image">
+        <img src="https://images.unsplash.com/photo-1552346154-21d32810aba3?auto=format&fit=crop&w=1200&q=85" alt="Air Jordan 1 Retro High OG">
+        <div class="hero-stamp">
+          VERIFIED<br>100%<br>AUTHENTIC
+        </div>
+      </div>
+    </section>
+
+    <!-- Trending Now -->
+    <section class="section">
+      <div class="section-head">
+        <div>
+          <span class="eyebrow">The Rotation</span>
+          <h2>TRENDING NOW</h2>
+        </div>
+        <a class="text-link" onclick="go('shop')">SHOP ALL →</a>
+      </div>
+      <div class="products" id="trending"></div>
+    </section>
+
+    <!-- Brand Grid -->
+    <section class="section" style="padding-top:10px">
+      <div class="section-head">
+        <div>
+          <span class="eyebrow">Shop The Icons</span>
+          <h2>BY BRAND</h2>
+        </div>
+      </div>
+      <div class="brand-grid" id="brandGrid">
+        <div class="brand-tile" onclick="filterByBrand('', this)">ALL BRANDS</div>
+        <div class="brand-tile" onclick="filterByBrand('Jordan', this)">JORDAN</div>
+        <div class="brand-tile" onclick="filterByBrand('Nike', this)">NIKE</div>
+        <div class="brand-tile" onclick="filterByBrand('adidas', this)">ADIDAS</div>
+        <div class="brand-tile" onclick="filterByBrand('New Balance', this)">NEW BALANCE</div>
+        <div class="brand-tile" onclick="filterByBrand('ASICS', this)">ASICS</div>
+        <div class="brand-tile" onclick="filterByBrand('TRAVIS SCOTT', this)">TRAVIS SCOTT</div>
+        <div class="brand-tile" onclick="filterByBrand('SUPREME', this)">SUPREME</div>
+      </div>
+    </section>
+
+    <!-- Heat Drop Collection -->
+    <section class="heat" id="heat">
+      <div class="heat-main">
+        <img src="https://images.unsplash.com/photo-1600185365483-26d7a4cc7519?auto=format&fit=crop&w=1300&q=85" alt="Curated sneaker heat">
+        <div class="heat-overlay">
+          <span class="eyebrow" style="color: #fff">Curated Drop</span>
+          <h2>THE HEAT COLLECTION</h2>
+          <button class="btn white" onclick="go('shop')">EXPLORE THE DROP</button>
+        </div>
+      </div>
+      <div class="heat-side">
+        <div>
+          <span class="heat-count">01 / 24</span>
+          <p>Hard-to-find, never-overlooked pairs. A weekly edit of grails, limited collabs, and modern classics with real staying power.</p>
+        </div>
+        <div>
+          <span class="eyebrow" style="color: #aaa">Editorial Selection</span>
+          <h3 style="font-size:26px;letter-spacing:-0.05em;margin:10px 0 0">Built for collectors.<br>Worn by everyone.</h3>
+        </div>
+      </div>
+    </section>
+
+    <!-- Authenticity Promise -->
+    <section class="section auth">
+      <div class="auth-inner auth-grid">
+        <div>
+          <span class="eyebrow">Our Standard</span>
+          <h2>AUTHENTICITY GUARANTEED.</h2>
+          <p>Every single pair undergoes a rigorous physical inspection: stitch count, uv light verification, box labels, and production stamps. We don't sell fakes. Period.</p>
+        </div>
+        <div class="steps">
+          <div class="step"><b>01</b><span>Source Verification</span></div>
+          <div class="step"><b>02</b><span>Hands-On Verification</span></div>
+          <div class="step"><b>03</b><span>Digital Authentication Stamp</span></div>
+          <div class="step"><b>04</b><span>Fast & Insured Delivery</span></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Recently Added -->
+    <section class="section">
+      <div class="section-head">
+        <div>
+          <span class="eyebrow">Just Landed</span>
+          <h2>RECENTLY ADDED</h2>
+        </div>
+        <a class="text-link" onclick="go('shop')">VIEW INVENTORY →</a>
+      </div>
+      <div class="products" id="recent"></div>
+    </section>
+
+    <!-- Streetwear Apparel Feature -->
+    <section class="section" id="street">
+      <div class="section-head">
+        <div>
+          <span class="eyebrow">Beyond the Pair</span>
+          <h2>STREETWEAR</h2>
+        </div>
+      </div>
+      <div class="streetwear">
+        <div class="feature-card full-shot">
+          <img src="supreme.jpg" alt="Supreme apparel and accessories">
+          <div class="content">
+            <span class="eyebrow" style="color:#fff">Apparel & Accessories</span>
+            <h3>Archive worthy pieces.</h3>
+            <button class="btn white" onclick="filterByBrand('SUPREME', null)">EXPLORE PICKS</button>
+          </div>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <!-- SHOP / CATALOG PAGE -->
+  <div id="shop" class="page">
+    <div class="shop-top">
+      <div>
+        <span class="eyebrow">Authenticated Inventory</span>
+        <h1>SHOP ALL</h1>
+      </div>
+      <span class="eyebrow" id="productTotal"></span>
+    </div>
+    <section class="section" style="padding-top:15px">
+      <div class="shop-layout">
+        <!-- Desktop Filters Sidebar -->
+        <aside class="filters" id="filtersPanel" aria-label="Product Filters">
+          <div class="filter">
+            <label for="filterSearch">SEARCH</label>
+            <input id="filterSearch" placeholder="Search keywords..." oninput="handleSearchSync('desktop')">
+          </div>
+          <div class="filter">
+            <label for="brandFilter">BRAND</label>
+            <select id="brandFilter" onchange="renderShop()">
+              <option value="">All Brands</option>
+              <option value="Jordan">Jordan</option>
+              <option value="Nike">Nike</option>
+              <option value="adidas">adidas</option>
+              <option value="New Balance">New Balance</option>
+              <option value="ASICS">ASICS</option>
+              <option value="TRAVIS SCOTT">Travis Scott</option>
+              <option value="SUPREME">Supreme</option>
+            </select>
+          </div>
+          <div class="filter">
+            <label for="sizeFilter">US SIZE</label>
+            <select id="sizeFilter" onchange="renderShop()">
+              <option value="">All Sizes</option>
+              <option value="8">US 8</option>
+              <option value="8.5">US 8.5</option>
+              <option value="9">US 9</option>
+              <option value="9.5">US 9.5</option>
+              <option value="10">US 10</option>
+              <option value="10.5">US 10.5</option>
+              <option value="11">US 11</option>
+              <option value="12">US 12</option>
+            </select>
+          </div>
+          <div class="filter">
+            <label for="conditionFilter">CONDITION</label>
+            <select id="conditionFilter" onchange="renderShop()">
+              <option value="">All Conditions</option>
+              <option value="New">Brand New (Deadstock)</option>
+              <option value="Pre-owned">Pre-owned</option>
+            </select>
+          </div>
+          <button class="clear-filters-btn" onclick="clearFilters()">Reset All Filters</button>
+        </aside>
+
+        <!-- Shop Content Area -->
+        <div>
+          <div class="shop-actions">
+            <input id="mobileSearch" placeholder="Search sneakers, SKU, color..." oninput="handleSearchSync('mobile')">
+            <button class="filter-toggle" id="filterToggle" type="button" onclick="toggleFilters()" aria-expanded="false" aria-controls="filtersPanel">Filters</button>
+            <select id="sort" onchange="renderShop()" aria-label="Sort products">
+              <option value="featured">Sort: Featured</option>
+              <option value="new">Sort: Newest First</option>
+            </select>
+          </div>
+          <div class="products" id="shopProducts"></div>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <!-- PRODUCT DETAIL PAGE -->
+  <div id="product" class="page">
+    <section class="product-page">
+      <a class="back" onclick="go('shop')" role="button" tabindex="0">← BACK TO INVENTORY</a>
+      <div class="detail">
+        <div class="gallery" id="gallery"></div>
+        <aside class="details" id="details"></aside>
+      </div>
+    </section>
+  </div>
+
+  <!-- ABOUT PAGE -->
+  <div id="about" class="page">
+    <section class="about">
+      <span class="eyebrow">The Random Stock Story</span>
+      <h1>BUILT AROUND THE PAIR.</h1>
+      <p>Random Stock began with the belief that the right pair can mark a moment in time. We are collectors, wearers, and relentless students of the details—and we built the shop we always wanted to buy from: considered inventory, straightforward pricing, and zero doubt about authenticity.</p>
+      <div class="about-hero">
+        <img src="https://images.unsplash.com/photo-1514989940723-e8e51635b782?auto=format&fit=crop&w=1600&q=85" alt="Streetwear and sneaker community">
+      </div>
+      <h2 style="font-size: clamp(28px, 4vw, 44px); letter-spacing:-0.06em; max-width: 760px; font-weight:800; line-height:1.15">
+        A better way to discover the pairs that matter—and give your own collection a next life.
+      </h2>
+    </section>
+  </div>
+  </main>
+
+  <!-- FOOTER -->
+  <footer class="footer">
+    <div class="foot-grid">
+      <div>
+        <a class="logo" href="#home" onclick="event.preventDefault(); go('home');">RANDOM&nbsp;<i>STOCK</i></a>
+        <p style="color:#b5b3ad;max-width:240px;font-size:13px;margin:14px 0 0">
+          Verified sneakers and streetwear for the permanent rotation.
+        </p>
+      </div>
+    </div>
+    <div class="foot-bottom">
+      <span>© 2026 Random Stock. ALL RIGHTS RESERVED.</span>
+    </div>
+  </footer>
+
+  <!-- MODAL SHADE / OVERLAY -->
+  <div class="overlay" id="shade" onclick="closeAllDrawers()"></div>
+
+  <!-- SEARCH MODAL -->
+  <section class="search-modal" id="searchModal" role="dialog" aria-modal="true" aria-label="Global Search">
+    <button class="search-modal-close" onclick="searchClose()" aria-label="Close search">×</button>
+    <div class="search-bar">
+      <input id="globalSearch" placeholder="Search sneakers, SKU, brand..." oninput="globalSearch()" autocomplete="off">
+    </div>
+    <div class="suggestions">
+      <span class="eyebrow">Popular Searches</span>
+      <div class="suggestions-chips">
+        <button onclick="setSearch('Jordan')">Air Jordan</button>
+        <button onclick="setSearch('Dunk')">Nike Dunk</button>
+        <button onclick="setSearch('Travis Scott')">Travis Scott</button>
+        <button onclick="setSearch('New Balance')">New Balance 990</button>
+        <button onclick="setSearch('Supreme')">Supreme</button>
+      </div>
+      <div id="searchResults" class="products" style="margin-top:35px"></div>
+    </div>
+  </section>
+
+  <!-- TOAST NOTIFICATION -->
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+  <!-- SCRIPT LOGIC -->
+  <script>
+    // Product Catalog Data — every listing is generated (generate_products.py)
+    const products = [];
+
+    const moreProducts = [];
+    products.push(...moreProducts);
+
+    /* == local-products:begin (generated by generate_products.py) == */
+const localProducts = [
+  {
+    id: 1,
+    brand: "adidas",
+    name: "adidas Yeezy Boost 350 V2 Cinder",
+    color: "Cinder",
+    condition: "New",
+    box: "Original Box",
+    sizes: ["9.5"],
+    img: "sneaker_images/square/Yeezys_360_Cinder_FY2903.jpg",
+    gallery: ["sneaker_images/square/Yeezys_360_Cinder_FY2903.jpg"],
+    sku: "FY2903"
+  },
+  {
+    id: 2,
+    brand: "adidas",
+    name: "adidas Yeezy Boost 350 V2 Dazzling Blue",
+    color: "Dazzling Blue",
+    condition: "New",
+    box: "Original Box",
+    sizes: ["8"],
+    img: "sneaker_images/square/Yeezys_350_Dazzling_Blue_GY7164.jpg",
+    gallery: ["sneaker_images/square/Yeezys_350_Dazzling_Blue_GY7164.jpg"],
+    sku: "GY7164"
+  },
+  {
+    id: 3,
+    brand: "adidas",
+    name: "adidas Yeezy Boost 350 V2 Beluga Reflective",
+    color: "Beluga Reflective",
+    condition: "New",
+    box: "Original Box",
+    sizes: ["5.5", "6", "8"],
+    img: "sneaker_images/square/Yeezys_350_Beluga_Reflective_GW1229.jpg",
+    gallery: ["sneaker_images/square/Yeezys_350_Beluga_Reflective_GW1229.jpg"],
+    sku: "GW1229"
+  },
+  {
+    id: 4,
+    brand: "adidas",
+    name: "adidas Yeezy Boost 350 V2 Carbon",
+    color: "Carbon",
+    condition: "New",
+    box: "Original Box",
+    sizes: ["5.5", "7", "8", "13"],
+    img: "sneaker_images/square/Yeezys_350_Carbon_FZ5000.jpg",
+    gallery: ["sneaker_images/square/Yeezys_350_Carbon_FZ5000.jpg"],
+    sku: "FZ5000"
+  },
+  {
+    id: 5,
+    brand: "adidas",
+    name: "adidas Yeezy Boost 350 V2 Onyx",
+    color: "Onyx",
+    condition: "New",
+    box: "Original Box",
+    sizes: ["6"],
+    img: "sneaker_images/square/Yeezys_350_Onyx_HQ4540.jpg",
+    gallery: ["sneaker_images/square/Yeezys_350_Onyx_HQ4540.jpg"],
+    sku: "HQ4540"
+  },
+  {
+    id: 6,
+    brand: "adidas",
+    name: "adidas Yeezy Boost 350 V2 Light",
+    color: "Light",
+    condition: "New",
+    box: "Original Box",
+    sizes: ["6.5", "12.5"],
+    img: "sneaker_images/square/Yeezys_350_Light_GY3438.jpg",
+    gallery: ["sneaker_images/square/Yeezys_350_Light_GY3438.jpg"],
+    sku: "GY3438"
+  },
+  {
+    id: 7,
+    brand: "adidas",
+    name: "adidas Yeezy Boost 350 V2 Carbon Beluga",
+    color: "Carbon Beluga",
+    condition: "New",
+    box: "Original Box",
+    sizes: ["8"],
+    img: "sneaker_images/square/Yeezys_350_Carbon_Beluga_HQ7045.jpg",
+    gallery: ["sneaker_images/square/Yeezys_350_Carbon_Beluga_HQ7045.jpg"],
+    sku: "HQ7045"
+  },
+  {
+    id: 8,
+    brand: "adidas",
+    name: "adidas Yeezy Boost 350 V2 Natural",
+    color: "Natural",
+    condition: "New",
+    box: "Original Box",
+    sizes: ["7.5"],
+    img: "sneaker_images/square/Yeezys_350_Natural_FZ5246.jpg",
+    gallery: ["sneaker_images/square/Yeezys_350_Natural_FZ5246.jpg"],
+    sku: "FZ5246"
+  },
+  {
+    id: 9,
+    brand: "adidas",
+    name: "adidas Yeezy Boost 350 V2 Zyon",
+    color: "Zyon",
+    condition: "New",
+    box: "Original Box",
+    sizes: ["8"],
+    img: "sneaker_images/square/Yeezys_360_Zyon_FZ1267.jpg",
+    gallery: ["sneaker_images/square/Yeezys_360_Zyon_FZ1267.jpg"],
+    sku: "FZ1267"
+  },
+  {
+    id: 10,
+    brand: "adidas",
+    name: "adidas Yeezy Boost 350 V2 Black Red (Infants)",
+    color: "Black Red (Infants)",
+    condition: "New",
+    box: "Original Box",
+    sizes: ["6K"],
+    img: "sneaker_images/square/Yeezys_350_Infant_Black_BB6372.jpg",
+    gallery: ["sneaker_images/square/Yeezys_350_Infant_Black_BB6372.jpg"],
+    sku: "BB6372"
+  },
+  {
+    id: 11,
+    brand: "adidas",
+    name: "adidas Yeezy 450 Dark Slate",
+    color: "Dark Slate",
+    condition: "New",
+    box: "Original Box",
+    sizes: ["11.5"],
+    img: "sneaker_images/square/Yeezys_450_Dark_Slate_GY5368.jpg",
+    gallery: ["sneaker_images/square/Yeezys_450_Dark_Slate_GY5368.jpg"],
+    sku: "GY5368"
+  },
+  {
+    id: 12,
+    brand: "adidas",
+    name: "Yeezy Slide Onyx",
+    color: "Onyx",
+    condition: "New",
+    box: "Original Box",
+    sizes: ["6"],
+    img: "sneaker_images/square/Yeezys_Slide_Onyx_HQ6448.jpg",
+    gallery: ["sneaker_images/square/Yeezys_Slide_Onyx_HQ6448.jpg"],
+    sku: "HQ6448"
+  },
+  {
+    id: 13,
+    brand: "adidas",
+    name: "Yeezy Slide Pure",
+    color: "Pure (Restock Pair)",
+    condition: "New",
+    box: "Original Box",
+    sizes: ["12", "14"],
+    img: "sneaker_images/square/Yeezys_Slide_Pure_GW1934.jpg",
+    gallery: ["sneaker_images/square/Yeezys_Slide_Pure_GW1934.jpg"],
+    sku: "GW1934"
+  },
+  {
+    id: 14,
+    brand: "adidas",
+    name: "Yeezy Slide Ochre",
+    color: "Ochre",
+    condition: "New",
+    box: "Original Box",
+    sizes: ["13", "14"],
+    img: "sneaker_images/square/Yeezys_Slide_Ochre_GW1931.jpg",
+    gallery: ["sneaker_images/square/Yeezys_Slide_Ochre_GW1931.jpg"],
+    sku: "GW1931"
+  },
+  {
+    id: 15,
+    brand: "adidas",
+    name: "adidas Yeezy 700 V3 Alvah",
+    color: "Alvah",
+    condition: "New",
+    box: "Original Box",
+    sizes: ["6", "6.5"],
+    img: "sneaker_images/square/Yeezys_700_Alvah_H67799.jpg",
+    gallery: ["sneaker_images/square/Yeezys_700_Alvah_H67799.jpg"],
+    sku: "H67799"
+  },
+  {
+    id: 16,
+    brand: "adidas",
+    name: "adidas Yeezy 700 V3 Clay Brown",
+    color: "Clay Brown",
+    condition: "New",
+    box: "Original Box",
+    sizes: ["10", "10.5"],
+    img: "sneaker_images/square/Yeezys_700_Clay_Brown_GY0189.jpg",
+    gallery: ["sneaker_images/square/Yeezys_700_Clay_Brown_GY0189.jpg"],
+    sku: "GY0189"
+  },
+  {
+    id: 17,
+    brand: "adidas",
+    name: "adidas Yeezy Boost 700 Wave Runner",
+    color: "Wave Runner",
+    condition: "New",
+    box: "Original Box",
+    sizes: ["7", "11"],
+    img: "sneaker_images/square/Yeezys_700_Wave_Runner_B75571.jpg",
+    gallery: ["sneaker_images/square/Yeezys_700_Wave_Runner_B75571.jpg"],
+    sku: "B75571"
+  },
+  {
+    id: 18,
+    brand: "adidas",
+    name: "adidas Yeezy Boost 700 MNVN Bone",
+    color: "Bone",
+    condition: "New",
+    box: "Original Box",
+    sizes: ["7.5", "4.5"],
+    img: "sneaker_images/square/Yeezys_700_MNVN_Bone_FY3729.jpg",
+    gallery: ["sneaker_images/square/Yeezys_700_MNVN_Bone_FY3729.jpg"],
+    sku: "FY3729"
+  },
+  {
+    id: 19,
+    brand: "adidas",
+    name: "adidas Yeezy Boost 700 V2 Tephra",
+    color: "Tephra",
+    condition: "New",
+    box: "Original Box",
+    sizes: ["6"],
+    img: "sneaker_images/square/Yeezys_700_Tephra_FU7914.jpg",
+    gallery: ["sneaker_images/square/Yeezys_700_Tephra_FU7914.jpg"],
+    sku: "FU7914"
+  },
+  {
+    id: 20,
+    brand: "adidas",
+    name: "adidas Yeezy 700 V3 Dark Glow",
+    color: "Dark Glow",
+    condition: "New",
+    box: "Original Box",
+    sizes: ["11"],
+    img: "sneaker_images/square/Yeezys_700_Dark_Glow_GX6144.jpg",
+    gallery: ["sneaker_images/square/Yeezys_700_Dark_Glow_GX6144.jpg"],
+    sku: "GX6144"
+  },
+  {
+    id: 21,
+    brand: "adidas",
+    name: "adidas Yeezy 700 V3 Arzareth",
+    color: "Arzareth",
+    condition: "New",
+    box: "Original Box",
+    sizes: ["6"],
+    img: "sneaker_images/square/Yeezys_700_Arzareth_G54850.jpg",
+    gallery: ["sneaker_images/square/Yeezys_700_Arzareth_G54850.jpg"],
+    sku: "G54850"
+  },
+  {
+    id: 22,
+    brand: "adidas",
+    name: "Yeezy Foam MX Cinder",
+    color: "MX Cinder",
+    condition: "New",
+    box: "Original Box",
+    sizes: ["7"],
+    img: "sneaker_images/square/Yeezys_Foam_MX_Cinder_ID4126.jpg",
+    gallery: ["sneaker_images/square/Yeezys_Foam_MX_Cinder_ID4126.jpg"],
+    sku: "ID4126"
+  },
+  {
+    id: 23,
+    brand: "adidas",
+    name: "Yeezy Foam MTX Moon Grey",
+    color: "MXT Moon Gray",
+    condition: "New",
+    box: "Original Box",
+    sizes: ["5"],
+    img: "sneaker_images/square/Yeezys_Foam_MTX_Moon_Grey_GV7904.jpg",
+    gallery: ["sneaker_images/square/Yeezys_Foam_MTX_Moon_Grey_GV7904.jpg"],
+    sku: "GV7904"
+  },
+  {
+    id: 24,
+    brand: "adidas",
+    name: "Yeezy Foam Kids MX Sand Grey",
+    color: "MX Sand Grey (Kids)",
+    condition: "New",
+    box: "Original Box",
+    sizes: ["13K"],
+    img: "sneaker_images/square/Yeezys_Foam_Kids_MX_Sand_Grey_GY3970.jpg",
+    gallery: ["sneaker_images/square/Yeezys_Foam_Kids_MX_Sand_Grey_GY3970.jpg"],
+    sku: "GY3970"
+  },
+  {
+    id: 25,
+    brand: "adidas",
+    name: "Yeezy Foam Onyx",
+    color: "Onyx",
+    condition: "New",
+    box: "Original Box",
+    sizes: ["8"],
+    img: "sneaker_images/square/Yeezys_Foam_Onyx_HP8739.jpg",
+    gallery: ["sneaker_images/square/Yeezys_Foam_Onyx_HP8739.jpg"],
+    sku: "HP8739"
+  },
+  {
+    id: 26,
+    brand: "adidas",
+    name: "Yeezy Desert Boot Taupe Blue",
+    color: "Taupe Blue",
+    condition: "New",
+    box: "Original Box",
+    sizes: ["5.5"],
+    img: "sneaker_images/square/Yeezys_Desert_Boot_Taupe_Blue_GY0374.jpg",
+    gallery: ["sneaker_images/square/Yeezys_Desert_Boot_Taupe_Blue_GY0374.jpg"],
+    sku: "GY0374"
+  },
+  {
+    id: 27,
+    brand: "adidas",
+    name: "adidas Yeezy 500 High Slate",
+    color: "Slate",
+    condition: "New",
+    box: "Original Box",
+    sizes: ["6"],
+    img: "sneaker_images/square/Yeezys_500_High_Slate_FW4968.jpg",
+    gallery: ["sneaker_images/square/Yeezys_500_High_Slate_FW4968.jpg"],
+    sku: "FW4968"
+  },
+  {
+    id: 28,
+    brand: "adidas",
+    name: "adidas Yeezy 450 Cloud White",
+    color: "Cloud White",
+    condition: "New",
+    box: "Original Box",
+    sizes: ["12"],
+    img: "sneaker_images/square/Yeezys_450_Cloud_White_H68038.jpg",
+    gallery: ["sneaker_images/square/Yeezys_450_Cloud_White_H68038.jpg"],
+    sku: "H68038"
+  },
+  {
+    id: 29,
+    brand: "adidas",
+    name: "adidas Yeezy Boost 350 V2 Mono Ice",
+    color: "Mono Ice",
+    condition: "New",
+    box: "Original Box",
+    sizes: ["6", "8"],
+    img: "sneaker_images/square/Yeezys_350_Mono_Ice_GW2869.jpg",
+    gallery: ["sneaker_images/square/Yeezys_350_Mono_Ice_GW2869.jpg"],
+    sku: "GW2869"
+  },
+  {
+    id: 30,
+    brand: "adidas",
+    name: "adidas Yeezy Boost 350 V2 Israfil",
+    color: "Israfil",
+    condition: "New",
+    box: "Original Box",
+    sizes: ["6"],
+    img: "sneaker_images/square/Yeezys_350_Israfil_FZ5421.jpg",
+    gallery: ["sneaker_images/square/Yeezys_350_Israfil_FZ5421.jpg"],
+    sku: "FZ5421"
+  },
+  {
+    id: 31,
+    brand: "adidas",
+    name: "adidas Yeezy Boost 350 V2 Bone",
+    color: "Bone",
+    condition: "New",
+    box: "Original Box",
+    sizes: ["6"],
+    img: "sneaker_images/square/Yeezys_350_Bone_HQ6316.jpg",
+    gallery: ["sneaker_images/square/Yeezys_350_Bone_HQ6316.jpg"],
+    sku: "HQ6316"
+  },
+  {
+    id: 32,
+    brand: "Jordan",
+    name: "WMNS Air Jordan 1 Low",
+    color: "Marina Blue (Women's)",
+    condition: "New",
+    box: "Original Box",
+    sizes: ["6"],
+    img: "sneaker_images/square/Sheet2_WMNS_Air_Jordan_1_Low_DC0774_114.jpg",
+    gallery: ["sneaker_images/square/Sheet2_WMNS_Air_Jordan_1_Low_DC0774_114.jpg"],
+    sku: "DC0774-114"
+  },
+  {
+    id: 33,
+    brand: "Jordan",
+    name: "Jordan 5 RetroRaging Bull Red (2021) (GS)",
+    color: "Raging Bull Red (2021) (GS)",
+    condition: "New",
+    box: "Original Box",
+    sizes: ["3.5", "4", "4.5", "6.5"],
+    img: "sneaker_images/square/Sheet2_Jordan_5_RetroRaging_Bull_Red_2021_GS_440888_600.jpg",
+    gallery: ["sneaker_images/square/Sheet2_Jordan_5_RetroRaging_Bull_Red_2021_GS_440888_600.jpg"],
+    sku: "440888-600"
+  },
+  {
+    id: 34,
+    brand: "Jordan",
+    name: "Air Jordan 1 Retro High OG",
+    color: "Dark Marina Blue",
+    condition: "New",
+    box: "Original Box",
+    sizes: ["8"],
+    img: "sneaker_images/square/Sheet2_Air_Jordan_1_Retro_High_OG_555088_404.jpg",
+    gallery: ["sneaker_images/square/Sheet2_Air_Jordan_1_Retro_High_OG_555088_404.jpg"],
+    sku: "555088-404"
+  },
+  {
+    id: 35,
+    brand: "Jordan",
+    name: "Hyper Royal/Light Smoke Grey-White",
+    color: "Hyper Royal Smoke Grey (GS)",
+    condition: "New",
+    box: "Original Box",
+    sizes: ["4.5"],
+    img: "sneaker_images/square/Sheet2_Hyper_Royal_Light_Smoke_Grey_White_575441_402.jpg",
+    gallery: ["sneaker_images/square/Sheet2_Hyper_Royal_Light_Smoke_Grey_White_575441_402.jpg"],
+    sku: "575441-402"
+  },
+  {
+    id: 36,
+    brand: "Jordan",
+    name: "Jordan 6 UNC University Blue White",
+    color: "UNC White",
+    condition: "New",
+    box: "Original Box",
+    sizes: ["8"],
+    img: "sneaker_images/square/Sheet2_Jordan_6_UNC_University_Blue_White_CT8529_410.jpg",
+    gallery: ["sneaker_images/square/Sheet2_Jordan_6_UNC_University_Blue_White_CT8529_410.jpg"],
+    sku: "CT8529-410"
+  },
+  {
+    id: 37,
+    brand: "Jordan",
+    name: "Jordan 1 Lucky Green/White-Sail-Black",
+    color: "Lucky Green (Women's)",
+    condition: "New",
+    box: "Original Box",
+    sizes: ["7", "12"],
+    img: "sneaker_images/square/Sheet2_Jordan_1_Lucky_Green_White_Sail_Black_DB4612_300.jpg",
+    gallery: ["sneaker_images/square/Sheet2_Jordan_1_Lucky_Green_White_Sail_Black_DB4612_300.jpg"],
+    sku: "DB4612-300"
+  },
+  {
+    id: 38,
+    brand: "Jordan",
+    name: "Jordan 1 Mid Black/Medium Grey-White",
+    color: "White Shadow (GS)",
+    condition: "New",
+    box: "Original Box",
+    sizes: ["7Y"],
+    img: "sneaker_images/square/Sheet2_Jordan_1_Mid_Black_Medium_Grey_White_554725_073.jpg",
+    gallery: ["sneaker_images/square/Sheet2_Jordan_1_Mid_Black_Medium_Grey_White_554725_073.jpg"],
+    sku: "554725-073"
+  },
+  {
+    id: 39,
+    brand: "Jordan",
+    name: "Jordan 11 Retro Jubilee 25th Anniversary",
+    color: "Jubilee 25th Anniversary",
+    condition: "New",
+    box: "Original Box",
+    sizes: ["7.5", "8", "9", "11", "12", "13"],
+    img: "sneaker_images/square/Sheet2_Jordan_11_Retro_Jubilee_25th_Anniversary_CT8012_011.jpg",
+    gallery: ["sneaker_images/square/Sheet2_Jordan_11_Retro_Jubilee_25th_Anniversary_CT8012_011.jpg"],
+    sku: "CT8012-011"
+  },
+  {
+    id: 40,
+    brand: "Nike",
+    name: "Air Max 97 Undefeated Militia Green/Orange Blaze/White/Black",
+    color: "Undefeated Militia Green (2020)",
+    condition: "New",
+    box: "Original Box",
+    sizes: ["9.5"],
+    img: "sneaker_images/square/Sheet2_Air_Max_97_Undefeated_Militia_Green_Orange_Blaze_White_Black_DC4830_300.jpg",
+    gallery: ["sneaker_images/square/Sheet2_Air_Max_97_Undefeated_Militia_Green_Orange_Blaze_White_Black_DC4830_300.jpg"],
+    sku: "DC4830-300"
+  },
+  {
+    id: 41,
+    brand: "Nike",
+    name: "Air Max 97 Undefeated Black/Volt/Militia Green",
+    color: "Undefeated Black Volt",
+    condition: "New",
+    box: "Original Box",
+    sizes: ["9.5"],
+    img: "sneaker_images/square/Sheet2_Air_Max_97_Undefeated_Black_Volt_Militia_Green_DC4830_001.jpg",
+    gallery: ["sneaker_images/square/Sheet2_Air_Max_97_Undefeated_Black_Volt_Militia_Green_DC4830_001.jpg"],
+    sku: "DC4830-001"
+  },
+  {
+    id: 42,
+    brand: "Jordan",
+    name: "WMNS Jordan 1 High OG Black/Metalic",
+    color: "Silver Toe (Women's)",
+    condition: "New",
+    box: "Original Box",
+    sizes: ["5W"],
+    img: "sneaker_images/square/Sheet2_WMNS_Jordan_1_High_OG_Black_Metalic_CD0461_001.jpg",
+    gallery: ["sneaker_images/square/Sheet2_WMNS_Jordan_1_High_OG_Black_Metalic_CD0461_001.jpg"],
+    sku: "CD0461-001"
+  },
+  {
+    id: 43,
+    brand: "Jordan",
+    name: "WMNS Jordan 3 Retro SP A Ma Maniere",
+    color: "A Ma Maniére (Women's)",
+    condition: "New",
+    box: "Original Box",
+    sizes: ["5.5W"],
+    img: "sneaker_images/square/Sheet2_WMNS_Jordan_3_Retro_SP_A_Ma_Maniere_DH3434_110.jpg",
+    gallery: ["sneaker_images/square/Sheet2_WMNS_Jordan_3_Retro_SP_A_Ma_Maniere_DH3434_110.jpg"],
+    sku: "DH3434-110"
+  },
+  {
+    id: 44,
+    brand: "Jordan",
+    name: "Jordan 5 Retro A Ma Maniére Dusk",
+    color: "A Ma Maniére Dusk",
+    condition: "New",
+    box: "Original Box",
+    sizes: ["8"],
+    img: "sneaker_images/square/Sheet2_Jordan_5_Retro_A_Ma_Mani_re_Dusk_FD1330_001.jpg",
+    gallery: ["sneaker_images/square/Sheet2_Jordan_5_Retro_A_Ma_Mani_re_Dusk_FD1330_001.jpg"],
+    sku: "FD1330-001"
+  },
+  {
+    id: 45,
+    brand: "Nike",
+    name: "Air Max 90 St Patrick's Day (2021)",
+    color: "St Patrick's Day (2021)",
+    condition: "New",
+    box: "Original Box",
+    sizes: ["11.5"],
+    img: "sneaker_images/square/Sheet2_Air_Max_90_St_Patrick_s_Day_2021_DD8555_300.jpg",
+    gallery: ["sneaker_images/square/Sheet2_Air_Max_90_St_Patrick_s_Day_2021_DD8555_300.jpg"],
+    sku: "DD8555-300"
+  },
+  {
+    id: 46,
+    brand: "Jordan",
+    name: "Jordan 5 Bel-Air White/Court Purple-Racer Pink-Ghost Green",
+    color: "Alternate Bel-Air",
+    condition: "New",
+    box: "Original Box",
+    sizes: ["7.5"],
+    img: "sneaker_images/square/Sheet2_Jordan_5_Bel_Air_White_Court_Purple_Racer_Pink_Ghost_Green_DB3335_100.jpg",
+    gallery: ["sneaker_images/square/Sheet2_Jordan_5_Bel_Air_White_Court_Purple_Racer_Pink_Ghost_Green_DB3335_100.jpg"],
+    sku: "DB3335-100"
+  },
+  {
+    id: 47,
+    brand: "adidas",
+    name: "Adidas Forum Buckle Low Bad Bunny Last Forum",
+    color: "Bad Bunny Last Forum",
+    condition: "New",
+    box: "Original Box",
+    sizes: ["11"],
+    img: "sneaker_images/square/Sheet2_Adidas_Forum_Buckle_Low_Bad_Bunny_Last_Forum_HQ2153.jpg",
+    gallery: ["sneaker_images/square/Sheet2_Adidas_Forum_Buckle_Low_Bad_Bunny_Last_Forum_HQ2153.jpg"],
+    sku: "HQ2153"
+  },
+  {
+    id: 48,
+    brand: "adidas",
+    name: "Adidas Forum 84 Bape Low Green Camo",
+    color: "Bape 30th Anniversary Green Camo",
+    condition: "New",
+    box: "Original Box",
+    sizes: ["7"],
+    img: "sneaker_images/square/Sheet2_Adidas_Forum_84_Bape_Low_Green_Camo_ID4771.jpg",
+    gallery: ["sneaker_images/square/Sheet2_Adidas_Forum_84_Bape_Low_Green_Camo_ID4771.jpg"],
+    sku: "ID4771"
+  },
+  {
+    id: 49,
+    brand: "Jordan",
+    name: "Jordan 5 Retro (PS) Travis Scott British Khaki",
+    color: "Travis Scott British Khaki (PS)",
+    condition: "New",
+    box: "Original Box",
+    sizes: ["2.5Y"],
+    img: "sneaker_images/square/Sheet2_Jordan_5_Retro_PS_Travis_Scott_British_Khaki_DH0693_200.jpg",
+    gallery: ["sneaker_images/square/Sheet2_Jordan_5_Retro_PS_Travis_Scott_British_Khaki_DH0693_200.jpg"],
+    sku: "DH0693-200"
+  },
+  {
+    id: 50,
+    brand: "Jordan",
+    name: "Air Jordan 6 Retro Travis Scott British Khaki",
+    color: "Travis Scott British Khaki",
+    condition: "New",
+    box: "Original Box",
+    sizes: ["8", "13"],
+    img: "sneaker_images/square/Sheet2_Air_Jordan_6_Retro_Travis_Scott_British_Khaki_DH0690_200.jpg",
+    gallery: ["sneaker_images/square/Sheet2_Air_Jordan_6_Retro_Travis_Scott_British_Khaki_DH0690_200.jpg"],
+    sku: "DH0690-200"
+  },
+  {
+    id: 51,
+    brand: "Jordan",
+    name: "Air Jordan 1 Mid SE Red Black Toe",
+    color: "Red Black Toe",
+    condition: "New",
+    box: "Original Box",
+    sizes: ["10"],
+    img: "sneaker_images/square/Sheet2_Air_Jordan_1_Mid_SE_Red_Black_Toe_852542_100.jpg",
+    gallery: ["sneaker_images/square/Sheet2_Air_Jordan_1_Mid_SE_Red_Black_Toe_852542_100.jpg"],
+    sku: "852542-100"
+  },
+  {
+    id: 52,
+    brand: "Jordan",
+    name: "Jordan 1 Retro High OG Patent Bred",
+    color: "Patent Bred",
+    condition: "New",
+    box: "Original Box",
+    sizes: ["8"],
+    img: "sneaker_images/square/Sheet2_Jordan_1_Retro_High_OG_Patent_Bred_555088_063.jpg",
+    gallery: ["sneaker_images/square/Sheet2_Jordan_1_Retro_High_OG_Patent_Bred_555088_063.jpg"],
+    sku: "555088-063"
+  },
+  {
+    id: 53,
+    brand: "Nike",
+    name: "Nike Air Trainer 3 Viotech",
+    color: "Viotech (2020)",
+    condition: "New",
+    box: "Original Box",
+    sizes: ["7.5"],
+    img: "sneaker_images/square/Sheet2_Nike_Air_Trainer_3_Viotech_CZ6393_500.jpg",
+    gallery: ["sneaker_images/square/Sheet2_Nike_Air_Trainer_3_Viotech_CZ6393_500.jpg"],
+    sku: "CZ6393-500"
+  },
+  {
+    id: 54,
+    brand: "Jordan",
+    name: "Jordan 1 Retro High Light Smoke Grey",
+    color: "Light Smoke Grey",
+    condition: "New",
+    box: "Original Box",
+    sizes: ["10.5"],
+    img: "sneaker_images/square/Sheet2_Jordan_1_Retro_High_Light_Smoke_Grey_555088_126.jpg",
+    gallery: ["sneaker_images/square/Sheet2_Jordan_1_Retro_High_Light_Smoke_Grey_555088_126.jpg"],
+    sku: "555088-126"
+  },
+  {
+    id: 55,
+    brand: "Jordan",
+    name: "Jordan 4 Retro (GS) White Cement",
+    color: "White Oreo (2021) (GS)",
+    condition: "New",
+    box: "Original Box",
+    sizes: ["6.5"],
+    img: "sneaker_images/square/Sheet2_Jordan_4_Retro_GS_White_Cement_DJ4699_100.jpg",
+    gallery: ["sneaker_images/square/Sheet2_Jordan_4_Retro_GS_White_Cement_DJ4699_100.jpg"],
+    sku: "DJ4699-100"
+  },
+  {
+    id: 56,
+    brand: "Jordan",
+    name: "Jordan 4 White Cement",
+    color: "White Oreo (2021)",
+    condition: "New",
+    box: "Original Box",
+    sizes: ["8"],
+    img: "sneaker_images/square/Sheet2_Jordan_4_White_Cement_CT8527_100.jpg",
+    gallery: ["sneaker_images/square/Sheet2_Jordan_4_White_Cement_CT8527_100.jpg"],
+    sku: "CT8527-100"
+  },
+  {
+    id: 57,
+    brand: "Jordan",
+    name: "Jordan 6 Carmine",
+    color: "Carmine (2021)",
+    condition: "New",
+    box: "Original Box",
+    sizes: ["10", "10.5"],
+    img: "sneaker_images/square/Sheet2_Jordan_6_Carmine_CT8529_106.jpg",
+    gallery: ["sneaker_images/square/Sheet2_Jordan_6_Carmine_CT8529_106.jpg"],
+    sku: "CT8529-106"
+  },
+  {
+    id: 58,
+    brand: "Nike",
+    name: "Nike Dunk Low University Blue",
+    color: "UNC (2021)",
+    condition: "New",
+    box: "Original Box",
+    sizes: ["10"],
+    img: "sneaker_images/square/Sheet2_Nike_Dunk_Low_University_Blue_DD1391_102.jpg",
+    gallery: ["sneaker_images/square/Sheet2_Nike_Dunk_Low_University_Blue_DD1391_102.jpg"],
+    sku: "DD1391-102"
+  },
+  {
+    id: 59,
+    brand: "Jordan",
+    name: "Jordan 4 University Blue",
+    color: "University Blue",
+    condition: "New",
+    box: "Original Box",
+    sizes: ["8", "10.5"],
+    img: "sneaker_images/square/Sheet2_Jordan_4_University_Blue_CT8527_400.jpg",
+    gallery: ["sneaker_images/square/Sheet2_Jordan_4_University_Blue_CT8527_400.jpg"],
+    sku: "CT8527-400"
+  },
+  {
+    id: 60,
+    brand: "Nike",
+    name: "Nike Blazer Low / Sacai",
+    color: "sacai Iron Grey",
+    condition: "New",
+    box: "Original Box",
+    sizes: ["8"],
+    img: "sneaker_images/square/Sheet2_Nike_Blazer_Low_Sacai_DD1877_002.jpg",
+    gallery: ["sneaker_images/square/Sheet2_Nike_Blazer_Low_Sacai_DD1877_002.jpg"],
+    sku: "DD1877-002"
+  },
+  {
+    id: 61,
+    brand: "Jordan",
+    name: "Jordan 4 Tour Yellow",
+    color: "Lightning (2021)",
+    condition: "New",
+    box: "Original Box",
+    sizes: ["8"],
+    img: "sneaker_images/square/Sheet2_Jordan_4_Tour_Yellow_CT8527_700.jpg",
+    gallery: ["sneaker_images/square/Sheet2_Jordan_4_Tour_Yellow_CT8527_700.jpg"],
+    sku: "CT8527-700"
+  },
+  {
+    id: 62,
+    brand: "Jordan",
+    name: "Jordan 14 Low CLOT Terra Blush",
+    color: "Low CLOT Terra Blush",
+    condition: "New",
+    box: "Original Box",
+    sizes: ["6.5", "10.5"],
+    img: "sneaker_images/square/Sheet2_Jordan_14_Low_CLOT_Terra_Blush_DC9857_200.jpg",
+    gallery: ["sneaker_images/square/Sheet2_Jordan_14_Low_CLOT_Terra_Blush_DC9857_200.jpg"],
+    sku: "DC9857-200"
+  },
+  {
+    id: 63,
+    brand: "Nike",
+    name: "Nike Lebron VII Media Day",
+    color: "Media Day",
+    condition: "New",
+    box: "Original Box",
+    sizes: ["9"],
+    img: "sneaker_images/square/Sheet2_Nike_Lebron_VII_Media_Day_CW2300_500.jpg",
+    gallery: ["sneaker_images/square/Sheet2_Nike_Lebron_VII_Media_Day_CW2300_500.jpg"],
+    sku: "CW2300-500"
+  },
+  {
+    id: 64,
+    brand: "Nike",
+    name: "Air Max 90",
+    color: "Supernova (2020)",
+    condition: "New",
+    box: "Original Box",
+    sizes: ["11"],
+    img: "sneaker_images/square/Sheet2_Air_Max_90_CW6018_001.jpg",
+    gallery: ["sneaker_images/square/Sheet2_Air_Max_90_CW6018_001.jpg"],
+    sku: "CW6018-001"
+  },
+  {
+    id: 65,
+    brand: "Jordan",
+    name: "Jordan 1 Mid Black/Red/White",
+    color: "Bred Toe",
+    condition: "New",
+    box: "Original Box",
+    sizes: ["12"],
+    img: "sneaker_images/square/Sheet2_Jordan_1_Mid_Black_Red_White_554724_066.jpg",
+    gallery: ["sneaker_images/square/Sheet2_Jordan_1_Mid_Black_Red_White_554724_066.jpg"],
+    sku: "554724-066"
+  },
+  {
+    id: 66,
+    brand: "Nike",
+    name: "Nike Dunk High (PS) Black/Yellow",
+    color: "Iowa (2020) (PS)",
+    condition: "New",
+    box: "Original Box",
+    sizes: ["2Y"],
+    img: "sneaker_images/square/Sheet2_Nike_Dunk_High_PS_Black_Yellow_DC9053_002.jpg",
+    gallery: ["sneaker_images/square/Sheet2_Nike_Dunk_High_PS_Black_Yellow_DC9053_002.jpg"],
+    sku: "DC9053-002"
+  },
+  {
+    id: 67,
+    brand: "adidas",
+    name: "Adidas Forum Powerphase Bad Bunny Benito",
+    color: "Bad Bunny Benito",
+    condition: "New",
+    box: "Original Box",
+    sizes: ["8"],
+    img: "sneaker_images/square/Sheet2_Adidas_Forum_Powerphase_Bad_Bunny_Benito_GZ2009.jpg",
+    gallery: ["sneaker_images/square/Sheet2_Adidas_Forum_Powerphase_Bad_Bunny_Benito_GZ2009.jpg"],
+    sku: "GZ2009"
+  },
+  {
+    id: 68,
+    brand: "Jordan",
+    name: "Jordan 5 Sail Off White",
+    color: "Off-White Sail (PS)",
+    condition: "New",
+    box: "Original Box",
+    sizes: ["2Y"],
+    img: "sneaker_images/square/Sheet2_Jordan_5_Sail_Off_White_CV4827_100.jpg",
+    gallery: ["sneaker_images/square/Sheet2_Jordan_5_Sail_Off_White_CV4827_100.jpg"],
+    sku: "CV4827-100"
+  },
+  {
+    id: 69,
+    brand: "Jordan",
+    name: "Jordan 4 White/Black/Grey Army",
+    color: "Military Black",
+    condition: "New",
+    box: "Original Box",
+    sizes: ["8"],
+    img: "sneaker_images/square/Sheet2_Jordan_4_White_Black_Grey_Army_DH6927_111.jpg",
+    gallery: ["sneaker_images/square/Sheet2_Jordan_4_White_Black_Grey_Army_DH6927_111.jpg"],
+    sku: "DH6927-111"
+  },
+  {
+    id: 70,
+    brand: "Jordan",
+    name: "Jordan 1 Spider Man",
+    color: "Spider-Man Across the Spider-Verse",
+    condition: "New",
+    box: "Original Box",
+    sizes: ["12"],
+    img: "sneaker_images/square/Sheet2_Jordan_1_Spider_Man_DV1748_601.jpg",
+    gallery: ["sneaker_images/square/Sheet2_Jordan_1_Spider_Man_DV1748_601.jpg"],
+    sku: "DV1748-601"
+  },
+  {
+    id: 71,
+    brand: "Jordan",
+    name: "Jordan 4 Craft Photon Dust / Patch Works",
+    color: "Craft Photon Dust",
+    condition: "New",
+    box: "Original Box",
+    sizes: ["10", "12.5"],
+    img: "sneaker_images/square/Sheet2_Jordan_4_Craft_Photon_Dust_Patch_Works_DV3742_021.jpg",
+    gallery: ["sneaker_images/square/Sheet2_Jordan_4_Craft_Photon_Dust_Patch_Works_DV3742_021.jpg"],
+    sku: "DV3742-021"
+  },
+  {
+    id: 72,
+    brand: "Nike",
+    name: "Nike Air Max 1 Clot",
+    color: "CLOT Kiss of Death (2021)",
+    condition: "New",
+    box: "Original Box",
+    sizes: ["4.5"],
+    img: "sneaker_images/square/Sheet2_Nike_Air_Max_1_Clot_DD1870_100.jpg",
+    gallery: ["sneaker_images/square/Sheet2_Nike_Air_Max_1_Clot_DD1870_100.jpg"],
+    sku: "DD1870-100"
+  }
+];
+products.push(...localProducts);
+/* == local-products:end == */
+
+    // State Management
+    let current = products[0];
+    let selectedSize = null;
+
+    const $ = id => document.getElementById(id);
+
+    // Product Card Template
+    function productCard(p) {
+      return `
+        <article class="product">
+          <div class="product-image" onclick="openProduct(${p.id})">
+            <img src="${p.img}" alt="${p.name}" loading="lazy">
+          </div>
+          <div class="p-info">
+            <div class="brand">${p.brand}</div>
+            <div class="name" onclick="openProduct(${p.id})">${p.name}</div>
+            <div class="color">${p.color}</div>
+            <div class="sizes">US ${p.sizes.slice(0, 4).join(' · ')}${p.sizes.length > 4 ? ' · +' : ''}</div>
+            <button class="quick" onclick="event.stopPropagation(); openProduct(${p.id})">
+              VIEW PAIR
+            </button>
+          </div>
+        </article>
+      `;
+    }
+
+    // Render Home Sections
+    function renderHome() {
+      $('trending').innerHTML = products.slice(0, 4).map(productCard).join('');
+      $('recent').innerHTML = products.slice(-4).map(productCard).join('');
+    }
+
+    // Handle Dual Search Inputs (Desktop & Mobile)
+    function handleSearchSync(source) {
+      if (source === 'desktop' && $('mobileSearch')) {
+        $('mobileSearch').value = $('filterSearch').value;
+      } else if (source === 'mobile' && $('filterSearch')) {
+        $('filterSearch').value = $('mobileSearch').value;
+      }
+      renderShop();
+    }
+
+    // Render Shop with Active Filters & Sorter
+    function renderShop() {
+      let list = [...products];
+      const q = ($('filterSearch')?.value || $('mobileSearch')?.value || '').trim().toLowerCase();
+      const brand = $('brandFilter')?.value;
+      const size = $('sizeFilter')?.value;
+      const condition = $('conditionFilter')?.value;
+
+      if (q) {
+        list = list.filter(p => 
+          (p.brand + ' ' + p.name + ' ' + p.color + ' ' + p.sku).toLowerCase().includes(q)
+        );
+      }
+      if (brand) {
+        list = list.filter(p => p.brand.toLowerCase() === brand.toLowerCase());
+      }
+      if (size) {
+        list = list.filter(p => p.sizes.includes(size));
+      }
+      if (condition) {
+        list = list.filter(p => p.condition === condition);
+      }
+
+      const sort = $('sort')?.value || 'featured';
+      if (sort === 'new') list.sort((a, b) => b.id - a.id);
+
+      $('shopProducts').innerHTML = list.length 
+        ? list.map(productCard).join('') 
+        : '<div style="grid-column: 1/-1; padding: 48px 0; text-align: center; color: var(--muted);"><p style="font-size: 16px; font-weight:700">No sneakers found matching those filters.</p><button class="btn light" style="margin-top:12px" onclick="clearFilters()">Reset All Filters</button></div>';
+
+      $('productTotal').textContent = list.length + ' PAIRS AVAILABLE';
+      updateFilterCount();
+    }
+
+    function toggleFilters(forceOpen) {
+      const panel = $('filtersPanel');
+      const btn = $('filterToggle');
+      if (!panel || !btn) return;
+      const open = typeof forceOpen === 'boolean' ? forceOpen : !panel.classList.contains('open');
+      panel.classList.toggle('open', open);
+      btn.setAttribute('aria-expanded', String(open));
+    }
+
+    function updateFilterCount() {
+      const btn = $('filterToggle');
+      if (!btn) return;
+      const n = ['brandFilter', 'sizeFilter', 'conditionFilter'].filter(id => $(id) && $(id).value).length;
+      btn.textContent = n ? 'Filters (' + n + ')' : 'Filters';
+    }
+
+    function clearFilters() {
+      ['filterSearch', 'mobileSearch', 'brandFilter', 'sizeFilter', 'conditionFilter'].forEach(id => {
+        const el = $(id);
+        if (el) el.value = '';
+      });
+      if ($('sort')) $('sort').value = 'featured';
+      document.querySelectorAll('.brand-tile').forEach(t => t.classList.remove('selected'));
+      renderShop();
+    }
+
+    // Brand Tile Click Handler
+    function filterByBrand(brand, el) {
+      document.querySelectorAll('.brand-tile').forEach(x => x.classList.remove('selected'));
+      if (el) el.classList.add('selected');
+      if ($('brandFilter')) $('brandFilter').value = brand;
+      go('shop');
+      renderShop();
+    }
+
+    // Page View Controller with SPA History + Hash Routing
+    // Canonical URLs: #home · #shop · #about · #product/<id> · #street · #heat
+    let activeSection = null;   // in-page anchor currently targeted on the home page
+    let lastHash = '';          // last URL we applied; de-dupes popstate + hashchange
+
+    function showPage(page, pid, restore) {
+      document.querySelectorAll('.page').forEach(x => x.classList.remove('active'));
+      const target = $(page) || $('home');
+      target.classList.add('active');
+      if (target.id === 'product' && (restore || pid)) {
+        renderProduct(pid || current.id);
+      }
+      closeAllDrawers();
+      syncRouteUI();
+    }
+
+    // Build the canonical hash URL for a view
+    function hashURL(page, pid, section) {
+      if (page === 'product' && pid != null) return '#product/' + pid;
+      if (page === 'home') return '#' + (section || 'home');
+      return '#' + (page || 'home');
+    }
+
+    // Read a hash URL back into a route descriptor
+    function parseHash(raw) {
+      const h = String(raw || '').replace(/^#/, '');
+      if (!h || h === 'home') return { page: 'home', pid: null, section: null };
+      if (h === 'shop' || h === 'about') return { page: h, pid: null, section: null };
+      if (h === 'product') return { page: 'product', pid: null, section: null };
+      if (h.indexOf('product/') === 0) {
+        const pid = Number(h.slice('product/'.length));
+        return { page: 'product', pid: Number.isFinite(pid) ? pid : null, section: null };
+      }
+      return { page: 'home', pid: null, section: h };   // #street, #heat, plain anchors
+    }
+
+    function hstate(y, section) {
+      const active = document.querySelector('.page.active');
+      const page = active ? active.id : 'home';
+      const sec = (section === undefined) ? activeSection : section;
+      return {
+        page: page,
+        pid: (page === 'product' && current) ? current.id : null,
+        section: (page === 'home' && sec) ? sec : null,
+        y: Math.round(y || 0)
+      };
+    }
+
+    function urlFor(s) { return hashURL(s.page, s.pid, s.section); }
+
+    // Write history with a real URL. Opaque origins (file://) reject pushState
+    // URLs, so fall back to assigning location.hash — the router already ran.
+    function writeHistory(mode, s, url) {
+      const target = url || urlFor(s);
+      try {
+        if (mode === 'push') history.pushState(s, '', target);
+        else history.replaceState(s, '', target);
+        lastHash = location.hash;
+      } catch (e) {
+        lastHash = target;
+        if (location.hash !== target) location.hash = target;
+      }
+    }
+
+    function hpush(s, url) { writeHistory('push', s, url); }
+    function hreplace(s, url) { writeHistory('replace', s, url); }
+
+    // Keep header links, the page title and assistive state in sync with the view
+    function syncRouteUI() {
+      const active = document.querySelector('.page.active');
+      const page = active ? active.id : 'home';
+      document.querySelectorAll('.nav-links a').forEach(a => {
+        const href = (a.getAttribute('href') || '').replace(/^#/, '');
+        let on;
+        if (page === 'home') on = activeSection ? href === activeSection : href === 'home';
+        else if (page === 'product') on = href === 'shop';
+        else on = href === page;
+        a.classList.toggle('active', on);
+        if (on) a.setAttribute('aria-current', 'page');
+        else a.removeAttribute('aria-current');
+      });
+      if (page === 'product' && current) document.title = current.name + ' — Random Stock';
+      else if (page === 'shop') document.title = 'Shop All Sneakers — Random Stock';
+      else if (page === 'about') document.title = 'Our Story — Random Stock';
+      else document.title = 'Random Stock — Verified Sneakers & Streetwear';
+    }
+
+    function go(page) {
+      const from = (document.querySelector('.page.active') || {}).id || 'home';
+      const prev = hstate(window.scrollY);
+      activeSection = null;                       // leaving home clears any section anchor
+      hreplace(prev, urlFor(prev));               // remember where we came from
+      showPage(page, null, false);
+      if (!(from === page && window.scrollY < 2)) {
+        hpush(hstate(0), urlFor(hstate(0)));      // new entry, new URL
+      }
+      window.scrollTo({ top: 0, behavior: 'instant' });
+    }
+
+    function shopNav(brand) {
+      clearFilters();
+      if (brand && brand !== 'all') {
+        $('brandFilter').value = brand;
+      }
+      go('shop');
+      renderShop();
+    }
+
+    function scrollToSection(id) {
+      const prev = hstate(window.scrollY);
+      activeSection = id;
+      showPage('home', null, false);
+      hreplace(prev, urlFor(prev));
+      const next = hstate(0, id);
+      hpush(next, urlFor(next));                  // #street / #heat stay shareable
+      setTimeout(() => {
+        const el = $(id);
+        if (el) el.scrollIntoView({ behavior: 'smooth' });
+      }, 70);
+    }
+
+    // Product Detail Page Logic
+    function openProduct(id) {
+      closeAllDrawers();
+      renderProduct(id);
+      go('product');
+    }
+
+    function renderProduct(id) {
+      current = products.find(p => p.id === id) || products[0];
+      selectedSize = current.sizes[0]; // initialize default selected size
+
+      const galleryImages = current.gallery && current.gallery.length 
+        ? current.gallery 
+        : [current.img, current.img, current.img, current.img];
+
+      $('gallery').innerHTML = galleryImages.map((src, i) => `
+        <img src="${src}" alt="${current.name} angle ${i + 1}" loading="lazy">
+      `).join('');
+
+      $('details').innerHTML = `
+        <span class="eyebrow">${current.brand}</span>
+        <h1>${current.name}</h1>
+        <p class="color" style="font-size:14px;color:var(--muted);margin:4px 0 16px">${current.color}</p>
+        <div class="meta">
+          SKU: ${current.sku}<br>
+          CONDITION: ${current.condition}<br>
+          PACKAGING: ${current.box || 'Original Box'}
+        </div>
+        <div style="margin-top: 24px">
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px">
+            <span class="eyebrow" style="color:var(--ink); font-weight:700">Select US Men's Size</span>
+            <span class="eyebrow">True to Size</span>
+          </div>
+          <div class="size-grid">
+            ${current.sizes.map((s, idx) => `
+              <button class="size-btn ${idx === 0 ? 'selected' : ''}" 
+                      onclick="selectSize('${s}', this)" 
+                      aria-label="Size US ${s}">
+                ${s}
+              </button>
+            `).join('')}
+          </div>
+        </div>
+        <div class="perks">
+          <p>✓ <b>100% Authenticity Guaranteed:</b> Hand-inspected by verification specialists.</p>
+          <p>✓ <b>Insured Express Shipping:</b> Ships double-boxed with tracking in 1-2 business days.</p>
+          <p>✓ <b>Buyer Protection:</b> Full refund if authenticity does not meet our standard.</p>
+        </div>
+      `;
+    }
+
+    function selectSize(size, el) {
+      selectedSize = size;
+      document.querySelectorAll('.size-grid .size-btn').forEach(btn => btn.classList.remove('selected'));
+      el.classList.add('selected');
+    }
+
+    // Mobile Menu Drawer Handlers
+    function menuOpen() {
+      closeAllDrawers();
+      $('mobileDrawer').classList.add('open');
+      $('shade').classList.add('open');
+      $('hambBtn').setAttribute('aria-expanded', 'true');
+    }
+
+    function menuClose() {
+      $('mobileDrawer').classList.remove('open');
+      $('shade').classList.remove('open');
+      $('hambBtn').setAttribute('aria-expanded', 'false');
+    }
+
+    function closeAllDrawers() {
+      $('mobileDrawer').classList.remove('open');
+      // The search overlay must never outlive the view it opened from —
+      // otherwise a result click navigates underneath it and the page looks frozen.
+      $('searchModal').classList.remove('open');
+      $('shade').classList.remove('open');
+    }
+
+    // Global Search Modal Handlers
+    function searchOpen() {
+      closeAllDrawers();
+      $('searchModal').classList.add('open');
+      setTimeout(() => $('globalSearch').focus(), 150);
+      globalSearch();
+    }
+
+    function searchClose() {
+      $('searchModal').classList.remove('open');
+    }
+
+    function globalSearch() {
+      const q = ($('globalSearch').value || '').trim().toLowerCase();
+      if (!q) {
+        $('searchResults').innerHTML = '';
+        return;
+      }
+      const matches = products.filter(p => 
+        (p.brand + ' ' + p.name + ' ' + p.color + ' ' + p.sku).toLowerCase().includes(q)
+      ).slice(0, 4);
+
+      if (!matches.length) {
+        $('searchResults').innerHTML = '<p style="grid-column: 1/-1; color: var(--muted); padding: 20px 0;">No matching sneakers found.</p>';
+      } else {
+        $('searchResults').innerHTML = matches.map(productCard).join('');
+      }
+    }
+
+    function setSearch(term) {
+      $('globalSearch').value = term;
+      globalSearch();
+    }
+
+    // Toast Utility
+    let toastTimer;
+    function toast(msg) {
+      const el = $('toast');
+      el.textContent = msg;
+      el.classList.add('show');
+      clearTimeout(toastTimer);
+      toastTimer = setTimeout(() => el.classList.remove('show'), 2600);
+    }
+
+    // Keyboard & Accessibility Handler (Escape closes active modals)
+    window.addEventListener('keydown', e => {
+      if (e.key === 'Escape') {
+        menuClose();
+        searchClose();
+      }
+    });
+
+    // History, Routing & Scroll Management Initialization
+    let isRestoring = false;
+    let scrollTimeout;
+    if ('scrollRestoration' in history) history.scrollRestoration = 'manual';
+
+    // Apply a route that came from the URL (refresh, deep link, back/forward, manual edit)
+    function applyRoute(route, force) {
+      const hash = location.hash || '#home';
+      if (!force && hash === lastHash) return;    // already applied (popstate + hashchange)
+      lastHash = hash;
+      isRestoring = true;
+      activeSection = route.section || null;
+      showPage(route.page, route.pid, true);
+
+      // Always (re)write the entry: canonicalises the URL (unknown product id,
+      // bare '#product', empty hash…) and keeps the scroll offset in the state.
+      const resolved = hstate(typeof route.y === 'number' ? route.y : 0, route.section || null);
+      hreplace(resolved, urlFor(resolved));
+
+      if (route.section) {
+        setTimeout(() => {
+          const el = $(route.section);
+          if (el && el.scrollIntoView) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }, 70);
+      } else {
+        const y = typeof route.y === 'number' ? route.y : 0;
+        try { window.scrollTo({ top: y, behavior: 'instant' }); }
+        catch (_) { window.scrollTo(0, y); }
+      }
+      setTimeout(() => { isRestoring = false; }, 220);
+    }
+
+    // Restore the view described by the current URL on first paint
+    function hydrateFromURL() {
+      const route = parseHash(location.hash);
+      if (route.page === 'home' && !route.section) {
+        // Plain home view: refresh the nav/title and normalise the URL
+        hreplace(hstate(window.scrollY, null), '#home');
+        syncRouteUI();
+        return;
+      }
+      isRestoring = true;
+      activeSection = route.section;
+      showPage(route.page, route.pid, true);
+      // Rewrite the entry with the resolved route (canonicalises bad product ids)
+      const resolved = hstate(0, route.section || null);
+      hreplace(resolved, urlFor(resolved));
+      if (route.section) {
+        setTimeout(() => {
+          const el = $(route.section);
+          if (el && el.scrollIntoView) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }, 80);
+      }
+      setTimeout(() => { isRestoring = false; }, 250);
+    }
+
+    window.addEventListener('scroll', () => {
+      if (isRestoring) return;
+      clearTimeout(scrollTimeout);
+      scrollTimeout = setTimeout(() => {
+        if (history.state && history.state.page) {
+          hreplace(Object.assign({}, history.state, { y: Math.round(window.scrollY) }));
+        }
+      }, 120);
+    });
+
+    window.addEventListener('popstate', e => {
+      if (e.state && e.state.page) applyRoute(e.state, true);
+      else applyRoute(parseHash(location.hash), false);
+    });
+
+    // Fires when the hash is edited directly or a plain anchor is followed
+    window.addEventListener('hashchange', () => {
+      applyRoute(parseHash(location.hash), false);
+    });
+
+    // Every in-page anchor is wired to a JS handler, so stop the browser's own hash
+    // jump (it would double up with pushState). Anchors without a handler still fall
+    // through to the hashchange listener above.
+    document.addEventListener('click', e => {
+      const a = e.target && e.target.closest ? e.target.closest('a[href^="#"]') : null;
+      if (!a || !a.hasAttribute('onclick')) return;
+      e.preventDefault();
+    });
+
+    // Initial Render
+    renderHome();
+    renderShop();
+
+    // Then restore whatever the URL asked for (refresh, shared link, bookmark)
+    hydrateFromURL();
+  </script>
+</body>
+</html>
+

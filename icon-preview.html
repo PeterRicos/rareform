@@ -1,0 +1,60 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><title>button preview 2</title><style>
+  body { font-family: 'DM Mono', monospace; margin: 0; padding: 26px; background: #fff; color: #111; }
+  .bar { display: flex; align-items: center; gap: 40px; margin-bottom: 34px; }
+  .icon-btn { position: relative; background: none; border: 0; padding: 6px; color: #111; display: flex; align-items: center; justify-content: center; }
+  svg.ic { fill: none; stroke: currentColor; stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; }
+  .badge { position: absolute; right: -4px; top: -3px; min-width: 16px; height: 16px; padding: 0 4px; border-radius: 999px; font: 9px/16px 'DM Mono', monospace; text-align: center; background: #111; color: #fff; }
+  .lbl { font-size: 10px; color: #666; letter-spacing: .04em; text-align: center; margin-top: 10px; }
+  .cell { text-align: center; }
+  .z3 { transform: scale(3); margin: 26px; }
+  .z2 { transform: scale(2); margin: 12px; }
+  .dark { background: #111; color: #fff; }
+</style></head><body>
+
+<svg width="0" height="0" style="position:absolute"><defs>
+  <g id="ref-bag"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"/><path d="M3 6h18"/><path d="M16 10a4 4 0 0 1-8 0"/></g>
+  <g id="sole"><path d="M4.5 15.4H19.5A1.9 1.9 0 0 1 21.4 17.3A1.9 1.9 0 0 1 19.5 19.2H4.5A1.9 1.9 0 0 1 2.6 17.3A1.9 1.9 0 0 1 4.5 15.4Z"/></g>
+  <g id="K"><use href="#sole"/><path d="M19.6 15.4C19.6 13.2 18.5 11.6 16.6 10.9C14.8 10.2 13.8 10.3 13 10.1C11.8 9.7 11.1 9.2 10.4 8.4C9.7 9.6 9.2 10.7 8.6 11.3C8 10.2 7 8.6 6 7.6C4.8 6.6 3.6 7.2 3.4 8.4C3.2 9 3.2 9.6 3.2 10.4V15.4Z"/></g>
+  <g id="N"><use href="#sole"/><path d="M19.8 15.4C19.8 13.4 18.7 11.7 16.8 11C14.9 10.3 13.9 10.4 13.1 10.1C12.1 9.8 11.3 9.4 10.7 8.7C10.2 8.3 9.6 8.5 9.2 9.3C8.9 9.9 8.6 10.4 8.4 10.8C7.9 9.9 7 8.6 6.2 7.8C5 6.8 3.8 7 3.4 8.2C3.2 8.8 3.2 9.6 3.2 10.4V15.4Z"/></g>
+</defs></svg>
+
+  <div class="bar">
+    <div class="cell">
+      <button class="icon-btn"><svg class="ic" width="20" height="20" viewBox="0 0 24 24"><use href="#ref-bag"/></svg><span class="badge">0</span></button>
+      <div class="lbl">bag old</div>
+    </div>
+    <div class="cell">
+      <button class="icon-btn"><svg class="ic" width="20" height="20" viewBox="0 0 24 24"><use href="#K"/></svg><span class="badge">0</span></button>
+      <div class="lbl">K</div>
+    </div>
+    <div class="cell">
+      <button class="icon-btn"><svg class="ic" width="20" height="20" viewBox="0 0 24 24"><use href="#N"/></svg><span class="badge">0</span></button>
+      <div class="lbl">N</div>
+    </div>
+    <div class="cell">
+      <button class="icon-btn"><svg class="ic" width="20" height="20" viewBox="0 0 24 24"><use href="#N"/></svg><span class="badge">12</span></button>
+      <div class="lbl">M + 12</div>
+    </div>
+    <div class="cell dark" style="padding:14px">
+      <button class="icon-btn" style="color:#fff"><svg class="ic" width="20" height="20" viewBox="0 0 24 24"><use href="#N"/></svg><span class="badge" style="background:#fff;color:#111">12</span></button>
+      <div class="lbl">M dark</div>
+    </div>
+  </div>
+
+  <div class="bar">
+    <div class="cell">
+      <button class="icon-btn z3"><svg class="ic" width="20" height="20" viewBox="0 0 24 24"><use href="#K"/></svg><span class="badge">12</span></button>
+      <div class="lbl" style="margin-top:44px">K(old spiky) &times;3</div>
+    </div>
+    <div class="cell">
+      <button class="icon-btn z3"><svg class="ic" width="20" height="20" viewBox="0 0 24 24"><use href="#N"/></svg><span class="badge">12</span></button>
+      <div class="lbl" style="margin-top:44px">N &times;3</div>
+    </div>
+    <div class="cell">
+      <button class="icon-btn z2"><svg class="ic" width="20" height="20" viewBox="0 0 24 24"><use href="#ref-bag"/></svg><span class="badge">12</span></button>
+      <div class="lbl" style="margin-top:20px">bag &times;2</div>
+    </div>
+  </div>
+
+</body></html>
