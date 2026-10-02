@@ -13,6 +13,24 @@ IMAGES_DIR = Path("sneaker_images")
 OUTPUT_JS = "products_block.js"
 START_ID = 1   # dense 1..N — no hand-written listings remain above the block
 
+# SKUs the StockX scrape gets wrong, verified against the product photos.
+# The scrape is not trustworthy as a last word: it calls FZ1267 a "350 V2"
+# (the photo is a 360 — full-length wraparound Boost midsole) and FZ5000
+# "Carbon" (the photo is byte-identical to Yeezys_350_Asriel_FZ5000.jpg and
+# FZ5000 is the Asriel). The spreadsheet plus the photos are the better source.
+#
+# "image" is overridden too, not just the title: find_image() derives the path
+# from the spreadsheet's raw name, so without this the Carbon photo would come
+# straight back and quietly undo the correction made in index.html.
+OVERRIDES = {
+    "FZ1267": {"title": "adidas Yeezy Boost 360 V2 Zyon", "colorway": "Zyon"},
+    "FZ5000": {
+        "title": "adidas Yeezy Boost 350 V2 Asriel",
+        "colorway": "Asriel",
+        "image": "sneaker_images/square/Yeezys_350_Asriel_FZ5000.jpg",
+    },
+}
+
 def clean_name(v):
     if pd.isna(v): return ""
     return re.sub(r"^\*+\s*", "", str(v)).strip()
@@ -34,7 +52,7 @@ def parse_sizes(raw):
             continue
         if p not in seen:
             seen.append(p)
-    return seen
+    return sorted(seen, key=size_key)
 
 def size_key(s):
     m = re.match(r"^([\d.]+)", str(s))
@@ -80,10 +98,8 @@ def build_yeezy_title(name):
         return f"Yeezy {prefix} {rest}"
     if prefix == "Desert Boot":
         return f"Yeezy Desert Boot {rest}"
-    if prefix == "360":
-        prefix = "350 V2"
-    elif prefix == "350":
-        prefix = "350 V2"
+    if prefix in ("350", "360"):
+        prefix = f"{prefix} V2"
     return f"Yeezy Boost {prefix} {rest}"
 
 def build_title(name, brand):
@@ -138,6 +154,14 @@ def main():
         release = sx.get("releaseDate") or ""
         year = int(release[:4]) if release[:4].isdigit() else 0
         sizes = row["Sizes"] or ["One Size"]
+
+        # Known-bad scrape records are corrected last, so nothing upstream can
+        # put the wrong silhouette or colorway back.
+        override = OVERRIDES.get(row["SKU"].upper())
+        if override:
+            title = override["title"]
+            colorway = override.get("colorway") or colorway
+            img = override.get("image") or img
 
         key = row["SKU"].upper()
         if key in by_sku:

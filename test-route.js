@@ -49,10 +49,17 @@ function boot(initialHash, cfg) {
   cfg = cfg || {};
   const PAGE_IDS = ['home', 'shop', 'product', 'about'];
   const pages = {};
-  PAGE_IDS.forEach((id) => { pages[id] = makeEl(id); });
+  // The live markup gives each view container id="view-<name>" plus data-view="<name>".
+  // An element whose id equals the hash is a browser fragment target, which scrolled
+  // the announcement bar and nav off-screen on every fresh #home/#shop/#about load.
+  // Mirror that shape here so the harness exercises the same contract.
+  PAGE_IDS.forEach((id) => {
+    pages[id] = makeEl('view-' + id);
+    pages[id].dataset.view = id;
+  });
   pages.home._classes.add('active');
 
-  const els = new Map(PAGE_IDS.map((id) => [id, pages[id]]));
+  const els = new Map(PAGE_IDS.map((id) => ['view-' + id, pages[id]]));
   const getEl = (id) => { if (!els.has(id)) els.set(id, makeEl(id)); return els.get(id); };
 
   const listeners = { window: {}, document: {} };
@@ -130,7 +137,14 @@ function boot(initialHash, cfg) {
   const ctx = vm.createContext({ window: win, document: doc, history, location, setTimeout, clearTimeout, console });
   new vm.Script(CODE, { filename: 'rareform-inline.js' }).runInContext(ctx);
 
-  return { win, doc, history, location, pages, getEl, listeners, fire, queueFire, scrollCalls, ctx, active: () => (doc.querySelector('.page.active') || {}).id };
+  // Report the view key (data-view), not the DOM id — assertions compare against
+  // 'home' / 'shop' / 'product' / 'about'.
+  const activeView = () => {
+    const el = doc.querySelector('.page.active');
+    return (el && el.dataset.view) || '';
+  };
+
+  return { win, doc, history, location, pages, getEl, listeners, fire, queueFire, scrollCalls, ctx, active: activeView, activeId: () => (doc.querySelector('.page.active') || {}).id };
 }
 
 (async function main() {

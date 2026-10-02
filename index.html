@@ -395,12 +395,40 @@
       padding: 12px;
       text-align: center;
       user-select: none;
+      width: 100%;       /* <button> inside a grid cell */
+      font-family: inherit;
     }
+    /* The lime fill is the only cue a tile is live, so keyboard focus has to
+       reproduce it — otherwise the grid is invisible to anyone not on a mouse. */
+    .brand-tile:focus-visible { outline: 2px solid var(--ink); outline-offset: 3px; }
     .brand-tile:hover, .brand-tile.selected {
       background: var(--lime);
       border-color: #b4db1b;
       transform: translateY(-3px);
       box-shadow: 0 6px 16px rgba(0,0,0,0.06);
+    }
+    /* Brands listed on the roadmap but not stocked yet: dashed and recessed, so a
+       visitor can tell "not here yet" from "not a real category". They still take
+       focus and still explain themselves if clicked. */
+    .brand-tile.soon {
+      border-style: dashed;
+      border-color: #cfccc5;
+      color: var(--muted);
+    }
+    .brand-tile.soon:hover {
+      background: var(--paper);
+      border-color: #bfbbb2;
+      transform: none;
+      box-shadow: none;
+    }
+    .brand-tile .tag {
+      display: block;
+      margin-top: 6px;
+      font: 8px/1 'DM Mono', monospace;
+      letter-spacing: 0.14em;
+      font-weight: 500;
+      color: #9a968e;
+      text-transform: uppercase;
     }
 
     /* Heat Section */
@@ -661,6 +689,9 @@
       border-radius: var(--radius);
       font-size: 13px;
     }
+    /* The sidebar owns SEARCH above 820px. This second field is mobile-only, so
+       the shop page no longer shows two identical search boxes side by side. */
+    #mobileSearch { display: none; }
     .filter-toggle {
       display: none;
       align-items: center;
@@ -999,6 +1030,10 @@
       .shop-actions { flex-wrap: wrap; }
       .shop-actions input { max-width: none; flex: 1 1 100%; }
       .shop-actions select { flex: 1; min-width: 0; }
+      /* The sidebar's search field is hidden below this breakpoint (see the
+         .filters .filter:first-child rule), so this one has to turn on here —
+         otherwise mobile has no search box anywhere on the page. */
+      #mobileSearch { display: block; }
       .detail { grid-template-columns: 1fr; }
       .details { position: static; }
       .product-page { padding: 25px 18px 60px; }
@@ -1061,7 +1096,7 @@
   <!-- MAIN CONTENT CONTAINER -->
   <main id="main">
     <!-- HOME PAGE -->
-    <div id="home" class="page active">
+    <div id="view-home" data-view="home" class="page active">
       <!-- Hero Banner -->
     <section class="hero">
       <div class="hero-copy">
@@ -1101,16 +1136,7 @@
           <h2>BY BRAND</h2>
         </div>
       </div>
-      <div class="brand-grid" id="brandGrid">
-        <div class="brand-tile" onclick="filterByBrand('', this)">ALL BRANDS</div>
-        <div class="brand-tile" onclick="filterByBrand('Jordan', this)">JORDAN</div>
-        <div class="brand-tile" onclick="filterByBrand('Nike', this)">NIKE</div>
-        <div class="brand-tile" onclick="filterByBrand('adidas', this)">ADIDAS</div>
-        <div class="brand-tile" onclick="filterByBrand('New Balance', this)">NEW BALANCE</div>
-        <div class="brand-tile" onclick="filterByBrand('ASICS', this)">ASICS</div>
-        <div class="brand-tile" onclick="filterByBrand('TRAVIS SCOTT', this)">TRAVIS SCOTT</div>
-        <div class="brand-tile" onclick="filterByBrand('SUPREME', this)">SUPREME</div>
-      </div>
+      <div class="brand-grid" id="brandGrid"></div>
     </section>
 
     <!-- Heat Drop Collection -->
@@ -1178,7 +1204,7 @@
           <div class="content">
             <span class="eyebrow" style="color:#fff">Apparel & Accessories</span>
             <h3>Archive worthy pieces.</h3>
-            <button class="btn white" onclick="filterByBrand('SUPREME', null)">EXPLORE PICKS</button>
+            <button class="btn white" onclick="go('shop')">EXPLORE PICKS</button>
           </div>
         </div>
       </div>
@@ -1186,7 +1212,7 @@
   </div>
 
   <!-- SHOP / CATALOG PAGE -->
-  <div id="shop" class="page">
+  <div id="view-shop" data-view="shop" class="page">
     <div class="shop-top">
       <div>
         <span class="eyebrow">Authenticated Inventory</span>
@@ -1204,38 +1230,15 @@
           </div>
           <div class="filter">
             <label for="brandFilter">BRAND</label>
-            <select id="brandFilter" onchange="renderShop()">
-              <option value="">All Brands</option>
-              <option value="Jordan">Jordan</option>
-              <option value="Nike">Nike</option>
-              <option value="adidas">adidas</option>
-              <option value="New Balance">New Balance</option>
-              <option value="ASICS">ASICS</option>
-              <option value="TRAVIS SCOTT">Travis Scott</option>
-              <option value="SUPREME">Supreme</option>
-            </select>
+            <select id="brandFilter" onchange="renderShop()"></select>
           </div>
           <div class="filter">
             <label for="sizeFilter">US SIZE</label>
-            <select id="sizeFilter" onchange="renderShop()">
-              <option value="">All Sizes</option>
-              <option value="8">US 8</option>
-              <option value="8.5">US 8.5</option>
-              <option value="9">US 9</option>
-              <option value="9.5">US 9.5</option>
-              <option value="10">US 10</option>
-              <option value="10.5">US 10.5</option>
-              <option value="11">US 11</option>
-              <option value="12">US 12</option>
-            </select>
+            <select id="sizeFilter" onchange="renderShop()"></select>
           </div>
           <div class="filter">
             <label for="conditionFilter">CONDITION</label>
-            <select id="conditionFilter" onchange="renderShop()">
-              <option value="">All Conditions</option>
-              <option value="New">Brand New (Deadstock)</option>
-              <option value="Pre-owned">Pre-owned</option>
-            </select>
+            <select id="conditionFilter" onchange="renderShop()"></select>
           </div>
           <button class="clear-filters-btn" onclick="clearFilters()">Reset All Filters</button>
         </aside>
@@ -1257,7 +1260,7 @@
   </div>
 
   <!-- PRODUCT DETAIL PAGE -->
-  <div id="product" class="page">
+  <div id="view-product" data-view="product" class="page">
     <section class="product-page">
       <a class="back" onclick="go('shop')" role="button" tabindex="0">← BACK TO INVENTORY</a>
       <div class="detail">
@@ -1268,7 +1271,7 @@
   </div>
 
   <!-- ABOUT PAGE -->
-  <div id="about" class="page">
+  <div id="view-about" data-view="about" class="page">
     <section class="about">
       <span class="eyebrow">The Random Stock Story</span>
       <h1>BUILT AROUND THE PAIR.</h1>
@@ -1309,13 +1312,7 @@
     </div>
     <div class="suggestions">
       <span class="eyebrow">Popular Searches</span>
-      <div class="suggestions-chips">
-        <button onclick="setSearch('Jordan')">Air Jordan</button>
-        <button onclick="setSearch('Dunk')">Nike Dunk</button>
-        <button onclick="setSearch('Travis Scott')">Travis Scott</button>
-        <button onclick="setSearch('New Balance')">New Balance 990</button>
-        <button onclick="setSearch('Supreme')">Supreme</button>
-      </div>
+      <div class="suggestions-chips" id="searchChips"></div>
       <div id="searchResults" class="products" style="margin-top:35px"></div>
     </div>
   </section>
@@ -1372,13 +1369,13 @@ const localProducts = [
   {
     id: 4,
     brand: "adidas",
-    name: "adidas Yeezy Boost 350 V2 Carbon",
-    color: "Carbon",
+    name: "adidas Yeezy Boost 350 V2 Asriel",
+    color: "Asriel",
     condition: "New",
     box: "Original Box",
     sizes: ["5.5", "7", "8", "13"],
-    img: "sneaker_images/square/Yeezys_350_Carbon_FZ5000.jpg",
-    gallery: ["sneaker_images/square/Yeezys_350_Carbon_FZ5000.jpg"],
+    img: "sneaker_images/square/Yeezys_350_Asriel_FZ5000.jpg",
+    gallery: ["sneaker_images/square/Yeezys_350_Asriel_FZ5000.jpg"],
     sku: "FZ5000"
   },
   {
@@ -1432,7 +1429,7 @@ const localProducts = [
   {
     id: 9,
     brand: "adidas",
-    name: "adidas Yeezy Boost 350 V2 Zyon",
+    name: "adidas Yeezy Boost 360 V2 Zyon",
     color: "Zyon",
     condition: "New",
     box: "Original Box",
@@ -1544,7 +1541,7 @@ const localProducts = [
     color: "Bone",
     condition: "New",
     box: "Original Box",
-    sizes: ["7.5", "4.5"],
+    sizes: ["4.5", "7.5"],
     img: "sneaker_images/square/Yeezys_700_MNVN_Bone_FY3729.jpg",
     gallery: ["sneaker_images/square/Yeezys_700_MNVN_Bone_FY3729.jpg"],
     sku: "FY3729"
@@ -1601,7 +1598,7 @@ const localProducts = [
     id: 23,
     brand: "adidas",
     name: "Yeezy Foam MTX Moon Grey",
-    color: "MXT Moon Gray",
+    color: "MTX Moon Grey",
     condition: "New",
     box: "Original Box",
     sizes: ["5"],
@@ -2227,6 +2224,85 @@ products.push(...localProducts);
       `;
     }
 
+    /* == catalog-driven filter UI ==
+       These lists used to be hardcoded in the markup, which let them drift out of
+       sync with the catalog: four brand tiles matched no product at all, the
+       condition filter offered a "Pre-owned" option nothing carried, and the size
+       dropdown covered 8 of the 28 sizes actually in stock — leaving 33 of 72
+       pairs unreachable through the filters, and the whole STREETWEAR section
+       pointing at an empty grid. Deriving them from `products` means a filter can
+       never again advertise a value the catalog doesn't have. */
+    let CATALOG_BRANDS = [];
+    let TILE_BRANDS = [];
+
+    // Brands shown on the homepage grid, in display order. Several of these are
+    // placeholders for stock that hasn't been added yet — they render as dashed
+    // "Soon" tiles and say so if you click one, rather than dropping you on a
+    // confusing empty grid. As soon as a product carries the brand, the tile goes
+    // live on its own with no edit here. Matching is case-insensitive, so
+    // "SUPREME" picks up products whose brand string reads "Supreme".
+    const BRAND_TILES = ['Jordan', 'Nike', 'adidas', 'New Balance', 'ASICS', 'TRAVIS SCOTT', 'SUPREME'];
+
+    function compareSizes(a, b) {
+      const pa = /^(\d+(?:\.\d+)?)(.*)$/.exec(a) || [];
+      const pb = /^(\d+(?:\.\d+)?)(.*)$/.exec(b) || [];
+      const na = pa[1] ? parseFloat(pa[1]) : 999;
+      const nb = pb[1] ? parseFloat(pb[1]) : 999;
+      return na - nb || String(pa[2] || a).localeCompare(String(pb[2] || b));
+    }
+
+    function uniqSorted(list, cmp) {
+      const out = [];
+      list.forEach(v => { if (v && out.indexOf(v) === -1) out.push(v); });
+      return out.sort(cmp || ((x, y) => x.localeCompare(y)));
+    }
+
+    function renderFilterUI() {
+      const inStock = uniqSorted(products.map(p => (p.brand || '').trim()));
+      CATALOG_BRANDS = inStock;
+      const sizes = uniqSorted(products.reduce((acc, p) => acc.concat(p.sizes || []), []), compareSizes);
+      const conditions = uniqSorted(products.map(p => (p.condition || '').trim()));
+
+      // The tile grid is the shop's roadmap, not a mirror of current stock, so it
+      // always shows every brand on the list above. Anything a product actually
+      // carries gets appended, which means a new brand never silently goes missing.
+      const tiles = BRAND_TILES.slice();
+      uniqSorted(inStock).forEach(b => { if (tiles.indexOf(b) === -1) tiles.push(b); });
+      TILE_BRANDS = tiles;
+
+      $('brandFilter').innerHTML = '<option value="">All Brands</option>' +
+        tiles.map(b => `<option value="${b}">${b}</option>`).join('');
+
+      $('sizeFilter').innerHTML = '<option value="">All Sizes</option>' +
+        sizes.map(s => `<option value="${s}">US ${s}</option>`).join('');
+
+      $('conditionFilter').innerHTML = '<option value="">All Conditions</option>' +
+        conditions.map(c => `<option value="${c}">${c === 'New' ? 'Brand New (Deadstock)' : c}</option>`).join('');
+
+      // Tiles are <button>, so they take focus and activate on Enter/Space. The
+      // .brand-tile:focus-visible rule further up was written for exactly this and
+      // could never fire while these were <div onclick>…>.
+      $('brandGrid').innerHTML =
+        `<button type="button" class="brand-tile" onclick="filterByBrand('', this)">All Brands</button>` +
+        tiles.map((b, i) => {
+          const has = inStock.some(s => s.toLowerCase() === b.toLowerCase());
+          return `<button type="button" class="brand-tile${has ? '' : ' soon'}" ` +
+            `onclick="filterByBrandAt(${i}, this)"` +
+            `${has ? '' : ' aria-label="' + b + ' — no pairs in stock yet"'}` +
+            `><span>${b}</span>${has ? '' : '<span class="tag">Soon</span>'}</button>`;
+        }).join('');
+
+      // Chips follow the stricter rule — only brands that can actually return a
+      // result. A suggestion chip that finds nothing is the worst kind of dead end.
+      $('searchChips').innerHTML = CATALOG_BRANDS.slice(0, 5).map((b, i) =>
+        `<button type="button" onclick="setSearchBrand(${i})">${b}</button>`).join('');
+    }
+
+    // Tiles and chips pass an index instead of a quoted brand string, so a brand
+    // containing an apostrophe can't break out of the inline handler.
+    function filterByBrandAt(i, el) { filterByBrand(TILE_BRANDS[i], el); }
+    function setSearchBrand(i) { setSearch(CATALOG_BRANDS[i]); }
+
     // Render Home Sections
     function renderHome() {
       $('trending').innerHTML = products.slice(0, 4).map(productCard).join('');
@@ -2269,9 +2345,16 @@ products.push(...localProducts);
       const sort = $('sort')?.value || 'featured';
       if (sort === 'new') list.sort((a, b) => b.id - a.id);
 
-      $('shopProducts').innerHTML = list.length 
-        ? list.map(productCard).join('') 
-        : '<div style="grid-column: 1/-1; padding: 48px 0; text-align: center; color: var(--muted);"><p style="font-size: 16px; font-weight:700">No sneakers found matching those filters.</p><button class="btn light" style="margin-top:12px" onclick="clearFilters()">Reset All Filters</button></div>';
+      // A brand tile with nothing behind it yet gets its own message. "No sneakers
+      // found matching those filters" reads like the shop is broken; "no Supreme
+      // pairs in stock yet" reads like the shop is early.
+      const emptyCopy = brand && !list.length
+        ? `No ${brand} pairs in stock yet — new stock goes up weekly.`
+        : 'No sneakers found matching those filters.';
+
+      $('shopProducts').innerHTML = list.length
+        ? list.map(productCard).join('')
+        : `<div style="grid-column: 1/-1; padding: 48px 0; text-align: center; color: var(--muted);"><p style="font-size: 16px; font-weight:700">${emptyCopy}</p><button class="btn light" style="margin-top:12px" onclick="clearFilters()">Reset All Filters</button></div>`;
 
       $('productTotal').textContent = list.length + ' PAIRS AVAILABLE';
       updateFilterCount();
@@ -2307,7 +2390,11 @@ products.push(...localProducts);
     function filterByBrand(brand, el) {
       document.querySelectorAll('.brand-tile').forEach(x => x.classList.remove('selected'));
       if (el) el.classList.add('selected');
-      if ($('brandFilter')) $('brandFilter').value = brand;
+      // Ignore a brand that isn't on the tile list at all, rather than silently
+      // filtering to nothing. A brand that's listed but not yet stocked is a
+      // different case — that one keeps its filter and explains itself below.
+      const known = TILE_BRANDS.some(b => b.toLowerCase() === String(brand || '').toLowerCase());
+      if ($('brandFilter')) $('brandFilter').value = known ? brand : '';
       go('shop');
       renderShop();
     }
@@ -2319,9 +2406,16 @@ products.push(...localProducts);
 
     function showPage(page, pid, restore) {
       document.querySelectorAll('.page').forEach(x => x.classList.remove('active'));
-      const target = $(page) || $('home');
+      // Containers are id="view-<name>" with a data-view key, NOT id="<name>".
+      // An element whose id equals the hash is a fragment target, so the browser
+      // scrolled <div id="shop"> to the top of the viewport on load — after the
+      // load event, so nothing in this script could undo it in time — parking
+      // every fresh #home/#shop/#about view just above the sticky nav with the
+      // announcement bar scrolled out of sight. Prefixing the ids removes the
+      // collision entirely, so the browser never scrolls on its own.
+      const target = $('view-' + page) || $('view-home');
       target.classList.add('active');
-      if (target.id === 'product' && (restore || pid)) {
+      if (target.dataset.view === 'product' && (restore || pid)) {
         renderProduct(pid || current.id);
       }
       closeAllDrawers();
@@ -2350,7 +2444,7 @@ products.push(...localProducts);
 
     function hstate(y, section) {
       const active = document.querySelector('.page.active');
-      const page = active ? active.id : 'home';
+      const page = (active && active.dataset.view) || 'home';
       const sec = (section === undefined) ? activeSection : section;
       return {
         page: page,
@@ -2382,7 +2476,7 @@ products.push(...localProducts);
     // Keep header links, the page title and assistive state in sync with the view
     function syncRouteUI() {
       const active = document.querySelector('.page.active');
-      const page = active ? active.id : 'home';
+      const page = (active && active.dataset.view) || 'home';
       document.querySelectorAll('.nav-links a').forEach(a => {
         const href = (a.getAttribute('href') || '').replace(/^#/, '');
         let on;
@@ -2400,7 +2494,8 @@ products.push(...localProducts);
     }
 
     function go(page) {
-      const from = (document.querySelector('.page.active') || {}).id || 'home';
+      const activeEl = document.querySelector('.page.active');
+      const from = (activeEl && activeEl.dataset.view) || 'home';
       const prev = hstate(window.scrollY);
       activeSection = null;                       // leaving home clears any section anchor
       hreplace(prev, urlFor(prev));               // remember where we came from
@@ -2649,7 +2744,8 @@ products.push(...localProducts);
       e.preventDefault();
     });
 
-    // Initial Render
+    // Initial Render — filters first: renderShop() reads their values to label the count
+    renderFilterUI();
     renderHome();
     renderShop();
 
