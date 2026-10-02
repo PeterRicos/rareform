@@ -1,0 +1,14 @@
+# Store every text file as LF in the repository and check every text file out as
+# LF, no matter what core.autocrlf says on the contributor's machine.
+#
+# Without this, the repo silently depends on everyone having autocrlf=true. Edit
+# index.html from Linux, macOS, or a Windows box with autocrlf=false and git
+# sees all 2,661 lines as rewritten — a diff full of phantom changes that can get
+# committed and served to GitHub Pages.
+* text=auto eol=lf
+
+# Binary assets, declared explicitly so line-ending conversion can never touch
+# them regardless of what auto-detection decides.
+*.jpg  binary
+*.avif binary
+*.xlsx binary
