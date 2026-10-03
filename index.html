@@ -46,7 +46,7 @@
 
     /* Announcement Bar */
     .announce {
-      height: 38px;
+      min-height: 38px;
       background: var(--ink);
       color: #fff;
       display: flex;
@@ -55,10 +55,33 @@
       position: relative;
       font: 11px/1 'DM Mono', monospace;
       letter-spacing: 0.12em;
-      padding: 0 45px;
+      padding: 4px 52px 4px 12px;
       text-align: center;
       z-index: 25;
     }
+    .announce-content {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+    .announce-actions { display: inline-flex; align-items: center; gap: 4px; }
+    .announce-link {
+      width: 28px;
+      height: 28px;
+      display: inline-grid;
+      place-items: center;
+      color: #fff;
+      border-radius: 50%;
+      transition: background var(--transition), color var(--transition);
+    }
+    .announce-link:hover,
+    .announce-link:focus-visible {
+      background: #333;
+      color: var(--lime);
+    }
+    .announce-link svg { width: 17px; height: 17px; }
     .announce button {
       position: absolute;
       right: 18px;
@@ -991,6 +1014,12 @@
       .gallery { gap: 8px; }
     }
     @media (max-width: 480px) {
+      .announce {
+        font-size: 9px;
+        letter-spacing: 0.06em;
+        padding-left: 8px;
+        padding-right: 44px;
+      }
       .products { grid-template-columns: 1fr; }
       .hero h1 { font-size: 38px; }
       .foot-grid { grid-template-columns: 1fr; }
@@ -1003,7 +1032,17 @@
 
   <!-- Announcement Bar -->
   <aside class="announce" id="announce" role="region" aria-label="Announcement">
-    <span>ORDERS SHIP WITHIN 1-2 BUSINESS DAYS · CONTACT ME FOR ORDERS <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="display:inline-block;vertical-align:-2px;margin-left:4px"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg></span>
+    <div class="announce-content">
+      <span>ORDERS SHIP WITHIN 1-2 BUSINESS DAYS · CALL OR TEXT TO ORDER</span>
+      <span class="announce-actions">
+        <a class="announce-link" href="tel:+19144821144" aria-label="Call (914) 482-1144" title="Call (914) 482-1144">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+        </a>
+        <a class="announce-link" href="sms:+19144821144" aria-label="Text (914) 482-1144" title="Text (914) 482-1144">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 11.5a8.5 8.5 0 0 1-8.5 8.5 8.4 8.4 0 0 1-4-.99L3 21l1.99-5.5a8.4 8.4 0 0 1-.99-4A8.5 8.5 0 0 1 12.5 3h0A8.5 8.5 0 0 1 21 11.5Z"/></svg>
+        </a>
+      </span>
+    </div>
     <button onclick="document.getElementById('announce').classList.add('hide')" aria-label="Dismiss announcement">×</button>
   </aside>
 
