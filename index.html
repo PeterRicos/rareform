@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Random Stock — Verified Sneakers & Streetwear</title>
+  <title>Random Stock — Verified Sneakers</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="preconnect" href="https://images.unsplash.com">
@@ -281,6 +281,7 @@
       color: var(--ink);
       transition: opacity var(--transition);
       white-space: nowrap;
+      display: inline-block;
     }
     .text-link:hover { opacity: 0.7; }
 
@@ -311,6 +312,11 @@
       overflow: hidden;
       position: relative;
       cursor: pointer;
+      display: block;
+      width: 100%;
+      padding: 0;
+      color: inherit;
+      text-align: left;
     }
     .product-image img {
       width: 100%;
@@ -344,6 +350,11 @@
       overflow: hidden;
       overflow-wrap: anywhere;
       cursor: pointer;
+      padding: 0;
+      color: inherit;
+      background: transparent;
+      border: 0;
+      text-align: left;
     }
     .p-info .name:hover { text-decoration: underline; }
     .p-info .color, .p-info .sizes {
@@ -526,66 +537,6 @@
     }
     .step b { font: 12px 'DM Mono', monospace; color: #555; }
     .step span { font-size: 19px; font-weight: 800; letter-spacing: -0.02em; }
-
-    /* Streetwear Feature */
-    .streetwear {
-      display: grid;
-      grid-template-columns: 1fr;
-      gap: 20px;
-    }
-    .feature-card {
-      position: relative;
-      width: 100%;
-      min-height: 480px;
-      color: #fff;
-      overflow: hidden;
-      border-radius: var(--radius);
-      display: flex;
-      align-items: flex-end;
-      padding: clamp(28px, 5vw, 60px);
-    }
-    .feature-card img {
-      position: absolute;
-      inset: 0;
-      height: 100%;
-      width: 100%;
-      object-fit: cover;
-      object-position: center 30%;
-      transition: transform 1s ease;
-    }
-    .feature-card:hover img { transform: scale(1.03); }
-    .feature-card::after {
-      content: '';
-      position: absolute;
-      inset: 0;
-      z-index: 1;
-      pointer-events: none;
-      background: linear-gradient(to top, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0.3) 50%, rgba(0,0,0,0.05) 100%);
-    }
-    .feature-card .content {
-      position: relative;
-      z-index: 2;
-      max-width: 580px;
-    }
-    .feature-card h3 {
-      font-size: clamp(32px, 4.5vw, 54px);
-      letter-spacing: -0.06em;
-      line-height: 1;
-      margin: 10px 0 20px;
-    }
-
-    /* Supreme portrait shot: show the whole photo (no crop / no zoom) */
-    .feature-card.full-shot { min-height: clamp(520px, 64vh, 700px); }
-    .feature-card.full-shot::before {
-      content: '';
-      position: absolute;
-      inset: 0;
-      background: url('supreme.jpg') center / cover no-repeat;
-      filter: blur(20px);
-      transform: scale(1.1);
-    }
-    .feature-card.full-shot img { object-fit: contain; }
-    .feature-card.full-shot:hover img { transform: none; }
 
     /* Footer */
     .footer {
@@ -1066,7 +1017,6 @@
 
       <div class="nav-links">
         <a onclick="shopNav('all')" href="#shop">Sneakers</a>
-        <a onclick="scrollToSection('street')" href="#street">Streetwear</a>
         <a onclick="scrollToSection('heat')" href="#heat">Collections</a>
         <a onclick="go('about')" href="#about">About</a>
       </div>
@@ -1086,10 +1036,9 @@
       <button class="drawer-close" onclick="menuClose()" aria-label="Close menu">×</button>
     </div>
     <nav class="mobile-links">
-      <a onclick="menuClose(); shopNav('all')">Sneakers <span>→</span></a>
-      <a onclick="menuClose(); scrollToSection('street')">Streetwear <span>→</span></a>
-      <a onclick="menuClose(); scrollToSection('heat')">Collections <span>→</span></a>
-      <a onclick="menuClose(); go('about')">About Random Stock <span>→</span></a>
+      <a href="#shop" onclick="menuClose(); shopNav('all')">Sneakers <span>→</span></a>
+      <a href="#heat" onclick="menuClose(); scrollToSection('heat')">Collections <span>→</span></a>
+      <a href="#about" onclick="menuClose(); go('about')">About Random Stock <span>→</span></a>
     </nav>
   </aside>
 
@@ -1102,7 +1051,7 @@
       <div class="hero-copy">
         <span class="eyebrow">Verified culture / since 2021</span>
         <h1>THE PAIRS YOU'VE BEEN LOOKING FOR.</h1>
-        <p>Authentic sneakers, streetwear &amp; random shit. Sourced from verified collectors, inspected by hand, and ready for your rotation.</p>
+        <p>Authentic sneakers, sourced from collectors, checked by hand, and ready for your rotation.</p>
         <div class="btn-row">
           <button class="btn" onclick="go('shop')">SHOP SNEAKERS</button>
           <button class="btn light" onclick="scrollToSection('heat')">EXPLORE DROP</button>
@@ -1123,7 +1072,7 @@
           <span class="eyebrow">The Rotation</span>
           <h2>TRENDING NOW</h2>
         </div>
-        <a class="text-link" onclick="go('shop')">SHOP ALL →</a>
+        <a class="text-link" href="#shop" onclick="go('shop')">SHOP ALL →</a>
       </div>
       <div class="products" id="trending"></div>
     </section>
@@ -1185,30 +1134,11 @@
           <span class="eyebrow">Just Landed</span>
           <h2>RECENTLY ADDED</h2>
         </div>
-        <a class="text-link" onclick="go('shop')">VIEW INVENTORY →</a>
+        <a class="text-link" href="#shop" onclick="go('shop')">VIEW INVENTORY →</a>
       </div>
       <div class="products" id="recent"></div>
     </section>
 
-    <!-- Streetwear Apparel Feature -->
-    <section class="section" id="street">
-      <div class="section-head">
-        <div>
-          <span class="eyebrow">Beyond the Pair</span>
-          <h2>STREETWEAR</h2>
-        </div>
-      </div>
-      <div class="streetwear">
-        <div class="feature-card full-shot">
-          <img src="supreme.jpg" alt="Supreme apparel and accessories">
-          <div class="content">
-            <span class="eyebrow" style="color:#fff">Apparel & Accessories</span>
-            <h3>Archive worthy pieces.</h3>
-            <button class="btn white" onclick="go('shop')">EXPLORE PICKS</button>
-          </div>
-        </div>
-      </div>
-    </section>
   </div>
 
   <!-- SHOP / CATALOG PAGE -->
@@ -1262,7 +1192,7 @@
   <!-- PRODUCT DETAIL PAGE -->
   <div id="view-product" data-view="product" class="page">
     <section class="product-page">
-      <a class="back" onclick="go('shop')" role="button" tabindex="0">← BACK TO INVENTORY</a>
+      <a class="back" href="#shop" onclick="go('shop')">← BACK TO INVENTORY</a>
       <div class="detail">
         <div class="gallery" id="gallery"></div>
         <aside class="details" id="details"></aside>
@@ -1277,7 +1207,7 @@
       <h1>BUILT AROUND THE PAIR.</h1>
       <p>Random Stock began with the belief that the right pair can mark a moment in time. We are collectors, wearers, and relentless students of the details—and we built the shop we always wanted to buy from: considered inventory, straightforward pricing, and zero doubt about authenticity.</p>
       <div class="about-hero">
-        <img src="https://images.unsplash.com/photo-1514989940723-e8e51635b782?auto=format&fit=crop&w=1600&q=85" alt="Streetwear and sneaker community">
+        <img src="https://images.unsplash.com/photo-1514989940723-e8e51635b782?auto=format&fit=crop&w=1600&q=85" alt="Sneaker collection and community">
       </div>
       <h2 style="font-size: clamp(28px, 4vw, 44px); letter-spacing:-0.06em; max-width: 760px; font-weight:800; line-height:1.15">
         A better way to discover the pairs that matter—and give your own collection a next life.
@@ -1292,7 +1222,7 @@
       <div>
         <a class="logo" href="#home" onclick="event.preventDefault(); go('home');">RANDOM&nbsp;<i>STOCK</i></a>
         <p style="color:#b5b3ad;max-width:240px;font-size:13px;margin:14px 0 0">
-          Verified sneakers and streetwear for the permanent rotation.
+          Verified sneakers for the permanent rotation.
         </p>
       </div>
     </div>
@@ -2208,12 +2138,12 @@ products.push(...localProducts);
     function productCard(p) {
       return `
         <article class="product">
-          <div class="product-image" onclick="openProduct(${p.id})">
+          <button class="product-image" type="button" aria-label="View ${p.name}" onclick="openProduct(${p.id})">
             <img src="${p.img}" alt="${p.name}" loading="lazy">
-          </div>
+          </button>
           <div class="p-info">
             <div class="brand">${p.brand}</div>
-            <div class="name" onclick="openProduct(${p.id})">${p.name}</div>
+            <button class="name" type="button" onclick="openProduct(${p.id})">${p.name}</button>
             <div class="color">${p.color}</div>
             <div class="sizes">US ${p.sizes.slice(0, 4).join(' · ')}${p.sizes.length > 4 ? ' · +' : ''}</div>
             <button class="quick" onclick="event.stopPropagation(); openProduct(${p.id})">
@@ -2229,8 +2159,7 @@ products.push(...localProducts);
        sync with the catalog: four brand tiles matched no product at all, the
        condition filter offered a "Pre-owned" option nothing carried, and the size
        dropdown covered 8 of the 28 sizes actually in stock — leaving 33 of 72
-       pairs unreachable through the filters, and the whole STREETWEAR section
-       pointing at an empty grid. Deriving them from `products` means a filter can
+       pairs unreachable through the filters. Deriving them from `products` means a filter can
        never again advertise a value the catalog doesn't have. */
     let CATALOG_BRANDS = [];
     let TILE_BRANDS = [];
@@ -2400,7 +2329,7 @@ products.push(...localProducts);
     }
 
     // Page View Controller with SPA History + Hash Routing
-    // Canonical URLs: #home · #shop · #about · #product/<id> · #street · #heat
+    // Canonical URLs: #home · #shop · #about · #product/<id> · #heat
     let activeSection = null;   // in-page anchor currently targeted on the home page
     let lastHash = '';          // last URL we applied; de-dupes popstate + hashchange
 
@@ -2439,7 +2368,7 @@ products.push(...localProducts);
         const pid = Number(h.slice('product/'.length));
         return { page: 'product', pid: Number.isFinite(pid) ? pid : null, section: null };
       }
-      return { page: 'home', pid: null, section: h };   // #street, #heat, plain anchors
+      return { page: 'home', pid: null, section: h };   // #heat and plain anchors
     }
 
     function hstate(y, section) {
@@ -2490,7 +2419,7 @@ products.push(...localProducts);
       if (page === 'product' && current) document.title = current.name + ' — Random Stock';
       else if (page === 'shop') document.title = 'Shop All Sneakers — Random Stock';
       else if (page === 'about') document.title = 'Our Story — Random Stock';
-      else document.title = 'Random Stock — Verified Sneakers & Streetwear';
+      else document.title = 'Random Stock — Verified Sneakers';
     }
 
     function go(page) {
@@ -2521,7 +2450,7 @@ products.push(...localProducts);
       showPage('home', null, false);
       hreplace(prev, urlFor(prev));
       const next = hstate(0, id);
-      hpush(next, urlFor(next));                  // #street / #heat stay shareable
+      hpush(next, urlFor(next));                  // #heat stays shareable
       setTimeout(() => {
         const el = $(id);
         if (el) el.scrollIntoView({ behavior: 'smooth' });
