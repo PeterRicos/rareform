@@ -1,0 +1,17 @@
+﻿# Local scratch / tooling output
+_shots/
+*.log
+__pycache__/
+*.pyc
+.venv/
+
+# Exported data dump (large, regenerable)
+stockx_output.json
+
+# Old hand-made backups, superseded by git history
+*.bak
+*.bak1
+index.html.before-swap
+
+# Unrelated side project that lives in this folder
+walmart-sentinel/
