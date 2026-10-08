@@ -1313,6 +1313,46 @@ const localProducts = [
       "Pattern applied by water transfer, so each figure varies slightly",
       "Colorway: Multicolor"
     ]
+  },
+  {
+    id: 79,
+    brand: "Supreme",
+    name: "Supreme World Famous Box Logo New Era Black",
+    color: "Black",
+    condition: "New",
+    box: "Original Packaging",
+    sizes: ["7 5/8"],
+    img: "images/supreme/supreme-world-famous-box-logo-new-era-black.jpg",
+    gallery: ["images/supreme/supreme-world-famous-box-logo-new-era-black.jpg"],
+    sku: "SUPREME-WFBL-NE-BLACK",
+    details: [
+      "Supreme x New Era 59FIFTY fitted cap",
+      "Season: Fall/Winter 2020 (released October 1, 2020)",
+      "Wool body with embroidered white Supreme box logo on the front",
+      "\"World Famous\" embroidered on the back",
+      "White New Era flag embroidered on the side",
+      "Colorway: Black"
+    ]
+  },
+  {
+    id: 80,
+    brand: "Supreme",
+    name: "Supreme World Famous Box Logo New Era Navy",
+    color: "Navy",
+    condition: "New",
+    box: "Original Packaging",
+    sizes: ["7 1/4", "7 1/2"],
+    img: "images/supreme/supreme-world-famous-box-logo-new-era-navy.jpg",
+    gallery: ["images/supreme/supreme-world-famous-box-logo-new-era-navy.jpg"],
+    sku: "SUPREME-WFBL-NE-NAVY",
+    details: [
+      "Supreme x New Era 59FIFTY fitted cap",
+      "Season: Fall/Winter 2020 (released October 1, 2020)",
+      "Wool body with embroidered white Supreme box logo on the front",
+      "\"World Famous\" embroidered on the back",
+      "White New Era flag embroidered on the side",
+      "Colorway: Navy"
+    ]
   }
 ];
 products.push(...localProducts);
@@ -1441,11 +1481,18 @@ products.push(...localProducts);
     // "SUPREME" picks up products whose brand string reads "Supreme".
     const BRAND_TILES = ['Jordan', 'Nike', 'adidas', 'New Balance', 'ASICS', 'TRAVIS SCOTT', 'SUPREME'];
 
+    // Hat sizes are fractions ("7 1/4"), so turn them into decimals before comparing.
+    function sizeNumber(m) {
+      if (!m[1]) return 999;
+      const frac = /^\s+(\d+)\/(\d+)/.exec(m[2] || '');
+      return parseFloat(m[1]) + (frac ? frac[1] / frac[2] : 0);
+    }
+
     function compareSizes(a, b) {
       const pa = /^(\d+(?:\.\d+)?)(.*)$/.exec(a) || [];
       const pb = /^(\d+(?:\.\d+)?)(.*)$/.exec(b) || [];
-      const na = pa[1] ? parseFloat(pa[1]) : 999;
-      const nb = pb[1] ? parseFloat(pb[1]) : 999;
+      const na = sizeNumber(pa);
+      const nb = sizeNumber(pb);
       return na - nb || String(pa[2] || a).localeCompare(String(pb[2] || b));
     }
 
