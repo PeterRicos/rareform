@@ -54,8 +54,9 @@
       </div>
 
       <div class="nav-links">
-        <a onclick="shopNav('all')" href="#shop">Sneakers</a>
+        <a onclick="shopNav('all')" href="#shop">Random Sneakers</a>
         <a onclick="shopNav('Supreme')" href="#shop">Clothing & Accessories</a>
+        <a onclick="shopCategory('random')" href="#shop">Random Shit</a>
         <a onclick="scrollToSection('heat')" href="#heat">Collections</a>
         <a onclick="go('about')" href="#about">About</a>
       </div>
@@ -75,8 +76,9 @@
       <button class="drawer-close" onclick="menuClose()" aria-label="Close menu">×</button>
     </div>
     <nav class="mobile-links">
-      <a href="#shop" onclick="menuClose(); shopNav('all')">Sneakers <span>→</span></a>
+      <a href="#shop" onclick="menuClose(); shopNav('all')">Random Sneakers <span>→</span></a>
       <a href="#shop" onclick="menuClose(); shopNav('Supreme')">Clothing & Accessories <span>→</span></a>
+      <a href="#shop" onclick="menuClose(); shopCategory('random')">Random Shit <span>→</span></a>
       <a href="#heat" onclick="menuClose(); scrollToSection('heat')">Collections <span>→</span></a>
       <a href="#about" onclick="menuClose(); go('about')">About Random Stock <span>→</span></a>
     </nav>
@@ -215,6 +217,18 @@
       <div class="products" id="clothing-accessories"></div>
     </section>
 
+    <!-- Random Shit -->
+    <section class="section" id="random-section">
+      <div class="section-head">
+        <div>
+          <span class="eyebrow">Other Goods</span>
+          <h2>RANDOM SHIT</h2>
+        </div>
+        <a class="text-link" href="#shop" onclick="event.preventDefault(); shopCategory('random')">VIEW ALL →</a>
+      </div>
+      <div class="products" id="random-shit"></div>
+    </section>
+
   </div>
 
   <!-- SHOP / CATALOG PAGE -->
@@ -222,7 +236,7 @@
     <div class="shop-top">
       <div>
         <span class="eyebrow">Authenticated Inventory</span>
-        <h1>SHOP ALL</h1>
+        <h1 id="shopTitle">SHOP ALL</h1>
       </div>
       <span class="eyebrow" id="productTotal" aria-live="polite"></span>
     </div>
@@ -304,6 +318,7 @@
         <nav class="foot-links" aria-label="Footer">
           <a href="#shop" onclick="event.preventDefault(); shopNav('all')">Shop all</a>
           <a href="#shop" onclick="event.preventDefault(); shopNav('Supreme')">Clothing & Accessories</a>
+          <a href="#shop" onclick="event.preventDefault(); shopCategory('random')">Random Shit</a>
           <a href="#heat" onclick="event.preventDefault(); scrollToSection('heat')">Collections</a>
           <a href="#about" onclick="event.preventDefault(); go('about')">About</a>
         </nav>
@@ -1277,6 +1292,26 @@ const localProducts = [
     img: "images/supreme/supreme-tonal-box-logo-tee-navy.webp",
     gallery: ["images/supreme/supreme-tonal-box-logo-tee-navy.webp"],
     sku: "SUPREME-TBLT-NAVY"
+  },
+  {
+    id: 78,
+    brand: "Bearbrick",
+    category: "random",
+    name: "Bearbrick Andy Warhol Double Mona Lisa 100% & 400% Set Multicolor",
+    color: "Multicolor",
+    condition: "New",
+    box: "Original Box",
+    sizes: [],
+    img: "images/random/bearbrick-andy-warhol-double-mona-lisa-100-400-set-multicolor.jpg",
+    gallery: ["images/random/bearbrick-andy-warhol-double-mona-lisa-100-400-set-multicolor.jpg"],
+    sku: "BEARBRICK-AW-DML-100-400",
+    details: [
+      "Medicom Toy BE@RBRICK collectible figure set",
+      "Artwork: Andy Warhol's Double Mona Lisa (1963) silkscreen, licensed by The Andy Warhol Foundation",
+      "Set of two figures: 100% (approx. 7 cm / 2.8 in tall) and 400% (approx. 28 cm / 11 in tall)",
+      "Material: ABS and PVC",
+      "Colorway: Multicolor"
+    ]
   }
 ];
 products.push(...localProducts);
@@ -1357,11 +1392,18 @@ products.push(...localProducts);
       return reduceMotionQuery && reduceMotionQuery.matches ? 'auto' : 'smooth';
     }
 
+    // Listings default to sneakers; Supreme is clothing; anything else sets `category`.
+    function productCategory(p) {
+      return p.category || (p.brand.toLowerCase() === 'supreme' ? 'clothing' : 'sneakers');
+    }
+    const CATEGORY_TITLES = { random: 'RANDOM SHIT' };
+    let shopCategoryFilter = '';
+
     // Product Card Template
     function productCard(p) {
-      const isClothing = p.brand.toLowerCase() === 'supreme';
-      const buttonText = isClothing ? 'VIEW ITEM' : 'VIEW PAIR';
-      const sizeText = isClothing ? '' : `US ${p.sizes.slice(0, 4).join(' · ')}${p.sizes.length > 4 ? ' · +' : ''}`;
+      const isSneaker = productCategory(p) === 'sneakers';
+      const buttonText = isSneaker ? 'VIEW PAIR' : 'VIEW ITEM';
+      const sizeText = isSneaker && p.sizes.length ? `US ${p.sizes.slice(0, 4).join(' · ')}${p.sizes.length > 4 ? ' · +' : ''}` : '';
       return `
         <article class="product">
           <button class="product-image" type="button" aria-label="View ${p.name}" onclick="openProduct(${p.id})">
@@ -1480,6 +1522,7 @@ products.push(...localProducts);
       $('trending').innerHTML = products.slice(0, 4).map(productCard).join('');
       $('recent').innerHTML = products.slice(-4).map(productCard).join('');
       $('clothing-accessories').innerHTML = products.filter(p => p.brand.toLowerCase() === 'supreme').map(productCard).join('');
+      $('random-shit').innerHTML = products.filter(p => productCategory(p) === 'random').map(productCard).join('');
     }
 
     // Handle Dual Search Inputs (Desktop & Mobile)
@@ -1504,6 +1547,9 @@ products.push(...localProducts);
         list = list.filter(p => 
           (p.brand + ' ' + p.name + ' ' + p.color + ' ' + p.sku).toLowerCase().includes(q)
         );
+      }
+      if (shopCategoryFilter) {
+        list = list.filter(p => productCategory(p) === shopCategoryFilter);
       }
       if (brand) {
         list = list.filter(p => p.brand.toLowerCase() === brand.toLowerCase());
@@ -1530,6 +1576,7 @@ products.push(...localProducts);
         : `<div style="grid-column: 1/-1; padding: 48px 0; text-align: center; color: var(--muted);"><p style="font-size: 16px; font-weight:700">${emptyCopy}</p><button class="btn light" style="margin-top:12px" onclick="clearFilters()">Reset All Filters</button></div>`;
 
       $('productTotal').textContent = list.length + ' ITEMS AVAILABLE';
+      if ($('shopTitle')) $('shopTitle').textContent = CATEGORY_TITLES[shopCategoryFilter] || 'SHOP ALL';
       updateFilterCount();
     }
 
@@ -1555,6 +1602,7 @@ products.push(...localProducts);
         if (el) el.value = '';
       });
       if ($('sort')) $('sort').value = 'featured';
+      shopCategoryFilter = '';
       document.querySelectorAll('.brand-tile').forEach(t => t.classList.remove('selected'));
       renderShop();
     }
@@ -1688,6 +1736,13 @@ products.push(...localProducts);
       renderShop();
     }
 
+    function shopCategory(category) {
+      clearFilters();
+      shopCategoryFilter = category;
+      go('shop');
+      renderShop();
+    }
+
     function scrollToSection(id) {
       const prev = hstate(window.scrollY);
       activeSection = id;
@@ -1720,10 +1775,11 @@ products.push(...localProducts);
         <img src="${src}" alt="${current.name} angle ${i + 1}" loading="lazy">
       `).join('');
 
-      const isClothing = current.brand.toLowerCase() === 'supreme';
-      const itemLabel = isClothing ? 'item' : 'pair';
-      const sizeLabel = isClothing ? 'Available sizes' : 'Available sizes';
-      const sizeAriaLabel = isClothing ? 'Size' : 'Size US';
+      const isSneaker = productCategory(current) === 'sneakers';
+      const itemLabel = isSneaker ? 'pair' : 'item';
+      const sizeLabel = 'Available sizes';
+      const sizeAriaLabel = isSneaker ? 'Size US' : 'Size';
+      const hasSizes = current.sizes.length > 0;
 
       $('details').innerHTML = `
         <span class="eyebrow">${current.brand}</span>
@@ -1734,7 +1790,8 @@ products.push(...localProducts);
           CONDITION: ${current.condition}<br>
           PACKAGING: ${current.box || 'Original Box'}
         </div>
-        <div style="margin-top: 24px">
+        ${current.details ? `<ul class="product-details">${current.details.map(d => `<li>${d}</li>`).join('')}</ul>` : ''}
+        ${hasSizes ? `<div style="margin-top: 24px">
           <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px">
             <span class="eyebrow" style="color:var(--ink); font-weight:700">${sizeLabel}</span>
             <span class="eyebrow">${sizeCategoryLabel(current)}</span>
@@ -1748,12 +1805,12 @@ products.push(...localProducts);
               </button>
             `).join('')}
           </div>
-        </div>
+        </div>` : ''}
         <div class="order-cta">
           <a class="btn" id="orderCall" href="tel:+19144821144">Call to order</a>
           <a class="btn light" id="orderText" href="sms:+19144821144">Text this ${itemLabel}</a>
         </div>
-        <p class="order-note">Sizes listed are what we hold right now. Call or text the ${itemLabel} and your size and we will confirm availability, condition and shipping.</p>
+        <p class="order-note">${hasSizes ? `Sizes listed are what we hold right now. Call or text the ${itemLabel} and your size and we will confirm availability, condition and shipping.` : `Call or text about this ${itemLabel} and we will confirm availability, condition and shipping.`}</p>
         <div class="perks">
           <p>✓ <b>100% Authenticity Guaranteed:</b> Hand-inspected by verification specialists.</p>
           <p>✓ <b>Insured Express Shipping:</b> Ships double-boxed with tracking in 1-2 business days.</p>
