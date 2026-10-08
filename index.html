@@ -241,7 +241,7 @@
         <aside class="filters" id="filtersPanel" aria-label="Product Filters">
           <div class="filter">
             <label for="filterSearch">SEARCH</label>
-            <input id="filterSearch" placeholder="Search keywords..." oninput="handleSearchSync('desktop')">
+            <input id="filterSearch" placeholder="Search brand, SKU or size..." oninput="handleSearchSync('desktop')">
           </div>
           <div class="filter">
             <label for="brandFilter">BRAND</label>
@@ -261,7 +261,7 @@
         <!-- Shop Content Area -->
         <div>
           <div class="shop-actions">
-            <input id="mobileSearch" aria-label="Search sneakers" placeholder="Search sneakers, SKU, color..." oninput="handleSearchSync('mobile')">
+            <input id="mobileSearch" aria-label="Search sneakers" placeholder="Search sneakers, SKU, color or size..." oninput="handleSearchSync('mobile')">
             <button class="filter-toggle" id="filterToggle" type="button" onclick="toggleFilters()" aria-expanded="false" aria-controls="filtersPanel">Filters</button>
             <select id="sort" onchange="renderShop()" aria-label="Sort products">
               <option value="featured">Sort: Featured</option>
@@ -1644,6 +1644,37 @@ products.push(...localProducts);
       renderShop();
     }
 
+    // A bare number used to be treated as a keyword, so searching "11" matched any
+    // product whose name happened to contain those digits — Air Jordan 11, a colourway
+    // that mentions 11 — and people got back shoes that were never held in the size they
+    // asked for. A number is now read as a size query and matched against the size list,
+    // while anything non-numeric stays a keyword search.
+    // Nothing in the catalog is larger than a US 14, so a bigger number is a model number
+    // rather than a size: "700" has to keep finding Yeezy 700s instead of reporting that
+    // no US 700 exists.
+    const MAX_SIZE_QUERY = 16;
+
+    function parseSizeQuery(q) {
+      const m = /^(?:us\s*)?(\d+(?:\.\d+)?)([a-z]*)$/i.exec(String(q).trim());
+      if (!m) return null;
+      const value = parseFloat(m[1]);
+      if (!Number.isFinite(value) || value > MAX_SIZE_QUERY) return null;
+      return { value, suffix: m[2].toLowerCase() };
+    }
+
+    // "11" matches any size worth 11. "5.5w" / "13k" only match that same run, since a
+    // suffix means the shopper named a specific women's or kids' size rather than a number.
+    function matchesSize(product, sizeQuery) {
+      return (product.sizes || []).some(s => {
+        const parsed = /^(\d+(?:\.\d+)?)(.*)$/.exec(String(s).trim());
+        if (!parsed) return false;
+        const value = parseFloat(parsed[1]);
+        if (!Number.isFinite(value) || value !== sizeQuery.value) return false;
+        const suffix = parsed[2].toLowerCase();
+        return !sizeQuery.suffix && !suffix ? true : suffix === sizeQuery.suffix;
+      });
+    }
+
     // Render Shop with Active Filters & Sorter
     function renderShop() {
       let list = [...products];
@@ -1651,8 +1682,11 @@ products.push(...localProducts);
       const brand = $('brandFilter')?.value;
       const size = $('sizeFilter')?.value;
       const condition = $('conditionFilter')?.value;
+      const sizeQuery = q ? parseSizeQuery(q) : null;
 
-      if (q) {
+      if (sizeQuery) {
+        list = list.filter(p => matchesSize(p, sizeQuery));
+      } else if (q) {
         list = list.filter(p => 
           (p.brand + ' ' + p.name + ' ' + p.color + ' ' + p.sku).toLowerCase().includes(q)
         );
@@ -1675,10 +1709,13 @@ products.push(...localProducts);
 
       // A brand tile with nothing behind it yet gets its own message. "No sneakers
       // found matching those filters" reads like the shop is broken; "no Supreme
-      // items in stock yet" reads like the shop is early.
+      // items in stock yet" reads like the shop is early. A size search that finds
+      // nothing gets its own line too, otherwise people assume the size is wrong.
       const emptyCopy = brand && !list.length
         ? `No ${brand} items in stock yet — new stock goes up weekly.`
-        : (brand === 'Supreme' ? 'No clothing found matching those filters.' : 'No sneakers found matching those filters.');
+        : (sizeQuery
+          ? `Nothing in US ${q.toUpperCase()} right now — try another size.`
+          : (brand === 'Supreme' ? 'No clothing found matching those filters.' : 'No sneakers found matching those filters.'));
 
       $('shopProducts').innerHTML = list.length
         ? list.map(productCard).join('')
