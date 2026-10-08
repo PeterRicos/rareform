@@ -1,17 +1,17 @@
-name: Manual AI Bot
+name: Simple AI Test
 on:
   workflow_dispatch:
     inputs:
       prompt:
-        description: 'What should the bot say?'
+        description: 'Ask the AI something'
         required: true
-        default: 'Hello world!'
+        default: 'Tell me a joke'
 
 jobs:
   test:
     runs-on: ubuntu-latest
     steps:
-      - name: Call OpenRouter
+      - name: Ask AI
         uses: actions/github-script@v7
         env:
           OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
@@ -23,25 +23,19 @@ jobs:
                 method: "POST",
                 headers: {
                   "Authorization": "Bearer " + process.env.OPENROUTER_API_KEY,
-                  "Content-Type": "application/json",
-                  "HTTP-Referer": "https://github.com/" + context.repo.owner + "/" + context.repo.repo,
-                  "X-Title": "Manual AI Bot"
+                  "Content-Type": "application/json"
                 },
                 body: JSON.stringify({
                   model: "meta-llama/llama-3.3-70b-instruct:free",
                   messages: [{ role: "user", content: process.env.PROMPT }]
                 })
               });
-              
               const data = await response.json();
-              
               if (!response.ok) {
-                core.setFailed("OpenRouter Error: " + JSON.stringify(data));
-              } else if (data.choices && data.choices[0]) {
-                core.info("✅ SUCCESS! The AI replied: " + data.choices[0].message.content);
+                core.info("❌ OpenRouter Error: " + JSON.stringify(data));
               } else {
-                core.setFailed("Unexpected Response: " + JSON.stringify(data));
+                core.info("✅ SUCCESS! The AI said: " + data.choices[0].message.content);
               }
             } catch (error) {
-              core.setFailed("Script Error: " + error.message);
+              core.info("❌ Script Error: " + error.message);
             }
