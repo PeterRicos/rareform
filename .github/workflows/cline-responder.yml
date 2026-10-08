@@ -33,23 +33,39 @@ jobs:
           PROMPT: ${{ steps.detect.outputs.prompt }}
         with:
           script: |
-            const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
-              method: "POST",
-              headers: {
-                "Authorization": `Bearer ${process.env.OPENROUTER_API_KEY}`,
-                "Content-Type": "application/json"
-              },
-              body: JSON.stringify({
-                model: "deepseek/deepseek-chat:free",
-                messages: [{ role: "user", content: `You are a helpful GitHub bot. The user opened an issue at ${process.env.ISSUE_URL}. The user's comment is: "${process.env.PROMPT}". Provide a helpful response.` }]
-              })
-            });
-            const data = await response.json();
-            const result = data.choices?.[0]?.message?.content || "Sorry, I couldn't generate a response.";
-            
+            let result;
+            try {
+              const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+                method: "POST",
+                headers: {
+                  "Authorization": `Bearer ${process.env.OPENROUTER_API_KEY}`,
+                  "Content-Type": "application/json",
+                  "HTTP-Referer": `https://github.com/${context.repo.owner}/${context.repo.repo}`,
+                  "X-Title": "Cline Issue Assistant"
+                },
+                body: JSON.stringify({
+                  model: "google/gemini-2.5-flash:free",
+                  messages: [{ role: "user", content: `You are a helpful GitHub bot. The user opened an issue at ${process.env.ISSUE_URL}. The user's comment is: "${process.env.PROMPT}". Provide a helpful response.` }]
+                })
+              });
+              
+              const data = await response.json();
+              
+              if (!response.ok) {
+                result = `⚠️ **OpenRouter Error:** ${data.error?.message || JSON.stringify(data)}`;
+              } else if (data.choices && data.choices[0]) {
+                result = data.choices[0].message.content;
+              } else {
+                result = `⚠️ **Unexpected API Response:**\n\`\`\`json\n${JSON.stringify(data, null, 2)}\n\`\`\``;
+              }
+            } catch (error) {
+              result = `⚠️ **Script Error:** ${error.message}`;
+            }
+
             await github.rest.issues.createComment({
               owner: context.repo.owner,
               repo: context.repo.repo,
               issue_number: Number(process.env.ISSUE_NUMBER),
               body: result
+            });
             });
