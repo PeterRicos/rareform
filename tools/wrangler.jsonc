@@ -1,0 +1,15 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "visit-counters",
+  "main": "visit-counter-worker.js",
+  "compatibility_date": "2026-10-01",
+  "observability": {
+    "enabled": false
+  },
+  "kv_namespaces": [
+    {
+      "binding": "VISITS",
+      "id": "6fd525cc0a894ca688d3b1d75d27d8ab"
+    }
+  ]
+}
