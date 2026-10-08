@@ -515,6 +515,15 @@ img { width: 100%; display: block; object-fit: cover; }
 }
 .heat-count { font: 11px 'DM Mono', monospace; color: var(--lime); font-weight: 500; }
 
+/* Product detail bullet list (non-sneaker listings) */
+.product-details {
+  margin: 20px 0 0;
+  padding-left: 18px;
+  font-size: 14px;
+  line-height: 1.7;
+  color: var(--muted);
+}
+
 /* Category Tile */
 .category-tile {
   position: relative;
