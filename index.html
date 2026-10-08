@@ -121,7 +121,7 @@
       <div class="section-head">
         <div>
           <span class="eyebrow">The Rotation</span>
-          <h2>TRENDING NOW</h2>
+          <h2>RANDOM PICKS</h2>
         </div>
         <a class="text-link" href="#shop" onclick="go('shop')">SHOP ALL →</a>
       </div>
@@ -169,7 +169,7 @@
       </div>
       <div class="heat-side">
         <div>
-          <span class="heat-count">01 / 24</span>
+          <span class="heat-count" id="heatCount">01 / 00</span>
           <p>Hard-to-find, never-overlooked pairs. A weekly edit of grails, limited collabs, and modern classics with real staying power.</p>
         </div>
         <div>
@@ -272,8 +272,8 @@
             <input id="mobileSearch" aria-label="Search sneakers" placeholder="Search sneakers, SKU, color..." oninput="handleSearchSync('mobile')">
             <button class="filter-toggle" id="filterToggle" type="button" onclick="toggleFilters()" aria-expanded="false" aria-controls="filtersPanel">Filters</button>
             <select id="sort" onchange="renderShop()" aria-label="Sort products">
-              <option value="featured">Sort: Featured</option>
               <option value="new">Sort: Newest First</option>
+              <option value="old">Sort: Oldest First</option>
             </select>
           </div>
           <div class="products" id="shopProducts"></div>
@@ -1637,10 +1637,29 @@ products.push(...localProducts);
 
     // Render Home Sections
     function renderHome() {
-      $('trending').innerHTML = products.slice(0, 4).map(productCard).join('');
-      $('recent').innerHTML = products.slice(-4).map(productCard).join('');
+      // "RANDOM PICKS" earns its name: four products drawn fresh from the whole
+      // catalog on every visit, matching the shop's own name. No fake curation,
+      // no "trending" implied by whatever happens to be first in the file.
+      const shuffled = [...products];
+      for (let i = shuffled.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+      }
+      $('trending').innerHTML = shuffled.slice(0, 4).map(productCard).join('');
+
+      // The catalog is in id order, so the highest ids are the newest arrivals.
+      // Show them newest-first so "Just Landed" reads the way it's labeled.
+      const newest = [...products].sort((a, b) => b.id - a.id);
+      $('recent').innerHTML = newest.slice(0, 4).map(productCard).join('');
+
       $('clothing-accessories').innerHTML = products.filter(p => productCategory(p) === 'clothing').map(productCard).join('');
       $('random-shit').innerHTML = products.filter(p => productCategory(p) === 'random').map(productCard).join('');
+
+      // The heat panel's counter follows the catalog, so it can never drift
+      // out of sync with what's actually stocked.
+      if ($('heatCount')) {
+        $('heatCount').textContent = '01 / ' + String(products.length).padStart(2, '0');
+      }
     }
 
     // Handle Dual Search Inputs (Desktop & Mobile)
@@ -1679,8 +1698,12 @@ products.push(...localProducts);
         list = list.filter(p => p.condition === condition);
       }
 
-      const sort = $('sort')?.value || 'featured';
+      // No "featured" — there's no curation behind the catalog, so the shop
+      // only offers what's literally true: newest first (default) or oldest
+      // first. The catalog is in id order, so ids are the arrival order.
+      const sort = $('sort')?.value || 'new';
       if (sort === 'new') list.sort((a, b) => b.id - a.id);
+      else if (sort === 'old') list.sort((a, b) => a.id - b.id);
 
       // A brand tile with nothing behind it yet gets its own message. "No sneakers
       // found matching those filters" reads like the shop is broken; "no Supreme
@@ -1719,7 +1742,7 @@ products.push(...localProducts);
         const el = $(id);
         if (el) el.value = '';
       });
-      if ($('sort')) $('sort').value = 'featured';
+      if ($('sort')) $('sort').value = 'new';
       shopCategoryFilter = '';
       document.querySelectorAll('.brand-tile').forEach(t => t.classList.remove('selected'));
       renderShop();
@@ -1885,9 +1908,11 @@ products.push(...localProducts);
       current = products.find(p => p.id === id) || products[0];
       selectedSize = current.sizes[0]; // initialize default selected size
 
+      // No gallery? One honest photo, not the same photo four times —
+      // a repeated image grid reads as broken, not as more angles.
       const galleryImages = current.gallery && current.gallery.length
         ? current.gallery
-        : [current.img, current.img, current.img, current.img];
+        : [current.img];
 
       $('gallery').innerHTML = galleryImages.map((src, i) => `
         <img src="${src}" alt="${current.name} angle ${i + 1}" loading="lazy">
