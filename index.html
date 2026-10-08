@@ -57,7 +57,6 @@
         <a onclick="shopNav('all')" href="#shop">Sneakers</a>
         <a onclick="shopCategory('clothing')" href="#shop">Clothing &amp; Accessories</a>
         <a onclick="shopCategory('random')" href="#shop">Random Shit</a>
-        <a onclick="scrollToSection('heat')" href="#heat">Collections</a>
         <a onclick="go('about')" href="#about">About</a>
       </div>
 
@@ -79,7 +78,6 @@
       <a href="#shop" onclick="menuClose(); shopNav('all')">Sneakers <span>→</span></a>
       <a href="#shop" onclick="menuClose(); shopCategory('clothing')">Clothing &amp; Accessories <span>→</span></a>
       <a href="#shop" onclick="menuClose(); shopCategory('random')">Random Shit <span>→</span></a>
-      <a href="#heat" onclick="menuClose(); scrollToSection('heat')">Collections <span>→</span></a>
       <a href="#about" onclick="menuClose(); go('about')">About Random Stock <span>→</span></a>
     </nav>
   </aside>
@@ -155,28 +153,15 @@
           <span class="btn white">SHOP NOW →</span>
         </div>
       </a>
-    </section>
 
-    <!-- Heat Drop Collection -->
-    <section class="heat" id="heat">
-      <div class="heat-main">
-        <img src="images/heat.jpg" alt="Curated sneaker heat" width="1600" height="1280" loading="lazy" decoding="async">
-        <div class="heat-overlay">
-          <span class="eyebrow" style="color: #fff">Curated Drop</span>
-          <h2>THE HEAT COLLECTION</h2>
-          <button class="btn white" onclick="go('shop')">EXPLORE THE DROP</button>
+      <a class="category-tile" href="#shop" onclick="event.preventDefault(); shopCategory('random')" aria-label="Shop Random Shit">
+        <img src="images/randomshit.jpg" alt="Collector room with a Supreme arcade cabinet, framed posters and designer figures" width="736" height="1037" loading="lazy" decoding="async" style="object-position: center 32%">
+        <div class="category-tile-copy">
+          <span class="eyebrow">Other Goods</span>
+          <h3>RANDOM SHIT</h3>
+          <span class="btn white">SHOP NOW →</span>
         </div>
-      </div>
-      <div class="heat-side">
-        <div>
-          <span class="heat-count">01 / 24</span>
-          <p>Hard-to-find, never-overlooked pairs. A weekly edit of grails, limited collabs, and modern classics with real staying power.</p>
-        </div>
-        <div>
-          <span class="eyebrow" style="color: #aaa">Editorial Selection</span>
-          <h3 style="font-size:26px;letter-spacing:-0.05em;margin:10px 0 0">Built for collectors.<br>Worn by everyone.</h3>
-        </div>
-      </div>
+      </a>
     </section>
 
     <!-- Authenticity Promise -->
@@ -322,7 +307,6 @@
           <a href="#shop" onclick="event.preventDefault(); shopNav('all')">Shop all</a>
           <a href="#shop" onclick="event.preventDefault(); shopCategory('clothing')">Clothing &amp; Accessories</a>
           <a href="#shop" onclick="event.preventDefault(); shopCategory('random')">Random Shit</a>
-          <a href="#heat" onclick="event.preventDefault(); scrollToSection('heat')">Collections</a>
           <a href="#about" onclick="event.preventDefault(); go('about')">About</a>
         </nav>
       </div>
@@ -1859,19 +1843,6 @@ products.push(...localProducts);
       shopCategoryFilter = category;
       go('shop');
       renderShop();
-    }
-
-    function scrollToSection(id) {
-      const prev = hstate(window.scrollY);
-      activeSection = id;
-      showPage('home', null, false);
-      hreplace(prev, urlFor(prev));
-      const next = hstate(0, id);
-      hpush(next, urlFor(next));
-      setTimeout(() => {
-        const el = $(id);
-        if (el) el.scrollIntoView({ behavior: scrollBehavior() });
-      }, 70);
     }
 
     // Product Detail Page Logic
