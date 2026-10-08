@@ -1,0 +1,61 @@
+name: Cline Issue Assistant
+on:
+  issue_comment:
+    types: [created]
+
+permissions:
+  issues: write
+
+jobs:
+  respond:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check for @cline and Reply
+        uses: actions/github-script@v7
+        if: contains(github.event.comment.body, '@cline')
+        env:
+          OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const issueNumber = context.payload.issue.number;
+            const commentBody = context.payload.comment.body;
+            const prompt = commentBody.replace(/@cline/gi, '').trim();
+            
+            let reply = "";
+            
+            try {
+              const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+                method: "POST",
+                headers: {
+                  "Authorization": "Bearer " + process.env.OPENROUTER_API_KEY,
+                  "Content-Type": "application/json",
+                  "HTTP-Referer": "https://github.com/" + context.repo.owner + "/" + context.repo.repo,
+                  "X-Title": "Cline Issue Assistant"
+                },
+                body: JSON.stringify({
+                  model: "google/gemini-2.5-flash:free",
+                  messages: [{ role: "user", content: "The user said: " + prompt + ". Reply helpfully." }]
+                })
+              });
+              
+              const data = await response.json();
+              
+              if (!response.ok) {
+                reply = "OpenRouter Error (" + response.status + "): " + (data.error?.message || JSON.stringify(data));
+              } else if (data.choices && data.choices[0]) {
+                reply = data.choices[0].message.content;
+              } else {
+                reply = "Unexpected Response: " + JSON.stringify(data);
+              }
+            } catch (error) {
+              reply = "Script Error: " + error.message;
+            }
+            
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: issueNumber,
+              body: reply
+            });
+            });

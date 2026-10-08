@@ -515,6 +515,58 @@ img { width: 100%; display: block; object-fit: cover; }
 }
 .heat-count { font: 11px 'DM Mono', monospace; color: var(--lime); font-weight: 500; }
 
+/* Product detail bullet list (non-sneaker listings) */
+.product-details {
+  margin: 20px 0 0;
+  padding-left: 18px;
+  font-size: 14px;
+  line-height: 1.7;
+  color: var(--muted);
+}
+
+/* Category Tile */
+.category-tile {
+  position: relative;
+  display: block;
+  height: clamp(340px, 42vw, 600px);
+  overflow: hidden;
+  border-radius: var(--radius);
+  background: var(--ink);
+  color: #fff;
+}
+.category-tile img {
+  height: 100%;
+  object-position: center 68%;
+  transition: transform 1.2s ease;
+}
+.category-tile::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to top, rgba(21,21,21,0.8) 0%, rgba(21,21,21,0.1) 60%);
+  pointer-events: none;
+}
+.category-tile:hover img { transform: scale(1.04); }
+.category-tile:focus-visible { outline: 2px solid var(--ink); outline-offset: 3px; }
+.category-tile-copy {
+  position: absolute;
+  left: clamp(24px, 5vw, 64px);
+  bottom: clamp(28px, 5vw, 56px);
+  z-index: 2;
+}
+.category-tile-copy .eyebrow { color: #fff; }
+.category-tile h3 {
+  font-size: clamp(30px, 4.5vw, 64px);
+  letter-spacing: -0.06em;
+  line-height: 0.95;
+  margin: 10px 0 22px;
+  font-weight: 800;
+}
+.category-tile:hover .btn.white { transform: translateY(-2px); }
+@media (prefers-reduced-motion: reduce) {
+  .category-tile img, .category-tile:hover img { transition: none; transform: none; }
+}
+
 /* Authenticity Banner */
 .auth {
   background: #e3e0da;
