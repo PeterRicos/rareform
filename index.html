@@ -25,7 +25,7 @@
   <link href="https://fonts.googleapis.com/css2?family=DM+Mono:ital,wght@0,400;0,500;1,400&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="styles.css">
 </head>
-  <body style="background-color: lightblue;">
+<body>
 
   <a class="skip-link" href="#main">Skip to main content</a>
 
@@ -54,16 +54,10 @@
       </div>
 
       <div class="nav-links">
-<<<<<<< HEAD
         <a onclick="shopNav('all')" href="#shop">Sneakers</a>
-        <a onclick="shopNav('Supreme')" href="#shop">Clothing & Accessories</a>
-        <a onclick="shopNav('all')" href="#shop">Random Stock</a>
-=======
-        <a onclick="shopNav('all')" href="#shop">Random Sneakers</a>
-        <a onclick="shopCategory('clothing')" href="#shop">Clothing & Accessories</a>
+        <a onclick="shopCategory('clothing')" href="#shop">Clothing &amp; Accessories</a>
         <a onclick="shopCategory('random')" href="#shop">Random Shit</a>
         <a onclick="scrollToSection('heat')" href="#heat">Collections</a>
->>>>>>> a5f3c4a881802a7a85188de7446f04e3408dd9e2
         <a onclick="go('about')" href="#about">About</a>
       </div>
 
@@ -82,16 +76,10 @@
       <button class="drawer-close" onclick="menuClose()" aria-label="Close menu">×</button>
     </div>
     <nav class="mobile-links">
-<<<<<<< HEAD
       <a href="#shop" onclick="menuClose(); shopNav('all')">Sneakers <span>→</span></a>
-      <a href="#shop" onclick="menuClose(); shopNav('Supreme')">Clothing & Accessories <span>→</span></a>
-      <a href="#shop" onclick="menuClose(); shopNav('all')">Random Stock <span>→</span></a>
-=======
-      <a href="#shop" onclick="menuClose(); shopNav('all')">Random Sneakers <span>→</span></a>
-      <a href="#shop" onclick="menuClose(); shopCategory('clothing')">Clothing & Accessories <span>→</span></a>
+      <a href="#shop" onclick="menuClose(); shopCategory('clothing')">Clothing &amp; Accessories <span>→</span></a>
       <a href="#shop" onclick="menuClose(); shopCategory('random')">Random Shit <span>→</span></a>
       <a href="#heat" onclick="menuClose(); scrollToSection('heat')">Collections <span>→</span></a>
->>>>>>> a5f3c4a881802a7a85188de7446f04e3408dd9e2
       <a href="#about" onclick="menuClose(); go('about')">About Random Stock <span>→</span></a>
     </nav>
   </aside>
@@ -114,10 +102,14 @@
         <img src="images/hero.jpg" alt="Air Jordan 1 Retro High OG" width="1600" height="1068" decoding="async">
         <!-- Hero video slot: drop a ~10 second clip at video/reel.mp4 and it fades in
              over the still. Until that file exists the still image is the hero, so
-             the page never shows an empty player or a black box. -->
+             the page never shows an empty player or a black box.
+             The tag is commented out for now: with no file to load it requested
+             video/reel.mp4 on every visit and logged a 404 in the console.
+             Uncomment to re-enable once the clip is in place.
         <video class="hero-video" id="heroVideo" autoplay muted loop playsinline preload="metadata" aria-hidden="true" tabindex="-1">
           <source src="video/reel.mp4" type="video/mp4">
         </video>
+        -->
         <div class="hero-stamp">
           VERIFIED<br>100%<br>AUTHENTIC
         </div>
@@ -147,8 +139,6 @@
       <div class="brand-grid" id="brandGrid"></div>
     </section>
 
-<<<<<<< HEAD
-=======
     <!-- Shop By Category -->
     <section class="section" id="categories">
       <div class="section-head">
@@ -189,7 +179,6 @@
       </div>
     </section>
 
->>>>>>> a5f3c4a881802a7a85188de7446f04e3408dd9e2
     <!-- Authenticity Promise -->
     <section class="section auth">
       <div class="auth-inner auth-grid">
@@ -331,14 +320,9 @@
         <h2 class="foot-head">Shop</h2>
         <nav class="foot-links" aria-label="Footer">
           <a href="#shop" onclick="event.preventDefault(); shopNav('all')">Shop all</a>
-<<<<<<< HEAD
-          <a href="#shop" onclick="event.preventDefault(); shopNav('Supreme')">Clothing & Accessories</a>
-          <a href="#shop" onclick="event.preventDefault(); shopNav('all')">Random Stock</a>
-=======
-          <a href="#shop" onclick="event.preventDefault(); shopCategory('clothing')">Clothing & Accessories</a>
+          <a href="#shop" onclick="event.preventDefault(); shopCategory('clothing')">Clothing &amp; Accessories</a>
           <a href="#shop" onclick="event.preventDefault(); shopCategory('random')">Random Shit</a>
           <a href="#heat" onclick="event.preventDefault(); scrollToSection('heat')">Collections</a>
->>>>>>> a5f3c4a881802a7a85188de7446f04e3408dd9e2
           <a href="#about" onclick="event.preventDefault(); go('about')">About</a>
         </nav>
       </div>
@@ -356,6 +340,7 @@
     </div>
     <div class="foot-bottom">
       <span>&copy; 2026 Random Stock. All rights reserved.</span>
+      <span>Made by Rico</span>
     </div>
   </footer>
 
@@ -2154,7 +2139,6 @@ products.push(...localProducts);
     // Then restore whatever the URL asked for (refresh, shared link, bookmark)
     hydrateFromURL();
   </script>
-<footer>Made by Rico</footer>
 </body>
 </html>
 

@@ -25,10 +25,12 @@ const bad = ['id: 100', 'U990GR6', '1201A019-108', 'FD2370-101', 'DM7866-162', '
   .filter(s => h.includes(s));
 console.log('placeholder/removed-SKU hits: ' + (bad.length ? bad.join(', ') : 'none'));
 
-const bone = (h.match(/HQ6316/g) || []).length;
-console.log('HQ6316 occurrences (expect 1 = generated Bone listing): ' + bone);
-const fz = (h.match(/FZ5000/g) || []).length;
-console.log('FZ5000 occurrences (expect 1 = deduped): ' + fz);
+// These style codes appear once in img, once in gallery and once in sku, so count
+// sku declarations — a raw substring count always reports 3 and reads as a dupe.
+const bone = [...h.matchAll(/sku: "[^"]*HQ6316[^"]*"/g)].length;
+console.log('HQ6316 SKU entries (expect 1 = generated Bone listing): ' + bone);
+const fz = [...h.matchAll(/sku: "[^"]*FZ5000[^"]*"/g)].length;
+console.log('FZ5000 SKU entries (expect 1 = deduped): ' + fz);
 
 const pricing = (h.match(/price|retail|money\(|\$[0-9]/gi) || []).length;
 console.log('pricing refs (expect 0): ' + pricing);
