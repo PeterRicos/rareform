@@ -457,64 +457,6 @@ img { width: 100%; display: block; object-fit: cover; }
   text-transform: uppercase;
 }
 
-/* Heat Section */
-.heat {
-  display: grid;
-  grid-template-columns: 1.25fr 0.75fr;
-  min-height: 600px;
-  background: var(--ink);
-  color: #fff;
-}
-.heat-main {
-  position: relative;
-  overflow: hidden;
-  min-height: 420px;
-}
-.heat-main img {
-  height: 100%;
-  width: 100%;
-  object-fit: cover;
-  opacity: 0.85;
-  transition: transform 1.2s ease;
-}
-.heat:hover .heat-main img { transform: scale(1.04); }
-.heat-main .heat-overlay {
-  position: absolute;
-  left: clamp(24px, 5vw, 64px);
-  bottom: clamp(32px, 5vw, 64px);
-  z-index: 2;
-}
-.heat-main::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(to top, rgba(21,21,21,0.85) 0%, rgba(21,21,21,0.2) 60%);
-  pointer-events: none;
-}
-.heat h2 {
-  font-size: clamp(38px, 5vw, 72px);
-  letter-spacing: -0.06em;
-  line-height: 0.95;
-  margin: 12px 0 24px;
-  max-width: 520px;
-  font-weight: 800;
-}
-.heat-side {
-  padding: clamp(32px, 5vw, 64px);
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  border-left: 1px solid #292929;
-}
-.heat-side p {
-  color: #c4c4c0;
-  max-width: 310px;
-  line-height: 1.7;
-  font-size: 14px;
-  margin: 14px 0 0;
-}
-.heat-count { font: 11px 'DM Mono', monospace; color: var(--lime); font-weight: 500; }
-
 /* Product detail bullet list (non-sneaker listings) */
 .product-details {
   margin: 20px 0 0;
@@ -1037,10 +979,7 @@ img { width: 100%; display: block; object-fit: cover; }
   .p-info { padding: 12px; }
   .brand-grid { grid-template-columns: repeat(2, 1fr); }
   .brand-tile { height: 80px; font-size: 13px; }
-  .heat, .auth-grid { grid-template-columns: 1fr; }
-  .heat { min-height: auto; }
-  .heat-main { min-height: 320px; }
-  .heat-side { border-left: 0; border-top: 1px solid #292929; }
+  .auth-grid { grid-template-columns: 1fr; }
   .foot-grid { grid-template-columns: 1fr 1fr; }
   .foot-grid > div:first-child { grid-column: span 2; }
   .shop-layout { grid-template-columns: 1fr; gap: 0; }
