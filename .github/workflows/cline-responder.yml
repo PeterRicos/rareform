@@ -20,19 +20,68 @@ jobs:
             const hit = body.toLowerCase().includes("@cline");
             core.setOutput("hit", (!isPR && hit) ? "true" : "false");
             core.setOutput("issue_number", String(context.payload.issue?.number || ""));
-            core.setOutput("prompt", body);
+            core.setOutput("prompt", body.replace(/@cline/gi, "").trim());
 
-      - name: Post Hello World
+      - name: Debug API Key Length
+        if: steps.detect.outputs.hit == 'true'
+        env:
+          OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
+        run: |
+          if [ -z "$OPENROUTER_API_KEY" ]; then
+            echo "❌ API key is EMPTY or MISSING!"
+          else
+            echo "✅ API key is present. Length: ${#OPENROUTER_API_KEY}"
+          fi
+
+      - name: Call OpenRouter and Post Comment
         if: steps.detect.outputs.hit == 'true'
         uses: actions/github-script@v7
         env:
+          OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
           ISSUE_NUMBER: ${{ steps.detect.outputs.issue_number }}
           PROMPT: ${{ steps.detect.outputs.prompt }}
         with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
+            let result = "";
+            try {
+              if (!process.env.OPENROUTER_API_KEY) {
+                throw new Error("OPENROUTER_API_KEY secret is missing or empty.");
+              }
+
+              const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+                method: "POST",
+                headers: {
+                  "Authorization": `Bearer ${process.env.OPENROUTER_API_KEY}`,
+                  "Content-Type": "application/json",
+                  "HTTP-Referer": `https://github.com/${context.repo.owner}/${context.repo.repo}`,
+                  "X-Title": "Cline Issue Assistant"
+                },
+                body: JSON.stringify({
+                  model: "google/gemini-2.5-flash:free",
+                  messages: [{ role: "user", content: `The user said: "${process.env.PROMPT}". Reply helpfully.` }]
+                })
+              });
+
+              const data = await response.json();
+              core.info(`API Response Status: ${response.status}`);
+              core.info(`API Response Body: ${JSON.stringify(data)}`);
+
+              if (!response.ok) {
+                result = `⚠️ **OpenRouter Error (${response.status}):** ${data.error?.message || JSON.stringify(data)}`;
+              } else if (data.choices && data.choices[0]) {
+                result = data.choices[0].message.content;
+              } else {
+                result = `⚠️ **Unexpected API Response:**\n\`\`\`json\n${JSON.stringify(data, null, 2)}\n\`\`\``;
+              }
+            } catch (error) {
+              core.error(`Caught Error: ${error.message}`);
+              result = `⚠️ **Script Error:** ${error.message}`;
+            }
+
             await github.rest.issues.createComment({
               owner: context.repo.owner,
               repo: context.repo.repo,
               issue_number: Number(process.env.ISSUE_NUMBER),
-              body: `✅ **The bot is alive!** I received your message: "${process.env.PROMPT}"\n\nNow we know GitHub Actions can post comments. We just need to fix the OpenRouter connection.`
+              body: result
             });
