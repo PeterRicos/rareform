@@ -15,3 +15,6 @@ index.html.before-swap
 
 # Unrelated side project that lives in this folder
 walmart-sentinel/
+
+# Wrangler CLI local cache (Cloudflare Workers tooling)
+.wrangler/
