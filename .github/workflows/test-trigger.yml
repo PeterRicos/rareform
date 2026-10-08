@@ -1,0 +1,11 @@
+name: Test Trigger
+on:
+  issue_comment:
+    types: [created]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Say Hello
+        run: echo "The trigger worked! Someone commented on an issue."
