@@ -55,7 +55,7 @@
 
       <div class="nav-links">
         <a onclick="shopNav('all')" href="#shop">Random Sneakers</a>
-        <a onclick="shopNav('Supreme')" href="#shop">Clothing & Accessories</a>
+        <a onclick="shopCategory('clothing')" href="#shop">Clothing & Accessories</a>
         <a onclick="shopCategory('random')" href="#shop">Random Shit</a>
         <a onclick="scrollToSection('heat')" href="#heat">Collections</a>
         <a onclick="go('about')" href="#about">About</a>
@@ -77,7 +77,7 @@
     </div>
     <nav class="mobile-links">
       <a href="#shop" onclick="menuClose(); shopNav('all')">Random Sneakers <span>→</span></a>
-      <a href="#shop" onclick="menuClose(); shopNav('Supreme')">Clothing & Accessories <span>→</span></a>
+      <a href="#shop" onclick="menuClose(); shopCategory('clothing')">Clothing & Accessories <span>→</span></a>
       <a href="#shop" onclick="menuClose(); shopCategory('random')">Random Shit <span>→</span></a>
       <a href="#heat" onclick="menuClose(); scrollToSection('heat')">Collections <span>→</span></a>
       <a href="#about" onclick="menuClose(); go('about')">About Random Stock <span>→</span></a>
@@ -144,7 +144,7 @@
           <h2>BEYOND THE PAIRS</h2>
         </div>
       </div>
-      <a class="category-tile" href="#shop" onclick="event.preventDefault(); shopNav('Supreme')" aria-label="Shop Clothing &amp; Accessories">
+      <a class="category-tile" href="#shop" onclick="event.preventDefault(); shopCategory('clothing')" aria-label="Shop Clothing &amp; Accessories">
         <img src="images/clothing.jpg" alt="Supreme tee worn outdoors" width="1600" height="2336" loading="lazy" decoding="async">
         <div class="category-tile-copy">
           <span class="eyebrow">Street Wear</span>
@@ -212,7 +212,7 @@
           <span class="eyebrow">Street Wear</span>
           <h2>CLOTHING & ACCESSORIES</h2>
         </div>
-        <a class="text-link" href="#shop" onclick="shopNav('Supreme')">VIEW COLLECTION →</a>
+        <a class="text-link" href="#shop" onclick="shopCategory('clothing')">VIEW COLLECTION →</a>
       </div>
       <div class="products" id="clothing-accessories"></div>
     </section>
@@ -317,7 +317,7 @@
         <h2 class="foot-head">Shop</h2>
         <nav class="foot-links" aria-label="Footer">
           <a href="#shop" onclick="event.preventDefault(); shopNav('all')">Shop all</a>
-          <a href="#shop" onclick="event.preventDefault(); shopNav('Supreme')">Clothing & Accessories</a>
+          <a href="#shop" onclick="event.preventDefault(); shopCategory('clothing')">Clothing & Accessories</a>
           <a href="#shop" onclick="event.preventDefault(); shopCategory('random')">Random Shit</a>
           <a href="#heat" onclick="event.preventDefault(); scrollToSection('heat')">Collections</a>
           <a href="#about" onclick="event.preventDefault(); go('about')">About</a>
@@ -1353,6 +1353,27 @@ const localProducts = [
       "White New Era flag embroidered on the side",
       "Colorway: Navy"
     ]
+  },
+  {
+    id: 81,
+    brand: "The North Face",
+    category: "clothing",
+    name: "KAWS x The North Face Popover Hoodie Pamplona Purple",
+    color: "Pamplona Purple",
+    condition: "New",
+    box: "Original Packaging",
+    sizes: [],
+    img: "images/clothing/kaws-x-the-north-face-popover-hoodie-pamplona-purple.jpg",
+    gallery: ["images/clothing/kaws-x-the-north-face-popover-hoodie-pamplona-purple.jpg"],
+    sku: "NF0A7WLIGP5",
+    details: [
+      "From the debut KAWS x The North Face collection",
+      "Released February 16, 2022",
+      "Cotton fleece pullover (popover) hoodie",
+      "Embroidered KAWS XX and The North Face logos on the chest",
+      "Hood with drawstring, kangaroo pocket, ribbed cuffs and hem",
+      "Colorway: Pamplona Purple"
+    ]
   }
 ];
 products.push(...localProducts);
@@ -1437,7 +1458,7 @@ products.push(...localProducts);
     function productCategory(p) {
       return p.category || (p.brand.toLowerCase() === 'supreme' ? 'clothing' : 'sneakers');
     }
-    const CATEGORY_TITLES = { random: 'RANDOM SHIT' };
+    const CATEGORY_TITLES = { clothing: 'CLOTHING & ACCESSORIES', random: 'RANDOM SHIT' };
     let shopCategoryFilter = '';
 
     // Product Card Template
@@ -1569,7 +1590,7 @@ products.push(...localProducts);
     function renderHome() {
       $('trending').innerHTML = products.slice(0, 4).map(productCard).join('');
       $('recent').innerHTML = products.slice(-4).map(productCard).join('');
-      $('clothing-accessories').innerHTML = products.filter(p => p.brand.toLowerCase() === 'supreme').map(productCard).join('');
+      $('clothing-accessories').innerHTML = products.filter(p => productCategory(p) === 'clothing').map(productCard).join('');
       $('random-shit').innerHTML = products.filter(p => productCategory(p) === 'random').map(productCard).join('');
     }
 
