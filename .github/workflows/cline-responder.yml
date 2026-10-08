@@ -1,7 +1,7 @@
 name: Cline Issue Assistant
 on:
   issue_comment:
-    types: [created, edited]
+    types: [created]
 
 permissions:
   issues: write
@@ -9,7 +9,6 @@ permissions:
 jobs:
   respond:
     runs-on: ubuntu-latest
-    environment: cline-actions
     steps:
       - name: Check for @cline mention
         id: detect
@@ -22,63 +21,35 @@ jobs:
             core.setOutput("hit", (!isPR && hit) ? "true" : "false");
             core.setOutput("issue_number", String(context.payload.issue?.number || ""));
             core.setOutput("issue_url", context.payload.issue?.html_url || "");
-            core.setOutput("comment_body", body);
+            core.setOutput("prompt", body.replace(/@cline/gi, "").trim());
 
-      - name: Checkout repository
-        if: steps.detect.outputs.hit == 'true'
-        uses: actions/checkout@v4
-
-      - name: Setup Node.js
-        if: steps.detect.outputs.hit == 'true'
-        uses: actions/setup-node@v4
-        with:
-          node-version: '22'
-
-      - name: Install Cline CLI
-        if: steps.detect.outputs.hit == 'true'
-        run: npm install -g cline
-
-      - name: Configure Cline Authentication
-        if: steps.detect.outputs.hit == 'true'
-        env:
-          CLINE_DIR: ${{ runner.temp }}/cline
-        run: |
-          cline auth --provider openrouter --apikey "${{ secrets.OPENROUTER_API_KEY }}"
-
-      - name: Download analyze script
-        if: steps.detect.outputs.hit == 'true'
-        run: |
-          export GITORG="PeterRicos"
-          export GITREPO="rareform"
-          curl -L https://raw.githubusercontent.com/${GITORG}/${GITREPO}/refs/heads/main/git-scripts/analyze-issue.sh -o analyze-issue.sh
-          chmod +x analyze-issue.sh
-
-      - name: Run analysis
-        if: steps.detect.outputs.hit == 'true'
-        id: analyze
-        env:
-          ISSUE_URL: ${{ steps.detect.outputs.issue_url }}
-          COMMENT: ${{ steps.detect.outputs.comment_body }}
-        run: |
-          set -euo pipefail
-          RESULT=$(./analyze-issue.sh "${ISSUE_URL}" "Analyze this issue. The user asked: ${COMMENT}")
-          {
-            echo 'result<<EOF'
-            printf "%s\n" "$RESULT"
-            echo 'EOF'
-          } >> "$GITHUB_OUTPUT"
-
-      - name: Post response
+      - name: Call OpenRouter and Post Comment
         if: steps.detect.outputs.hit == 'true'
         uses: actions/github-script@v7
         env:
+          OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
           ISSUE_NUMBER: ${{ steps.detect.outputs.issue_number }}
-          RESULT: ${{ steps.analyze.outputs.result }}
+          ISSUE_URL: ${{ steps.detect.outputs.issue_url }}
+          PROMPT: ${{ steps.detect.outputs.prompt }}
         with:
           script: |
+            const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+              method: "POST",
+              headers: {
+                "Authorization": `Bearer ${process.env.OPENROUTER_API_KEY}`,
+                "Content-Type": "application/json"
+              },
+              body: JSON.stringify({
+                model: "deepseek/deepseek-chat:free",
+                messages: [{ role: "user", content: `You are a helpful GitHub bot. The user opened an issue at ${process.env.ISSUE_URL}. The user's comment is: "${process.env.PROMPT}". Provide a helpful response.` }]
+              })
+            });
+            const data = await response.json();
+            const result = data.choices?.[0]?.message?.content || "Sorry, I couldn't generate a response.";
+            
             await github.rest.issues.createComment({
               owner: context.repo.owner,
               repo: context.repo.repo,
               issue_number: Number(process.env.ISSUE_NUMBER),
-              body: process.env.RESULT || "(no output)"
+              body: result
             });
