@@ -2121,9 +2121,9 @@ products.push(...localProducts);
        switch counting off entirely. -->
   <script>
     (function countVisit() {
-      // Paste the worker URL from the Cloudflare dashboard here to activate:
-      // e.g. "https://visit-counter.<your-account>.workers.dev"
-      var VISIT_ENDPOINT = "";
+      // Worker URL from the Cloudflare dashboard:
+      // https://visit-counters.marra-pete.workers.dev
+      var VISIT_ENDPOINT = "https://visit-counters.marra-pete.workers.dev";
 
       if (!VISIT_ENDPOINT) return; // not configured yet, so do nothing at all
 
