@@ -1,5 +1,7 @@
 name: Manual Test
 on:
+  issue_comment:
+    types: [created]
   workflow_dispatch:
 
 jobs:
@@ -7,4 +9,4 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Say Hello
-        run: echo "The manual workflow is working!"
+        run: echo "A comment was created! The trigger is finally working."
