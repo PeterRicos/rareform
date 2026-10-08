@@ -8,17 +8,22 @@
   <link rel="icon" href="favicon.ico" sizes="any">
   <link rel="icon" href="favicon.svg" type="image/svg+xml">
   <link rel="apple-touch-icon" href="apple-touch-icon.png">
+  <!-- Absolute URLs only: when this page is shared into WhatsApp/Instagram/iMessage the
+       unfurler reads og:url and og:image, and it rejects relative paths, so the preview
+       card loses its image and some apps tap through to the wrong target. -->
+  <link rel="canonical" href="https://randomstock.shop/">
   <meta property="og:type" content="website">
+  <meta property="og:url" content="https://randomstock.shop/">
   <meta property="og:site_name" content="Random Stock">
   <meta property="og:title" content="Random Stock - Verified Sneakers">
   <meta property="og:description" content="A small, hand-checked inventory of authentic sneakers. Every pair is inspected by hand before it ships.">
-  <meta property="og:image" content="og-image.jpg">
+  <meta property="og:image" content="https://randomstock.shop/og-image.jpg">
   <meta property="og:image:width" content="1200">
   <meta property="og:image:height" content="630">
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="Random Stock - Verified Sneakers">
   <meta name="twitter:description" content="A small, hand-checked inventory of authentic sneakers.">
-  <meta name="twitter:image" content="og-image.jpg">
+  <meta name="twitter:image" content="https://randomstock.shop/og-image.jpg">
   <title>Random Stock — Verified Sneakers</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
