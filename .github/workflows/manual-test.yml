@@ -7,21 +7,17 @@ on:
         required: true
         default: 'Hello world!'
 
-permissions:
-  issues: write
-
 jobs:
   test:
     runs-on: ubuntu-latest
     steps:
-      - name: Call OpenRouter and Post Comment
+      - name: Call OpenRouter
         uses: actions/github-script@v7
         env:
           OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
           PROMPT: ${{ github.event.inputs.prompt }}
         with:
           script: |
-            let result = "";
             try {
               const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
                 method: "POST",
@@ -36,20 +32,16 @@ jobs:
                   messages: [{ role: "user", content: process.env.PROMPT }]
                 })
               });
+              
               const data = await response.json();
+              
               if (!response.ok) {
-                result = "⚠️ OpenRouter Error (" + response.status + "): " + (data.error?.message || JSON.stringify(data));
+                core.setFailed("OpenRouter Error: " + JSON.stringify(data));
               } else if (data.choices && data.choices[0]) {
-                result = data.choices[0].message.content;
+                core.info("✅ SUCCESS! The AI replied: " + data.choices[0].message.content);
               } else {
-                result = "⚠️ Unexpected Response: " + JSON.stringify(data);
+                core.setFailed("Unexpected Response: " + JSON.stringify(data));
               }
             } catch (error) {
-              result = "⚠️ Script Error: " + error.message;
+              core.setFailed("Script Error: " + error.message);
             }
-            await github.rest.issues.createComment({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              issue_number: 9,
-              body: result
-            });
