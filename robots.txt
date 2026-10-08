@@ -1,0 +1,6 @@
+# This is a static storefront — everything here is public and safe to index.
+# The file is listed explicitly (rather than 404-ing) so link unfurlers — iMessage,
+# WhatsApp, Google Messages RCS link cards — never have to infer the policy when
+# building a preview for a link someone shares.
+User-agent: *
+Allow: /
