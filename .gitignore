@@ -8,6 +8,13 @@ __pycache__/
 # Exported data dump (large, regenerable)
 stockx_output.json
 
+# Pricing source data — NEVER commit: the site doesn't show prices,
+# so the repo must not leak what was paid for the stock.
+# generate_products.py reads yeezys.xlsx locally; keep it out of git.
+yeezys.xlsx
+sneaker_prices.csv
+sneaker_prices_filled.csv
+
 # Old hand-made backups, superseded by git history
 *.bak
 *.bak1
