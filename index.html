@@ -248,7 +248,7 @@
             <select id="brandFilter" onchange="renderShop()"></select>
           </div>
           <div class="filter">
-            <label for="sizeFilter">US SIZE</label>
+            <label for="sizeFilter">SIZE</label>
             <select id="sizeFilter" onchange="renderShop()"></select>
           </div>
           <div class="filter">
@@ -1427,21 +1427,42 @@ products.push(...localProducts);
 
     // ---- Cleanup pass helpers ----
 
-    // Catalog sizes mix men's, women's and youth runs ("10", "5.5W", "2Y", "13K").
+    // Catalog sizes mix men's, women's and youth shoe runs ("10", "5.5W", "2Y",
+    // "13K") with apparel letters ("S", "M", "L") and fitted-hat fractions
+    // ("7 1/4"). Nothing else in the catalog reads like a bare letter or a spaced
+    // fraction, so both are unambiguous and get groups of their own instead of being
+    // passed off as men's shoe sizes.
     function sizeCategory(size) {
       const s = String(size || '').trim().toUpperCase();
+      if (/^\d+\s+\d+\/\d+/.test(s)) return 'Headwear';
+      if (/^[A-Z]+$/.test(s)) return 'Apparel';
       if (/W$/.test(s)) return 'Women';
       if (/[YK]$/.test(s)) return 'Youth';
       return 'Men';
     }
 
+    // How a single size reads to customers: shoe sizes carry "US", apparel letters and
+    // hat fractions are already self-explanatory. Used by the filter dropdown, the size
+    // chips, and the order message, so a hoodie can never again read as "US M".
+    function sizeDisplay(s) {
+      const cat = sizeCategory(s);
+      return (cat === 'Apparel' || cat === 'Headwear') ? String(s) : 'US ' + s;
+    }
+
+    // Detail-page sizing line — "US" only belongs in front of shoe runs.
+    const SIZING_LABELS = {
+      Men: "US Men's sizing",
+      Women: "US Women's sizing",
+      Youth: 'US Youth sizing',
+      Apparel: 'Apparel sizing',
+      Headwear: 'Headwear sizing'
+    };
+
     function sizeCategoryLabel(product) {
       const cats = uniqSorted((product && product.sizes ? product.sizes : []).map(sizeCategory));
       if (!cats.length) return '';
       if (cats.length > 1) return 'Mixed sizing';
-      if (cats[0] === 'Men') return "US Men's sizing";
-      if (cats[0] === 'Women') return "US Women's sizing";
-      return 'US Youth sizing';
+      return SIZING_LABELS[cats[0]] || 'Sizing';
     }
 
     // The size chips report what we hold; these links carry the pair and the chosen
@@ -1451,7 +1472,7 @@ products.push(...localProducts);
       const text = $('orderText');
       if (!call || !text || !current) return;
       const size = selectedSize || (current.sizes || [])[0] || '';
-      const summary = current.name + ' (SKU ' + current.sku + ')' + (size ? ', size US ' + size : '');
+      const summary = current.name + ' (SKU ' + current.sku + ')' + (size ? ', size ' + sizeDisplay(size) : '');
       call.href = 'tel:+19144821144';
       text.href = 'sms:+19144821144?&body=' + encodeURIComponent('Hi Random Stock, is the ' + summary + ' still available?');
     }
@@ -1549,7 +1570,19 @@ products.push(...localProducts);
       return parseFloat(m[1]) + (frac ? frac[1] / frac[2] : 0);
     }
 
+    const LETTER_SIZE_RANK = { XS: 0, S: 1, M: 2, L: 3, XL: 4, XXL: 5 };
+
     function compareSizes(a, b) {
+      const ca = sizeCategory(a);
+      const cb = sizeCategory(b);
+      // Alphabetical would put "M" ahead of "S"; an Apparel group reads better in
+      // dress order, and (theoretical) mixed comparisons keep apparel together.
+      if (ca === 'Apparel' || cb === 'Apparel') {
+        const rank = (v, c) => c === 'Apparel' && LETTER_SIZE_RANK[v.toUpperCase()] !== undefined ? LETTER_SIZE_RANK[v.toUpperCase()] : 99;
+        const ra = rank(a, ca);
+        const rb = rank(b, cb);
+        return ra - rb || String(a).localeCompare(String(b));
+      }
       const pa = /^(\d+(?:\.\d+)?)(.*)$/.exec(a) || [];
       const pb = /^(\d+(?:\.\d+)?)(.*)$/.exec(b) || [];
       const na = sizeNumber(pa);
@@ -1580,13 +1613,15 @@ products.push(...localProducts);
         tiles.map(b => `<option value="${b}">${b}</option>`).join('');
 
       // Group sizes by the run they belong to, so "2Y" is not offered as if it were
-      // a men's size next to "US 10".
-      const sizeGroups = { Men: [], Women: [], Youth: [] };
+      // a men's size next to "US 10", a "S" isn't passed off as a men's shoe, and a
+      // hat fraction like "7 1/4" gets a Headwear group of its own.
+      const sizeGroups = { Men: [], Women: [], Youth: [], Apparel: [], Headwear: [] };
       sizes.forEach(s => { sizeGroups[sizeCategory(s)].push(s); });
+      const sizeGroupOrder = ['Men', 'Women', 'Youth', 'Apparel', 'Headwear'];
       $('sizeFilter').innerHTML = '<option value="">All Sizes</option>' +
-        ['Men', 'Women', 'Youth'].filter(g => sizeGroups[g].length).map(g =>
+        sizeGroupOrder.filter(g => sizeGroups[g].length).map(g =>
           '<optgroup label="' + g + '">' +
-          sizeGroups[g].map(s => `<option value="${s}">US ${s}</option>`).join('') +
+          sizeGroups[g].map(s => `<option value="${s}">${sizeDisplay(s)}</option>`).join('') +
           '</optgroup>').join('');
 
       // A dropdown whose only option is the filter's own default is noise, so the
@@ -1653,20 +1688,32 @@ products.push(...localProducts);
     // rather than a size: "700" has to keep finding Yeezy 700s instead of reporting that
     // no US 700 exists.
     const MAX_SIZE_QUERY = 16;
+    const APPAREL_SIZES = ['s', 'm', 'l', 'xl', 'xs', 'xxl'];
 
     function parseSizeQuery(q) {
-      const m = /^(?:us\s*)?(\d+(?:\.\d+)?)([a-z]*)$/i.exec(String(q).trim());
+      const str = String(q || '').trim().toLowerCase();
+      // A bare letter is an apparel run: "m" and "xl" should find sizes, not every
+      // product whose name happens to contain the letter. Anything outside the
+      // apparel vocabulary still falls through to keyword search.
+      const letter = /^([a-z]+)$/.exec(str);
+      if (letter && APPAREL_SIZES.indexOf(letter[1]) !== -1) {
+        return { value: letter[1], suffix: '', letters: true, display: 'Size ' + letter[1].toUpperCase() };
+      }
+      const m = /^(?:us\s*)?(\d+(?:\.\d+)?)([a-z]*)$/i.exec(str);
       if (!m) return null;
       const value = parseFloat(m[1]);
       if (!Number.isFinite(value) || value > MAX_SIZE_QUERY) return null;
-      return { value, suffix: m[2].toLowerCase() };
+      return { value, suffix: m[2].toLowerCase(), letters: false, display: 'US ' + value };
     }
 
     // "11" matches any size worth 11. "5.5w" / "13k" only match that same run, since a
     // suffix means the shopper named a specific women's or kids' size rather than a number.
+    // Letter queries ("m", "xl") match the exact apparel size.
     function matchesSize(product, sizeQuery) {
       return (product.sizes || []).some(s => {
-        const parsed = /^(\d+(?:\.\d+)?)(.*)$/.exec(String(s).trim());
+        const st = String(s).trim();
+        if (sizeQuery.letters) return st.toLowerCase() === sizeQuery.value;
+        const parsed = /^(\d+(?:\.\d+)?)(.*)$/.exec(st);
         if (!parsed) return false;
         const value = parseFloat(parsed[1]);
         if (!Number.isFinite(value) || value !== sizeQuery.value) return false;
@@ -1714,7 +1761,7 @@ products.push(...localProducts);
       const emptyCopy = brand && !list.length
         ? `No ${brand} items in stock yet — new stock goes up weekly.`
         : (sizeQuery
-          ? `Nothing in US ${q.toUpperCase()} right now — try another size.`
+          ? `Nothing in ${sizeQuery.display} right now — try another size.`
           : (brand === 'Supreme' ? 'No clothing found matching those filters.' : 'No sneakers found matching those filters.'));
 
       $('shopProducts').innerHTML = list.length
