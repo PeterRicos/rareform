@@ -8,10 +8,10 @@ const fs = require('fs');
 const path = require('path');
 const vm = require('vm');
 
-// index.html living next to this test file — no absolute path needed.
-const HTML = path.join(__dirname, 'index.html');
-const SRC = fs.readFileSync(HTML, 'utf8');
-const CODE = SRC.slice(SRC.indexOf('<script>') + 8, SRC.lastIndexOf('</script>'));
+// The live page loads products.js (catalog) then app.js (logic) — index.html no
+// longer carries a script body — so the harness evaluates those two in order.
+const CODE = fs.readFileSync(path.join(__dirname, 'products.js'), 'utf8') + '\n' +
+             fs.readFileSync(path.join(__dirname, 'app.js'), 'utf8');
 
 const results = [];
 const ok = (name, cond, extra) => results.push({ name, pass: !!cond, extra: cond ? '' : String(extra) });
@@ -37,6 +37,7 @@ function makeEl(id) {
     focus: () => {},
     reset: () => {},
     appendChild: () => {},
+    closest: (sel) => el,
     querySelector: () => null,
     querySelectorAll: () => [],
     scrollIntoView: (opts) => { el._scrolled = opts || true; }
@@ -155,7 +156,7 @@ function boot(initialHash, cfg) {
   await sleep(320);
   ok('A1  hash normalised to #home', A.location.hash === '#home', A.location.hash);
   ok('A2  home page active', A.active() === 'home', A.active());
-  ok('A3  default title', A.doc.title === 'Random Stock — Verified Sneakers & Streetwear', A.doc.title);
+  ok('A3  default title', A.doc.title === 'Random Stock — Verified Sneakers', A.doc.title);
 
   // ---- B. refresh on a shared product link ---------------------------------
   const B = boot('#product/3');
@@ -207,15 +208,17 @@ function boot(initialHash, cfg) {
   await sleep(320);
   ok('G7  back → home', G.active() === 'home' && G.location.hash === '#home', G.active() + ' ' + G.location.hash);
   // ---- H. section nav is shareable and reversible ---------------------------
+  // (the old '#heat' section and its scrollToSection() helper were removed from
+  // the site, so this exercises today's flow: a section hash on the home route)
   const P = boot('');
   await sleep(320);
-  ev(P, 'scrollToSection("heat")');
-  await sleep(200);
-  ok('H1  url #heat', P.location.hash === '#heat', P.location.hash);
-  ok('H2  home active', P.active() === 'home', P.active());
-  ok('H3  #heat scrolled', !!P.getEl('heat')._scrolled);
-  P.history.back();
+  P.location.hash = '#street';
   await sleep(320);
+  ok('H1  url #street', P.location.hash === '#street', P.location.hash);
+  ok('H2  home stays active', P.active() === 'home', P.active());
+  ok('H3  #street scrolled', !!P.getEl('street')._scrolled);
+  P.history.back();
+  await sleep(400);
   ok('H4  back → #home', P.location.hash === '#home', P.location.hash);
 
   // ---- I. manual hash edit (hashchange route) -------------------------------

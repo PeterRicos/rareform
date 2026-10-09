@@ -1,6 +1,6 @@
-// validate-catalog.js — structural checks for the generated catalog block
+// validate-catalog.js — structural checks for the catalog block (products.js)
 const fs = require('fs');
-const h = fs.readFileSync(__dirname + '/index.html', 'utf8');
+const h = fs.readFileSync(__dirname + '/products.js', 'utf8');
 
 const ids = [...h.matchAll(/^\s*id:\s*(\d+),\s*$/gm)].map(m => +m[1]);
 const uniq = new Set(ids);
