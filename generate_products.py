@@ -10,7 +10,7 @@ from pathlib import Path
 EXCEL_PATH = "yeezys.xlsx"
 APIFY_FILE = "stockx_output.json"
 IMAGES_DIR = Path("sneaker_images")
-OUTPUT_JS = "products_block.js"
+OUTPUT_JS = "products.js"   # loaded before app.js; window.localProducts consumed there
 START_ID = 1   # dense 1..N — no hand-written listings remain above the block
 
 # SKUs the StockX scrape gets wrong, verified against the product photos.
@@ -201,7 +201,10 @@ def main():
   }}''')
 
     Path(OUTPUT_JS).write_text(
-        "const localProducts = [\n" + ",\n".join(products) + "\n];\n",
+        "/* == local-products:begin == */\n"
+        + "const localProducts = [\n" + ",\n".join(products) + "\n];\n"
+        + "/* == local-products:end == */\n"
+        + "window.localProducts = localProducts;\n",
         encoding="utf-8"
     )
 

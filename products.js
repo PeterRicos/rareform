@@ -1,3 +1,9 @@
+// PRODUCT CATALOG — the file to edit for any listing change.
+// index.html loads this first, then app.js renders window.localProducts.
+// Keep each product as one JSON-shaped object; app.js derives the store
+// (brands, sizes, conditions, tiles) from whatever array is here.
+
+/* == local-products:begin == */
 const localProducts = [
   {
     id: 1,
@@ -7,7 +13,6 @@ const localProducts = [
     condition: "New",
     box: "Original Box",
     sizes: ["9.5"],
-    year: 2020,
     img: "sneaker_images/square/Yeezys_360_Cinder_FY2903.jpg",
     gallery: ["sneaker_images/square/Yeezys_360_Cinder_FY2903.jpg"],
     sku: "FY2903"
@@ -20,7 +25,6 @@ const localProducts = [
     condition: "New",
     box: "Original Box",
     sizes: ["8"],
-    year: 2022,
     img: "sneaker_images/square/Yeezys_350_Dazzling_Blue_GY7164.jpg",
     gallery: ["sneaker_images/square/Yeezys_350_Dazzling_Blue_GY7164.jpg"],
     sku: "GY7164"
@@ -33,7 +37,6 @@ const localProducts = [
     condition: "New",
     box: "Original Box",
     sizes: ["5.5", "6", "8"],
-    year: 2021,
     img: "sneaker_images/square/Yeezys_350_Beluga_Reflective_GW1229.jpg",
     gallery: ["sneaker_images/square/Yeezys_350_Beluga_Reflective_GW1229.jpg"],
     sku: "GW1229"
@@ -41,14 +44,13 @@ const localProducts = [
   {
     id: 4,
     brand: "adidas",
-    name: "adidas Yeezy Boost 350 V2 Carbon",
-    color: "Carbon",
+    name: "adidas Yeezy Boost 350 V2 Asriel",
+    color: "Asriel",
     condition: "New",
     box: "Original Box",
     sizes: ["5.5", "7", "8", "13"],
-    year: 2020,
-    img: "sneaker_images/square/Yeezys_350_Carbon_FZ5000.jpg",
-    gallery: ["sneaker_images/square/Yeezys_350_Carbon_FZ5000.jpg"],
+    img: "sneaker_images/square/Yeezys_350_Asriel_FZ5000.jpg",
+    gallery: ["sneaker_images/square/Yeezys_350_Asriel_FZ5000.jpg"],
     sku: "FZ5000"
   },
   {
@@ -59,7 +61,6 @@ const localProducts = [
     condition: "New",
     box: "Original Box",
     sizes: ["6"],
-    year: 2022,
     img: "sneaker_images/square/Yeezys_350_Onyx_HQ4540.jpg",
     gallery: ["sneaker_images/square/Yeezys_350_Onyx_HQ4540.jpg"],
     sku: "HQ4540"
@@ -72,7 +73,6 @@ const localProducts = [
     condition: "New",
     box: "Original Box",
     sizes: ["6.5", "12.5"],
-    year: 2021,
     img: "sneaker_images/square/Yeezys_350_Light_GY3438.jpg",
     gallery: ["sneaker_images/square/Yeezys_350_Light_GY3438.jpg"],
     sku: "GY3438"
@@ -85,7 +85,6 @@ const localProducts = [
     condition: "New",
     box: "Original Box",
     sizes: ["8"],
-    year: 2024,
     img: "sneaker_images/square/Yeezys_350_Carbon_Beluga_HQ7045.jpg",
     gallery: ["sneaker_images/square/Yeezys_350_Carbon_Beluga_HQ7045.jpg"],
     sku: "HQ7045"
@@ -98,7 +97,6 @@ const localProducts = [
     condition: "New",
     box: "Original Box",
     sizes: ["7.5"],
-    year: 2020,
     img: "sneaker_images/square/Yeezys_350_Natural_FZ5246.jpg",
     gallery: ["sneaker_images/square/Yeezys_350_Natural_FZ5246.jpg"],
     sku: "FZ5246"
@@ -111,7 +109,6 @@ const localProducts = [
     condition: "New",
     box: "Original Box",
     sizes: ["8"],
-    year: 2020,
     img: "sneaker_images/square/Yeezys_360_Zyon_FZ1267.jpg",
     gallery: ["sneaker_images/square/Yeezys_360_Zyon_FZ1267.jpg"],
     sku: "FZ1267"
@@ -124,7 +121,6 @@ const localProducts = [
     condition: "New",
     box: "Original Box",
     sizes: ["6K"],
-    year: 2017,
     img: "sneaker_images/square/Yeezys_350_Infant_Black_BB6372.jpg",
     gallery: ["sneaker_images/square/Yeezys_350_Infant_Black_BB6372.jpg"],
     sku: "BB6372"
@@ -137,7 +133,6 @@ const localProducts = [
     condition: "New",
     box: "Original Box",
     sizes: ["11.5"],
-    year: 2021,
     img: "sneaker_images/square/Yeezys_450_Dark_Slate_GY5368.jpg",
     gallery: ["sneaker_images/square/Yeezys_450_Dark_Slate_GY5368.jpg"],
     sku: "GY5368"
@@ -150,7 +145,6 @@ const localProducts = [
     condition: "New",
     box: "Original Box",
     sizes: ["6"],
-    year: 2022,
     img: "sneaker_images/square/Yeezys_Slide_Onyx_HQ6448.jpg",
     gallery: ["sneaker_images/square/Yeezys_Slide_Onyx_HQ6448.jpg"],
     sku: "HQ6448"
@@ -163,7 +157,6 @@ const localProducts = [
     condition: "New",
     box: "Original Box",
     sizes: ["12", "14"],
-    year: 2021,
     img: "sneaker_images/square/Yeezys_Slide_Pure_GW1934.jpg",
     gallery: ["sneaker_images/square/Yeezys_Slide_Pure_GW1934.jpg"],
     sku: "GW1934"
@@ -176,7 +169,6 @@ const localProducts = [
     condition: "New",
     box: "Original Box",
     sizes: ["13", "14"],
-    year: 2021,
     img: "sneaker_images/square/Yeezys_Slide_Ochre_GW1931.jpg",
     gallery: ["sneaker_images/square/Yeezys_Slide_Ochre_GW1931.jpg"],
     sku: "GW1931"
@@ -189,7 +181,6 @@ const localProducts = [
     condition: "New",
     box: "Original Box",
     sizes: ["6", "6.5"],
-    year: 2020,
     img: "sneaker_images/square/Yeezys_700_Alvah_H67799.jpg",
     gallery: ["sneaker_images/square/Yeezys_700_Alvah_H67799.jpg"],
     sku: "H67799"
@@ -202,7 +193,6 @@ const localProducts = [
     condition: "New",
     box: "Original Box",
     sizes: ["10", "10.5"],
-    year: 2020,
     img: "sneaker_images/square/Yeezys_700_Clay_Brown_GY0189.jpg",
     gallery: ["sneaker_images/square/Yeezys_700_Clay_Brown_GY0189.jpg"],
     sku: "GY0189"
@@ -215,7 +205,6 @@ const localProducts = [
     condition: "New",
     box: "Original Box",
     sizes: ["7", "11"],
-    year: 2017,
     img: "sneaker_images/square/Yeezys_700_Wave_Runner_B75571.jpg",
     gallery: ["sneaker_images/square/Yeezys_700_Wave_Runner_B75571.jpg"],
     sku: "B75571"
@@ -227,8 +216,7 @@ const localProducts = [
     color: "Bone",
     condition: "New",
     box: "Original Box",
-    sizes: ["7.5", "4.5"],
-    year: 2020,
+    sizes: ["4.5", "7.5"],
     img: "sneaker_images/square/Yeezys_700_MNVN_Bone_FY3729.jpg",
     gallery: ["sneaker_images/square/Yeezys_700_MNVN_Bone_FY3729.jpg"],
     sku: "FY3729"
@@ -241,7 +229,6 @@ const localProducts = [
     condition: "New",
     box: "Original Box",
     sizes: ["6"],
-    year: 2019,
     img: "sneaker_images/square/Yeezys_700_Tephra_FU7914.jpg",
     gallery: ["sneaker_images/square/Yeezys_700_Tephra_FU7914.jpg"],
     sku: "FU7914"
@@ -254,7 +241,6 @@ const localProducts = [
     condition: "New",
     box: "Original Box",
     sizes: ["11"],
-    year: 2021,
     img: "sneaker_images/square/Yeezys_700_Dark_Glow_GX6144.jpg",
     gallery: ["sneaker_images/square/Yeezys_700_Dark_Glow_GX6144.jpg"],
     sku: "GX6144"
@@ -267,7 +253,6 @@ const localProducts = [
     condition: "New",
     box: "Original Box",
     sizes: ["6"],
-    year: 2020,
     img: "sneaker_images/square/Yeezys_700_Arzareth_G54850.jpg",
     gallery: ["sneaker_images/square/Yeezys_700_Arzareth_G54850.jpg"],
     sku: "G54850"
@@ -280,7 +265,6 @@ const localProducts = [
     condition: "New",
     box: "Original Box",
     sizes: ["7"],
-    year: 2023,
     img: "sneaker_images/square/Yeezys_Foam_MX_Cinder_ID4126.jpg",
     gallery: ["sneaker_images/square/Yeezys_Foam_MX_Cinder_ID4126.jpg"],
     sku: "ID4126"
@@ -289,11 +273,10 @@ const localProducts = [
     id: 23,
     brand: "adidas",
     name: "Yeezy Foam MTX Moon Grey",
-    color: "MXT Moon Gray",
+    color: "MTX Moon Grey",
     condition: "New",
     box: "Original Box",
     sizes: ["5"],
-    year: 2021,
     img: "sneaker_images/square/Yeezys_Foam_MTX_Moon_Grey_GV7904.jpg",
     gallery: ["sneaker_images/square/Yeezys_Foam_MTX_Moon_Grey_GV7904.jpg"],
     sku: "GV7904"
@@ -306,7 +289,6 @@ const localProducts = [
     condition: "New",
     box: "Original Box",
     sizes: ["13K"],
-    year: 2021,
     img: "sneaker_images/square/Yeezys_Foam_Kids_MX_Sand_Grey_GY3970.jpg",
     gallery: ["sneaker_images/square/Yeezys_Foam_Kids_MX_Sand_Grey_GY3970.jpg"],
     sku: "GY3970"
@@ -319,7 +301,6 @@ const localProducts = [
     condition: "New",
     box: "Original Box",
     sizes: ["8"],
-    year: 2024,
     img: "sneaker_images/square/Yeezys_Foam_Onyx_HP8739.jpg",
     gallery: ["sneaker_images/square/Yeezys_Foam_Onyx_HP8739.jpg"],
     sku: "HP8739"
@@ -332,7 +313,6 @@ const localProducts = [
     condition: "New",
     box: "Original Box",
     sizes: ["5.5"],
-    year: 2021,
     img: "sneaker_images/square/Yeezys_Desert_Boot_Taupe_Blue_GY0374.jpg",
     gallery: ["sneaker_images/square/Yeezys_Desert_Boot_Taupe_Blue_GY0374.jpg"],
     sku: "GY0374"
@@ -345,7 +325,6 @@ const localProducts = [
     condition: "New",
     box: "Original Box",
     sizes: ["6"],
-    year: 2019,
     img: "sneaker_images/square/Yeezys_500_High_Slate_FW4968.jpg",
     gallery: ["sneaker_images/square/Yeezys_500_High_Slate_FW4968.jpg"],
     sku: "FW4968"
@@ -358,7 +337,6 @@ const localProducts = [
     condition: "New",
     box: "Original Box",
     sizes: ["12"],
-    year: 2021,
     img: "sneaker_images/square/Yeezys_450_Cloud_White_H68038.jpg",
     gallery: ["sneaker_images/square/Yeezys_450_Cloud_White_H68038.jpg"],
     sku: "H68038"
@@ -371,7 +349,6 @@ const localProducts = [
     condition: "New",
     box: "Original Box",
     sizes: ["6", "8"],
-    year: 2021,
     img: "sneaker_images/square/Yeezys_350_Mono_Ice_GW2869.jpg",
     gallery: ["sneaker_images/square/Yeezys_350_Mono_Ice_GW2869.jpg"],
     sku: "GW2869"
@@ -384,7 +361,6 @@ const localProducts = [
     condition: "New",
     box: "Original Box",
     sizes: ["6"],
-    year: 2020,
     img: "sneaker_images/square/Yeezys_350_Israfil_FZ5421.jpg",
     gallery: ["sneaker_images/square/Yeezys_350_Israfil_FZ5421.jpg"],
     sku: "FZ5421"
@@ -397,7 +373,6 @@ const localProducts = [
     condition: "New",
     box: "Original Box",
     sizes: ["6"],
-    year: 2022,
     img: "sneaker_images/square/Yeezys_350_Bone_HQ6316.jpg",
     gallery: ["sneaker_images/square/Yeezys_350_Bone_HQ6316.jpg"],
     sku: "HQ6316"
@@ -410,7 +385,6 @@ const localProducts = [
     condition: "New",
     box: "Original Box",
     sizes: ["6"],
-    year: 2022,
     img: "sneaker_images/square/Sheet2_WMNS_Air_Jordan_1_Low_DC0774_114.jpg",
     gallery: ["sneaker_images/square/Sheet2_WMNS_Air_Jordan_1_Low_DC0774_114.jpg"],
     sku: "DC0774-114"
@@ -423,7 +397,6 @@ const localProducts = [
     condition: "New",
     box: "Original Box",
     sizes: ["3.5", "4", "4.5", "6.5"],
-    year: 2021,
     img: "sneaker_images/square/Sheet2_Jordan_5_RetroRaging_Bull_Red_2021_GS_440888_600.jpg",
     gallery: ["sneaker_images/square/Sheet2_Jordan_5_RetroRaging_Bull_Red_2021_GS_440888_600.jpg"],
     sku: "440888-600"
@@ -436,7 +409,6 @@ const localProducts = [
     condition: "New",
     box: "Original Box",
     sizes: ["8"],
-    year: 2022,
     img: "sneaker_images/square/Sheet2_Air_Jordan_1_Retro_High_OG_555088_404.jpg",
     gallery: ["sneaker_images/square/Sheet2_Air_Jordan_1_Retro_High_OG_555088_404.jpg"],
     sku: "555088-404"
@@ -449,7 +421,6 @@ const localProducts = [
     condition: "New",
     box: "Original Box",
     sizes: ["4.5"],
-    year: 2021,
     img: "sneaker_images/square/Sheet2_Hyper_Royal_Light_Smoke_Grey_White_575441_402.jpg",
     gallery: ["sneaker_images/square/Sheet2_Hyper_Royal_Light_Smoke_Grey_White_575441_402.jpg"],
     sku: "575441-402"
@@ -462,7 +433,6 @@ const localProducts = [
     condition: "New",
     box: "Original Box",
     sizes: ["8"],
-    year: 2022,
     img: "sneaker_images/square/Sheet2_Jordan_6_UNC_University_Blue_White_CT8529_410.jpg",
     gallery: ["sneaker_images/square/Sheet2_Jordan_6_UNC_University_Blue_White_CT8529_410.jpg"],
     sku: "CT8529-410"
@@ -475,7 +445,6 @@ const localProducts = [
     condition: "New",
     box: "Original Box",
     sizes: ["7", "12"],
-    year: 2020,
     img: "sneaker_images/square/Sheet2_Jordan_1_Lucky_Green_White_Sail_Black_DB4612_300.jpg",
     gallery: ["sneaker_images/square/Sheet2_Jordan_1_Lucky_Green_White_Sail_Black_DB4612_300.jpg"],
     sku: "DB4612-300"
@@ -488,7 +457,6 @@ const localProducts = [
     condition: "New",
     box: "Original Box",
     sizes: ["7Y"],
-    year: 2020,
     img: "sneaker_images/square/Sheet2_Jordan_1_Mid_Black_Medium_Grey_White_554725_073.jpg",
     gallery: ["sneaker_images/square/Sheet2_Jordan_1_Mid_Black_Medium_Grey_White_554725_073.jpg"],
     sku: "554725-073"
@@ -501,7 +469,6 @@ const localProducts = [
     condition: "New",
     box: "Original Box",
     sizes: ["7.5", "8", "9", "11", "12", "13"],
-    year: 2020,
     img: "sneaker_images/square/Sheet2_Jordan_11_Retro_Jubilee_25th_Anniversary_CT8012_011.jpg",
     gallery: ["sneaker_images/square/Sheet2_Jordan_11_Retro_Jubilee_25th_Anniversary_CT8012_011.jpg"],
     sku: "CT8012-011"
@@ -514,7 +481,6 @@ const localProducts = [
     condition: "New",
     box: "Original Box",
     sizes: ["9.5"],
-    year: 2020,
     img: "sneaker_images/square/Sheet2_Air_Max_97_Undefeated_Militia_Green_Orange_Blaze_White_Black_DC4830_300.jpg",
     gallery: ["sneaker_images/square/Sheet2_Air_Max_97_Undefeated_Militia_Green_Orange_Blaze_White_Black_DC4830_300.jpg"],
     sku: "DC4830-300"
@@ -527,7 +493,6 @@ const localProducts = [
     condition: "New",
     box: "Original Box",
     sizes: ["9.5"],
-    year: 2020,
     img: "sneaker_images/square/Sheet2_Air_Max_97_Undefeated_Black_Volt_Militia_Green_DC4830_001.jpg",
     gallery: ["sneaker_images/square/Sheet2_Air_Max_97_Undefeated_Black_Volt_Militia_Green_DC4830_001.jpg"],
     sku: "DC4830-001"
@@ -540,7 +505,6 @@ const localProducts = [
     condition: "New",
     box: "Original Box",
     sizes: ["5W"],
-    year: 2021,
     img: "sneaker_images/square/Sheet2_WMNS_Jordan_1_High_OG_Black_Metalic_CD0461_001.jpg",
     gallery: ["sneaker_images/square/Sheet2_WMNS_Jordan_1_High_OG_Black_Metalic_CD0461_001.jpg"],
     sku: "CD0461-001"
@@ -553,7 +517,6 @@ const localProducts = [
     condition: "New",
     box: "Original Box",
     sizes: ["5.5W"],
-    year: 2021,
     img: "sneaker_images/square/Sheet2_WMNS_Jordan_3_Retro_SP_A_Ma_Maniere_DH3434_110.jpg",
     gallery: ["sneaker_images/square/Sheet2_WMNS_Jordan_3_Retro_SP_A_Ma_Maniere_DH3434_110.jpg"],
     sku: "DH3434-110"
@@ -566,7 +529,6 @@ const localProducts = [
     condition: "New",
     box: "Original Box",
     sizes: ["8"],
-    year: 2023,
     img: "sneaker_images/square/Sheet2_Jordan_5_Retro_A_Ma_Mani_re_Dusk_FD1330_001.jpg",
     gallery: ["sneaker_images/square/Sheet2_Jordan_5_Retro_A_Ma_Mani_re_Dusk_FD1330_001.jpg"],
     sku: "FD1330-001"
@@ -579,7 +541,6 @@ const localProducts = [
     condition: "New",
     box: "Original Box",
     sizes: ["11.5"],
-    year: 2021,
     img: "sneaker_images/square/Sheet2_Air_Max_90_St_Patrick_s_Day_2021_DD8555_300.jpg",
     gallery: ["sneaker_images/square/Sheet2_Air_Max_90_St_Patrick_s_Day_2021_DD8555_300.jpg"],
     sku: "DD8555-300"
@@ -592,7 +553,6 @@ const localProducts = [
     condition: "New",
     box: "Original Box",
     sizes: ["7.5"],
-    year: 2020,
     img: "sneaker_images/square/Sheet2_Jordan_5_Bel_Air_White_Court_Purple_Racer_Pink_Ghost_Green_DB3335_100.jpg",
     gallery: ["sneaker_images/square/Sheet2_Jordan_5_Bel_Air_White_Court_Purple_Racer_Pink_Ghost_Green_DB3335_100.jpg"],
     sku: "DB3335-100"
@@ -605,7 +565,6 @@ const localProducts = [
     condition: "New",
     box: "Original Box",
     sizes: ["11"],
-    year: 2022,
     img: "sneaker_images/square/Sheet2_Adidas_Forum_Buckle_Low_Bad_Bunny_Last_Forum_HQ2153.jpg",
     gallery: ["sneaker_images/square/Sheet2_Adidas_Forum_Buckle_Low_Bad_Bunny_Last_Forum_HQ2153.jpg"],
     sku: "HQ2153"
@@ -618,7 +577,6 @@ const localProducts = [
     condition: "New",
     box: "Original Box",
     sizes: ["7"],
-    year: 2023,
     img: "sneaker_images/square/Sheet2_Adidas_Forum_84_Bape_Low_Green_Camo_ID4771.jpg",
     gallery: ["sneaker_images/square/Sheet2_Adidas_Forum_84_Bape_Low_Green_Camo_ID4771.jpg"],
     sku: "ID4771"
@@ -631,7 +589,6 @@ const localProducts = [
     condition: "New",
     box: "Original Box",
     sizes: ["2.5Y"],
-    year: 2021,
     img: "sneaker_images/square/Sheet2_Jordan_5_Retro_PS_Travis_Scott_British_Khaki_DH0693_200.jpg",
     gallery: ["sneaker_images/square/Sheet2_Jordan_5_Retro_PS_Travis_Scott_British_Khaki_DH0693_200.jpg"],
     sku: "DH0693-200"
@@ -644,7 +601,6 @@ const localProducts = [
     condition: "New",
     box: "Original Box",
     sizes: ["8", "13"],
-    year: 2021,
     img: "sneaker_images/square/Sheet2_Air_Jordan_6_Retro_Travis_Scott_British_Khaki_DH0690_200.jpg",
     gallery: ["sneaker_images/square/Sheet2_Air_Jordan_6_Retro_Travis_Scott_British_Khaki_DH0690_200.jpg"],
     sku: "DH0690-200"
@@ -657,7 +613,6 @@ const localProducts = [
     condition: "New",
     box: "Original Box",
     sizes: ["10"],
-    year: 2020,
     img: "sneaker_images/square/Sheet2_Air_Jordan_1_Mid_SE_Red_Black_Toe_852542_100.jpg",
     gallery: ["sneaker_images/square/Sheet2_Air_Jordan_1_Mid_SE_Red_Black_Toe_852542_100.jpg"],
     sku: "852542-100"
@@ -670,7 +625,6 @@ const localProducts = [
     condition: "New",
     box: "Original Box",
     sizes: ["8"],
-    year: 2021,
     img: "sneaker_images/square/Sheet2_Jordan_1_Retro_High_OG_Patent_Bred_555088_063.jpg",
     gallery: ["sneaker_images/square/Sheet2_Jordan_1_Retro_High_OG_Patent_Bred_555088_063.jpg"],
     sku: "555088-063"
@@ -683,7 +637,6 @@ const localProducts = [
     condition: "New",
     box: "Original Box",
     sizes: ["7.5"],
-    year: 2020,
     img: "sneaker_images/square/Sheet2_Nike_Air_Trainer_3_Viotech_CZ6393_500.jpg",
     gallery: ["sneaker_images/square/Sheet2_Nike_Air_Trainer_3_Viotech_CZ6393_500.jpg"],
     sku: "CZ6393-500"
@@ -696,7 +649,6 @@ const localProducts = [
     condition: "New",
     box: "Original Box",
     sizes: ["10.5"],
-    year: 2020,
     img: "sneaker_images/square/Sheet2_Jordan_1_Retro_High_Light_Smoke_Grey_555088_126.jpg",
     gallery: ["sneaker_images/square/Sheet2_Jordan_1_Retro_High_Light_Smoke_Grey_555088_126.jpg"],
     sku: "555088-126"
@@ -709,7 +661,6 @@ const localProducts = [
     condition: "New",
     box: "Original Box",
     sizes: ["6.5"],
-    year: 2021,
     img: "sneaker_images/square/Sheet2_Jordan_4_Retro_GS_White_Cement_DJ4699_100.jpg",
     gallery: ["sneaker_images/square/Sheet2_Jordan_4_Retro_GS_White_Cement_DJ4699_100.jpg"],
     sku: "DJ4699-100"
@@ -722,7 +673,6 @@ const localProducts = [
     condition: "New",
     box: "Original Box",
     sizes: ["8"],
-    year: 2021,
     img: "sneaker_images/square/Sheet2_Jordan_4_White_Cement_CT8527_100.jpg",
     gallery: ["sneaker_images/square/Sheet2_Jordan_4_White_Cement_CT8527_100.jpg"],
     sku: "CT8527-100"
@@ -735,7 +685,6 @@ const localProducts = [
     condition: "New",
     box: "Original Box",
     sizes: ["10", "10.5"],
-    year: 2021,
     img: "sneaker_images/square/Sheet2_Jordan_6_Carmine_CT8529_106.jpg",
     gallery: ["sneaker_images/square/Sheet2_Jordan_6_Carmine_CT8529_106.jpg"],
     sku: "CT8529-106"
@@ -748,7 +697,6 @@ const localProducts = [
     condition: "New",
     box: "Original Box",
     sizes: ["10"],
-    year: 2021,
     img: "sneaker_images/square/Sheet2_Nike_Dunk_Low_University_Blue_DD1391_102.jpg",
     gallery: ["sneaker_images/square/Sheet2_Nike_Dunk_Low_University_Blue_DD1391_102.jpg"],
     sku: "DD1391-102"
@@ -761,7 +709,6 @@ const localProducts = [
     condition: "New",
     box: "Original Box",
     sizes: ["8", "10.5"],
-    year: 2021,
     img: "sneaker_images/square/Sheet2_Jordan_4_University_Blue_CT8527_400.jpg",
     gallery: ["sneaker_images/square/Sheet2_Jordan_4_University_Blue_CT8527_400.jpg"],
     sku: "CT8527-400"
@@ -774,7 +721,6 @@ const localProducts = [
     condition: "New",
     box: "Original Box",
     sizes: ["8"],
-    year: 2021,
     img: "sneaker_images/square/Sheet2_Nike_Blazer_Low_Sacai_DD1877_002.jpg",
     gallery: ["sneaker_images/square/Sheet2_Nike_Blazer_Low_Sacai_DD1877_002.jpg"],
     sku: "DD1877-002"
@@ -787,7 +733,6 @@ const localProducts = [
     condition: "New",
     box: "Original Box",
     sizes: ["8"],
-    year: 2021,
     img: "sneaker_images/square/Sheet2_Jordan_4_Tour_Yellow_CT8527_700.jpg",
     gallery: ["sneaker_images/square/Sheet2_Jordan_4_Tour_Yellow_CT8527_700.jpg"],
     sku: "CT8527-700"
@@ -800,7 +745,6 @@ const localProducts = [
     condition: "New",
     box: "Original Box",
     sizes: ["6.5", "10.5"],
-    year: 2021,
     img: "sneaker_images/square/Sheet2_Jordan_14_Low_CLOT_Terra_Blush_DC9857_200.jpg",
     gallery: ["sneaker_images/square/Sheet2_Jordan_14_Low_CLOT_Terra_Blush_DC9857_200.jpg"],
     sku: "DC9857-200"
@@ -813,7 +757,6 @@ const localProducts = [
     condition: "New",
     box: "Original Box",
     sizes: ["9"],
-    year: 2020,
     img: "sneaker_images/square/Sheet2_Nike_Lebron_VII_Media_Day_CW2300_500.jpg",
     gallery: ["sneaker_images/square/Sheet2_Nike_Lebron_VII_Media_Day_CW2300_500.jpg"],
     sku: "CW2300-500"
@@ -826,7 +769,6 @@ const localProducts = [
     condition: "New",
     box: "Original Box",
     sizes: ["11"],
-    year: 2020,
     img: "sneaker_images/square/Sheet2_Air_Max_90_CW6018_001.jpg",
     gallery: ["sneaker_images/square/Sheet2_Air_Max_90_CW6018_001.jpg"],
     sku: "CW6018-001"
@@ -839,7 +781,6 @@ const localProducts = [
     condition: "New",
     box: "Original Box",
     sizes: ["12"],
-    year: 2020,
     img: "sneaker_images/square/Sheet2_Jordan_1_Mid_Black_Red_White_554724_066.jpg",
     gallery: ["sneaker_images/square/Sheet2_Jordan_1_Mid_Black_Red_White_554724_066.jpg"],
     sku: "554724-066"
@@ -852,7 +793,6 @@ const localProducts = [
     condition: "New",
     box: "Original Box",
     sizes: ["2Y"],
-    year: 2020,
     img: "sneaker_images/square/Sheet2_Nike_Dunk_High_PS_Black_Yellow_DC9053_002.jpg",
     gallery: ["sneaker_images/square/Sheet2_Nike_Dunk_High_PS_Black_Yellow_DC9053_002.jpg"],
     sku: "DC9053-002"
@@ -865,7 +805,6 @@ const localProducts = [
     condition: "New",
     box: "Original Box",
     sizes: ["8"],
-    year: 2022,
     img: "sneaker_images/square/Sheet2_Adidas_Forum_Powerphase_Bad_Bunny_Benito_GZ2009.jpg",
     gallery: ["sneaker_images/square/Sheet2_Adidas_Forum_Powerphase_Bad_Bunny_Benito_GZ2009.jpg"],
     sku: "GZ2009"
@@ -878,7 +817,6 @@ const localProducts = [
     condition: "New",
     box: "Original Box",
     sizes: ["2Y"],
-    year: 2020,
     img: "sneaker_images/square/Sheet2_Jordan_5_Sail_Off_White_CV4827_100.jpg",
     gallery: ["sneaker_images/square/Sheet2_Jordan_5_Sail_Off_White_CV4827_100.jpg"],
     sku: "CV4827-100"
@@ -891,7 +829,6 @@ const localProducts = [
     condition: "New",
     box: "Original Box",
     sizes: ["8"],
-    year: 2022,
     img: "sneaker_images/square/Sheet2_Jordan_4_White_Black_Grey_Army_DH6927_111.jpg",
     gallery: ["sneaker_images/square/Sheet2_Jordan_4_White_Black_Grey_Army_DH6927_111.jpg"],
     sku: "DH6927-111"
@@ -904,7 +841,6 @@ const localProducts = [
     condition: "New",
     box: "Original Box",
     sizes: ["12"],
-    year: 2023,
     img: "sneaker_images/square/Sheet2_Jordan_1_Spider_Man_DV1748_601.jpg",
     gallery: ["sneaker_images/square/Sheet2_Jordan_1_Spider_Man_DV1748_601.jpg"],
     sku: "DV1748-601"
@@ -917,7 +853,6 @@ const localProducts = [
     condition: "New",
     box: "Original Box",
     sizes: ["10", "12.5"],
-    year: 2023,
     img: "sneaker_images/square/Sheet2_Jordan_4_Craft_Photon_Dust_Patch_Works_DV3742_021.jpg",
     gallery: ["sneaker_images/square/Sheet2_Jordan_4_Craft_Photon_Dust_Patch_Works_DV3742_021.jpg"],
     sku: "DV3742-021"
@@ -930,9 +865,198 @@ const localProducts = [
     condition: "New",
     box: "Original Box",
     sizes: ["4.5"],
-    year: 2021,
     img: "sneaker_images/square/Sheet2_Nike_Air_Max_1_Clot_DD1870_100.jpg",
     gallery: ["sneaker_images/square/Sheet2_Nike_Air_Max_1_Clot_DD1870_100.jpg"],
     sku: "DD1870-100"
+  },
+  {
+    id: 73,
+    brand: "Supreme",
+    name: "Supreme Cross Box Logo Tee Natural",
+    color: "Natural",
+    condition: "New",
+    box: "Original Packaging",
+    sizes: ["L"],
+    img: "images/supreme/supreme-cross-box-logo-tee-natural.webp",
+    gallery: ["images/supreme/supreme-cross-box-logo-tee-natural.webp"],
+    sku: "SUPREME-CBLT-NATURAL"
+  },
+  {
+    id: 74,
+    brand: "Supreme",
+    name: "Supreme Cross Box Logo Tee Navy",
+    color: "Navy",
+    condition: "New",
+    box: "Original Packaging",
+    sizes: ["M"],
+    img: "images/supreme/supreme-cross-box-logo-tee-navy.webp",
+    gallery: ["images/supreme/supreme-cross-box-logo-tee-navy.webp"],
+    sku: "SUPREME-CBLT-NAVY"
+  },
+  {
+    id: 75,
+    brand: "Supreme",
+    name: "Supreme Motion Logo Tee Heather Grey (SS23)",
+    color: "Heather Grey",
+    condition: "New",
+    box: "Original Packaging",
+    sizes: ["M"],
+    img: "images/supreme/supreme-motion-logo-tee-ss23-heather-grey.webp",
+    gallery: ["images/supreme/supreme-motion-logo-tee-ss23-heather-grey.webp"],
+    sku: "SUPREME-MLTHG-SS23"
+  },
+  {
+    id: 76,
+    brand: "Supreme",
+    name: "Supreme Rick Rubin Tee Heather Grey",
+    color: "Heather Grey",
+    condition: "New",
+    box: "Original Packaging",
+    sizes: ["L"],
+    img: "images/supreme/supreme-rick-rubin-tee-heather-grey.webp",
+    gallery: ["images/supreme/supreme-rick-rubin-tee-heather-grey.webp"],
+    sku: "SUPREME-RRT-HG"
+  },
+  {
+    id: 77,
+    brand: "Supreme",
+    name: "Supreme Tonal Box Logo Tee Navy",
+    color: "Navy",
+    condition: "New",
+    box: "Original Packaging",
+    sizes: ["S"],
+    img: "images/supreme/supreme-tonal-box-logo-tee-navy.webp",
+    gallery: ["images/supreme/supreme-tonal-box-logo-tee-navy.webp"],
+    sku: "SUPREME-TBLT-NAVY"
+  },
+  {
+    id: 78,
+    brand: "Bearbrick",
+    category: "random",
+    name: "Bearbrick Andy Warhol Double Mona Lisa 100% & 400% Set Multicolor",
+    color: "Multicolor",
+    condition: "New",
+    box: "Original Box",
+    sizes: [],
+    img: "images/random/bearbrick-andy-warhol-double-mona-lisa-100-400-set-multicolor.jpg",
+    gallery: ["images/random/bearbrick-andy-warhol-double-mona-lisa-100-400-set-multicolor.jpg"],
+    sku: "BEARBRICK-AW-DML-100-400",
+    details: [
+      "Medicom Toy BE@RBRICK collectible figure set",
+      "Artwork: Andy Warhol's Double Mona Lisa (1963), licensed by The Andy Warhol Foundation for the Visual Arts",
+      "Set of two figures: 100% (approx. 7 cm / 2.75 in tall) and 400% (approx. 28 cm / 11 in tall)",
+      "Released September 2019",
+      "Pattern applied by water transfer, so each figure varies slightly",
+      "Colorway: Multicolor"
+    ]
+  },
+  {
+    id: 79,
+    brand: "Supreme",
+    name: "Supreme World Famous Box Logo New Era Black",
+    color: "Black",
+    condition: "New",
+    box: "Original Packaging",
+    sizes: ["7 5/8"],
+    img: "images/supreme/supreme-world-famous-box-logo-new-era-black.jpg",
+    gallery: ["images/supreme/supreme-world-famous-box-logo-new-era-black.jpg"],
+    sku: "SUPREME-WFBL-NE-BLACK",
+    details: [
+      "Supreme x New Era 59FIFTY fitted cap",
+      "Season: Fall/Winter 2020 (released October 1, 2020)",
+      "Wool body with embroidered white Supreme box logo on the front",
+      "\"World Famous\" embroidered on the back",
+      "White New Era flag embroidered on the side",
+      "Colorway: Black"
+    ]
+  },
+  {
+    id: 80,
+    brand: "Supreme",
+    name: "Supreme World Famous Box Logo New Era Navy",
+    color: "Navy",
+    condition: "New",
+    box: "Original Packaging",
+    sizes: ["7 1/4", "7 1/2"],
+    img: "images/supreme/supreme-world-famous-box-logo-new-era-navy.jpg",
+    gallery: ["images/supreme/supreme-world-famous-box-logo-new-era-navy.jpg"],
+    sku: "SUPREME-WFBL-NE-NAVY",
+    details: [
+      "Supreme x New Era 59FIFTY fitted cap",
+      "Season: Fall/Winter 2020 (released October 1, 2020)",
+      "Wool body with embroidered white Supreme box logo on the front",
+      "\"World Famous\" embroidered on the back",
+      "White New Era flag embroidered on the side",
+      "Colorway: Navy"
+    ]
+  },
+  {
+    id: 81,
+    brand: "The North Face",
+    category: "clothing",
+    name: "KAWS x The North Face Popover Hoodie Pamplona Purple",
+    color: "Pamplona Purple",
+    condition: "New",
+    box: "Original Packaging",
+    sizes: ["S"],
+    img: "images/clothing/kaws-x-the-north-face-popover-hoodie-pamplona-purple.jpg",
+    gallery: ["images/clothing/kaws-x-the-north-face-popover-hoodie-pamplona-purple.jpg"],
+    sku: "NF0A7WLIGP5",
+    details: [
+      "From the debut KAWS x The North Face collection",
+      "Released February 16, 2022",
+      "Cotton fleece pullover (popover) hoodie",
+      "Embroidered KAWS XX and The North Face logos on the chest",
+      "Hood with drawstring, kangaroo pocket, ribbed cuffs and hem",
+      "Colorway: Pamplona Purple"
+    ]
+  },
+  {
+    id: 82,
+    brand: "Supreme",
+    category: "random",
+    name: "Supreme Skull Pile Skateboard Deck Green",
+    color: "Green/Black",
+    condition: "New",
+    box: "Original Shrink Wrap",
+    sizes: [],
+    img: "images/random/supreme-skull-pile-skateboard-deck-green.jpg",
+    gallery: ["images/random/supreme-skull-pile-skateboard-deck-green.jpg"],
+    sku: "SUPREME-SKULL-PILE-DECK-GREEN",
+    details: [
+      "Supreme skateboard deck from the Spring/Summer 2018 collection",
+      "Released February 22, 2018",
+      "Glow-in-the-dark Skull Pile graphic licensed from Liquid Blue, with the Supreme logo",
+      "Graphic printed on both the top and bottom of the deck",
+      "The Skull Pile print was made famous by Three 6 Mafia's 2005 \"Stay Fly\" video",
+      "Colorway: Green/Black"
+    ]
+  },
+  {
+    id: 83,
+    brand: "MadCan",
+    category: "random",
+    name: "MadCan Spray Can Art Figure Green Camo",
+    color: "Green Camo / Multicolor",
+    condition: "New",
+    box: "Original Box",
+    sizes: [],
+    img: "images/MadCan_WBG_1__41892.jpg",
+    gallery: [
+      "images/MadCan_WBG_1__41892.jpg",
+      "images/MadCan_WBG_3__75916.jpg",
+      "images/MadCan_WBG_5__33012.jpg"
+    ],
+    sku: "MADCAN-WBG-CAMO",
+    details: [
+      "Spray-paint-can art figure: red nozzle cap on top of a white can head with a wide sculpted grin of oversized teeth",
+      "Five gloss paint dots across the forehead — blue, green, red, orange and yellow — like paint on a palette",
+      "Green woodland-camo hooded sweatshirt with black drawstrings and the hood sculpted across the shoulders",
+      "Hands sculpted as sweets: one blue drip hand and one yellow banana hand, both splashed with chocolate",
+      "Black legs set on chunky pink block boots, glossy finish all over"
+    ]
   }
 ];
+/* == local-products:end == */
+
+window.localProducts = localProducts;
