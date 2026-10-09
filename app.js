@@ -294,7 +294,7 @@ products.push(...(window.localProducts || []));
       return { value, suffix: m[2].toLowerCase(), letters: false, display: 'US ' + value };
     }
 
-    // "11" matches any size worth 11. "5.5w" / "13k" only match that same run, since a
+    // "11" matches only exact size 11 (no suffix). "5.5w" / "13k" only match that same run, since a
     // suffix means the shopper named a specific women's or kids' size rather than a number.
     // Letter queries ("m", "xl") match the exact apparel size.
     function matchesSize(product, sizeQuery) {
@@ -306,7 +306,7 @@ products.push(...(window.localProducts || []));
         const value = parseFloat(parsed[1]);
         if (!Number.isFinite(value) || value !== sizeQuery.value) return false;
         const suffix = parsed[2].toLowerCase();
-        return !sizeQuery.suffix && !suffix ? true : suffix === sizeQuery.suffix;
+        return suffix === sizeQuery.suffix;
       });
     }
 
