@@ -287,7 +287,7 @@ products.push(...(window.localProducts || []));
       if (letter && APPAREL_SIZES.indexOf(letter[1]) !== -1) {
         return { value: letter[1], suffix: '', letters: true, display: 'Size ' + letter[1].toUpperCase() };
       }
-      const m = /^(?:us\s*)?(\d+(?:\.\d+)?)([a-z]*)$/i.exec(str);
+      const m = /^(?:size\s*)?(?:us\s*)?(\d+(?:\.\d+)?)([a-z]*)$/i.exec(str);
       if (!m) return null;
       const value = parseFloat(m[1]);
       if (!Number.isFinite(value) || value > MAX_SIZE_QUERY) return null;
