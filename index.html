@@ -74,7 +74,7 @@
   </header>
 
   <!-- Mobile Menu Drawer -->
-  <aside class="mobile-drawer" id="mobileDrawer" role="dialog" aria-modal="true" aria-label="Navigation Menu">
+  <div class="mobile-drawer" id="mobileDrawer" role="dialog" aria-modal="true" aria-label="Navigation Menu">
     <div class="mobile-drawer-head">
       <span class="logo">RANDOM&nbsp;<i>STOCK</i></span>
       <button class="drawer-close" onclick="menuClose()" aria-label="Close menu">×</button>
@@ -85,7 +85,7 @@
       <a href="#shop" onclick="menuClose(); shopCategory('random')">Random Shit <span>→</span></a>
       <a href="#about" onclick="menuClose(); go('about')">About Random Stock <span>→</span></a>
     </nav>
-  </aside>
+  </div>
 
   <!-- MAIN CONTENT CONTAINER -->
   <main id="main">
@@ -280,7 +280,7 @@
       <a class="back" href="#shop" onclick="go('shop')">← BACK TO INVENTORY</a>
       <div class="detail">
         <div class="gallery" id="gallery"></div>
-        <aside class="details" id="details"></aside>
+        <div class="details" id="details"></div>
       </div>
     </section>
   </div>

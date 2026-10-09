@@ -194,7 +194,9 @@ products.push(...(window.localProducts || []));
       // always shows every brand on the list above. Anything a product actually
       // carries gets appended, which means a new brand never silently goes missing.
       const tiles = BRAND_TILES.slice();
-      uniqSorted(inStock).forEach(b => { if (tiles.indexOf(b) === -1) tiles.push(b); });
+      // Case-insensitive on purpose: the roadmap list spells it "SUPREME" while the
+      // catalog spells it "Supreme", so a case-sensitive check listed the brand twice.
+      uniqSorted(inStock).forEach(b => { if (!tiles.some(t => t.toLowerCase() === b.toLowerCase())) tiles.push(b); });
       TILE_BRANDS = tiles;
 
       $('brandFilter').innerHTML = '<option value="">All Brands</option>' +
