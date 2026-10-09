@@ -302,6 +302,13 @@ img { width: 100%; display: block; object-fit: cover; }
   margin-bottom: 32px;
   gap: 16px;
 }
+/* Narrow phones: the section h2 and the "view all" link stop fitting on one line here,
+   and the nowrap link is what gets pushed out - 6px of horizontal page scroll at
+   360px, 45px at 320px. Wrapping drops the link onto its own line instead of off
+   the screen, and leaves wider layouts exactly as they were. */
+@media (max-width: 420px) {
+  .section-head { flex-wrap: wrap; }
+}
 .section h2 {
   font-size: clamp(32px, 4.2vw, 56px);
   letter-spacing: -0.065em;
