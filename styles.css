@@ -726,6 +726,7 @@ img { width: 100%; display: block; object-fit: cover; }
   gap: 6px;
   margin-bottom: 24px;
   color: var(--ink);
+  min-height: 24px;   /* WCAG 2.5.8: this standalone text link was 14px tall */
 }
 .back:hover { text-decoration: underline; }
 .detail {
@@ -1070,6 +1071,13 @@ img { width: 100%; display: block; object-fit: cover; }
 }
 /* Keep the wordmark's hit area the size of the wordmark, not the whole row. */
 .logo { width: fit-content; }
+
+/* WCAG 2.5.8 (Target Size Minimum): the footer links, the footer wordmark and the
+   section "view all" arrows were all 20-22px tall — below the 24px floor. A taller
+   line box (plus a few px of padding on the arrows) lifts every one of them over it
+   without changing how they look. */
+.foot-grid a { line-height: 24px; }
+.text-link { line-height: 1.6; padding: 4px 0; }
 
 /* Footer: four columns on desktop, with real contact and policy context. */
 .foot-grid { grid-template-columns: 1.5fr 1fr 1fr 1.3fr; }
