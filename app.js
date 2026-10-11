@@ -85,6 +85,50 @@ products.push(...(window.localProducts || []));
       if (!call || !text || !current) return;
       call.href = 'tel:' + ORDER_PHONE;
       text.href = smsHref(defaultOrderMessage());
+      updateListingQr();
+    }
+
+    // The catalog has a name with an "&" in it (the Bearbrick "... 100% & 400% Set
+    // Multicolor"), and the note below prints the order sentence, so the sentence is
+    // escaped on the way into the markup rather than trusted to be markup-safe.
+    function esc(text) {
+      return String(text)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;');
+    }
+
+    // The code that sits in the listing itself. A desktop has nowhere to put an sms:
+    // link — the click lands on nothing and the shopper is invited to text a number
+    // from a laptop — so the listing carries the message as a code their phone can
+    // scan, with nothing having to be clicked first. It is built from the same sentence
+    // as the Text button above it (defaultOrderMessage), so the pair, the SKU and
+    // whichever size is selected are already in the message when Messages opens.
+    //
+    // Only the code has to be kept current here. Whether the block is shown at all is a
+    // pointer question answered in styles.css (.listing-qr): on a phone, which can tap
+    // the button above and cannot scan its own screen, it never appears.
+    //
+    // 4px per module, so the code is 228-260px wide depending on how long the item's
+    // sentence is: that is the size both decoders still read after the code is captured
+    // smaller than it is drawn, and it is what the block is laid out around.
+    const LISTING_QR_MODULE_PX = 4;
+
+    function updateListingQr() {
+      const box = $('listingQr');
+      if (!box || !current) return;
+      const message = defaultOrderMessage();
+      box.innerHTML =
+        '<div class="listing-qr-code">' +
+          qrSvg(smsHref(message), 'QR code that opens a text to ' + ORDER_PHONE_DISPLAY +
+            ' about ' + esc(orderSummary()), true, LISTING_QR_MODULE_PX) +
+        '</div>' +
+        '<div class="listing-qr-note">' +
+          '<b>On a computer?</b> Scan the code with your phone camera — it opens a text to ' +
+          ORDER_PHONE_DISPLAY + ' with this already written in:' +
+          '<span class="listing-qr-message">' + esc(message) + '</span>' +
+        '</div>';
     }
 
     // Dialogs: keep Tab inside the open drawer/modal and hand focus back on close.
@@ -618,6 +662,7 @@ products.push(...(window.localProducts || []));
           <a class="btn light" id="orderText" href="sms:REDACTED-PHONE">Text this ${itemLabel}</a>
         </div>
         <p class="order-note">${hasSizes ? `Sizes listed are what we hold right now. Call or text the ${itemLabel} and your size and we will confirm availability, condition and shipping.` : `Call or text about this ${itemLabel} and we will confirm availability, condition and shipping.`}</p>
+        <div class="listing-qr" id="listingQr"></div>
         <div class="perks">
           <p>✓ <b>100% Authenticity Guaranteed:</b> Hand-inspected by verification specialists.</p>
           <p>✓ <b>Insured Express Shipping:</b> Ships double-boxed with tracking in 1-2 business days.</p>
@@ -822,7 +867,14 @@ products.push(...(window.localProducts || []));
       return '<p class="order-qr-note">' + reason + '</p>';
     }
 
-    function qrSvg(text, label, mayRetry) {
+    // modulePx, when given, draws each module that many CSS pixels across and puts the
+    // size on the tag. A code whose box is a whole multiple of its module count gives
+    // every module the same width on screen, which is what a scanner's grid sampling
+    // needs: measured against two independent decoders, a 57-module code still reads
+    // from a straight screenshot at 2-3 px per module, but only at 4 does it also
+    // survive being captured smaller than it is drawn. Left out, the tag carries no
+    // size and the CSS decides — which is what the order dialog wants.
+    function qrSvg(text, label, mayRetry, modulePx) {
       if (typeof qrcode !== 'function') {
         return qrFallbackNote('Text or call ' + ORDER_PHONE_DISPLAY + ' — the code needs qrcode.js.');
       }
@@ -854,15 +906,16 @@ products.push(...(window.localProducts || []));
         }
 
         const size = count + quiet * 2;
-        return '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ' + size + ' ' + size +
-          '" role="img" aria-label="' + label + '" shape-rendering="crispEdges">' +
+        const box = modulePx ? ' width="' + size * modulePx + '" height="' + size * modulePx + '"' : '';
+        return '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ' + size + ' ' + size + '"' + box +
+          ' role="img" aria-label="' + label + '" shape-rendering="crispEdges">' +
           '<rect width="' + size + '" height="' + size + '" fill="#ffffff"/>' +
           '<path d="' + runs.join('') + '" fill="#151515"/></svg>';
       } catch (err) {
         // Past the capacity of a version-40 code. The message is dropped rather than
         // the code: a shopper still scans it, and the Copy button still holds their text.
         const cut = text.indexOf('?');
-        if (mayRetry !== false && cut > 0) return qrSvg(text.slice(0, cut), label, false);
+        if (mayRetry !== false && cut > 0) return qrSvg(text.slice(0, cut), label, false, modulePx);
         return qrFallbackNote('Text or call ' + ORDER_PHONE_DISPLAY + ' — the code could not be drawn here.');
       }
     }
