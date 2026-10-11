@@ -46,16 +46,20 @@ const notes = [];
 const live = page.replace(/<!--[\s\S]*?-->/g, '');
 const tagLive = /id="heroVideo"/.test(live);
 const tagBlock = /<video[^>]*id="heroVideo"[^>]*>([\s\S]*?)<\/video>/.exec(page);
+// Whether the tag may be live, and whether the stamp is right, are questions about the
+// file in the repo: index.html can only ever request CLIP. So those two use the installed
+// path, and the candidate argument only feeds the container checks further down.
 const clipThere = fs.existsSync(clipFile);
+const installed = fs.existsSync(path.join(__dirname, CLIP));
 
 // ---------------------------------------------------------------- the pairing
-const fix = !clipThere && tagLive
+const fix = !installed && tagLive
   ? 'the tag is live with no ' + CLIP + ': every visit would request it and log a 404 - run "node stamp-assets.js", or commit the clip'
-  : clipThere && !tagLive
+  : installed && !tagLive
     ? CLIP + ' is in the repo while the hero tag is switched off: nobody would ever see it - run "node stamp-assets.js" and commit the result'
     : 'the tag and the file disagree';
-ok('V1 hero clip ' + (clipThere ? 'present' : 'absent') + ' / tag ' +
-   (tagLive ? 'live' : 'switched off') + ' (they must agree)', clipThere === tagLive, fix);
+ok('V1 hero clip ' + (installed ? 'present' : 'absent') + ' / tag ' +
+   (tagLive ? 'live' : 'switched off') + ' (they must agree)', installed === tagLive, fix);
 
 ok('V2 the tag exists between the hero-video markers', !!tagBlock, 'no <video id="heroVideo"> anywhere in index.html');
 ok('V3 the begin/end markers each appear once',
@@ -100,20 +104,20 @@ ok('V6 stamp-assets.js knows about the clip', /HERO_CLIP\s*=\s*'video\/reel\.mp4
 ok('V6 the clip is .gitattributes binary', /^\*\.mp4\s+binary\s*$/m.test(read('.gitattributes')),
   'a .mp4 that git or an editor is allowed to treat as text is how a clip gets replaced with U+FFFD');
 
-if (tagBlock && clipThere) {
-  const want = crypto.createHash('sha1').update(fs.readFileSync(clipFile)).digest('hex').slice(0, 8);
+if (tagBlock && installed) {
+  const want = crypto.createHash('sha1').update(fs.readFileSync(path.join(__dirname, CLIP))).digest('hex').slice(0, 8);
   const got = (/<source\s+src="[^"]*\?v=([0-9a-f]+)"/.exec(tagBlock[0]) || [])[1];
   ok('V6 stamped clip URL matches the bytes on disk', got === want,
-    'src has ?v=' + (got || '(none)') + ' but sha1(' + path.basename(clipFile) + ') starts ' + want +
+    'src has ?v=' + (got || '(none)') + ' but sha1(' + CLIP + ') starts ' + want +
     ' - run "node stamp-assets.js" and commit index.html');
 } else {
-  skip('V6 stamped clip URL matches the bytes on disk', clipThere ? 'no tag to read' : 'no clip installed yet (the src stays bare)');
+  skip('V6 stamped clip URL matches the bytes on disk', installed ? 'no tag to read' : 'no clip installed yet (the src stays bare)');
 }
 
 // ------------------------------------------------------- the container itself
 if (!clipThere) {
   ['F1 is really an MP4', 'F2 has not been through a text pipeline', 'F3 duration and picture size are readable', 'F4 fits a static host']
-    .forEach((n) => skip(n, 'no clip at ' + CLIP + ' - the hero is the still image, as designed'));
+    .forEach((n) => skip(n, 'no clip at ' + (process.argv[2] ? clipFile : CLIP) + ' - the hero is the still image, as designed'));
 } else {
   const buf = fs.readFileSync(clipFile);
   const mb = buf.length / 1048576;
@@ -140,23 +144,35 @@ if (!clipThere) {
     count < 500 && worst < 3,
     'this many replacement characters means the bytes were decoded as text and re-encoded: the browser will answer DEMUXER_ERROR_COULD_NOT_OPEN. Re-export or re-copy the file - it cannot be repaired from here');
 
-  // mvhd carries the timescale and the duration; tkhd carries the picture size.
+  // mvhd carries the timescale and the duration; tkhd carries the picture size. Both are
+  // "full boxes", so a version 1 body is 12 bytes longer than a version 0 body, and the
+  // width/height pair is the last thing in the box. That matters here: the clip the owner
+  // re-encodes with ffmpeg comes out as version 0 while Chrome's recorder writes version
+  // 1, so one hard-coded offset is always wrong for the other. Being four bytes out is
+  // also silent rather than fatal - it reads the height as the width and the length of
+  // the next box as the height, which looks like a real answer ("720x0"). So the offset
+  // is checked against the box's own declared length, and a track with no picture (the
+  // audio track of a clip exported with sound) is skipped instead of reported.
   const boxStart = (name, from) => { const i = buf.indexOf(Buffer.from(name, 'latin1'), from || 0); return i < 4 ? -1 : i - 4; };
-  let seconds = NaN; let w = 0; let h = 0;
+  let seconds = NaN; let w = 0; let h = 0; let why = '';
   try {
     const mvhd = boxStart('mvhd');
     const v = buf[mvhd + 8];
     const timescale = buf.readUInt32BE(mvhd + 8 + (v ? 20 : 12));
     const duration = v ? Number(buf.readBigUInt64BE(mvhd + 8 + 24)) : buf.readUInt32BE(mvhd + 8 + 16);
     seconds = duration / timescale;
-    const tkhd = boxStart('tkhd');
-    const bt = tkhd + 8 + (buf[tkhd + 8] ? 88 : 80);
-    w = Math.round(buf.readUInt32BE(bt) / 65536);
-    h = Math.round(buf.readUInt32BE(bt + 4) / 65536);
-  } catch (err) { /* reported as NaN below */ }
+    for (let tkhd = boxStart('tkhd'); tkhd !== -1; tkhd = boxStart('tkhd', tkhd + buf.readUInt32BE(tkhd))) {
+      const end = tkhd + buf.readUInt32BE(tkhd);
+      const bt = tkhd + 8 + (buf[tkhd + 8] ? 88 : 76);
+      if (bt + 8 > end) throw new Error('tkhd is ' + (end - tkhd) + ' bytes, too short for a picture size at +' + (bt + 8 - tkhd) + ' - the offset and the box do not agree');
+      const cw = Math.round(buf.readUInt32BE(bt) / 65536);
+      const ch = Math.round(buf.readUInt32BE(bt + 4) / 65536);
+      if (cw > 0 && ch > 0) { w = cw; h = ch; break; }
+    }
+  } catch (err) { why = ' (' + err.message + ')'; }
   ok('F3 duration and picture size are readable (' + (isNaN(seconds) ? 'n/a' : seconds.toFixed(1) + 's') + ' ' + w + 'x' + h + ')',
     seconds >= 1 && seconds <= 90 && w >= 320 && h >= 180,
-    'expected a clip of roughly 1-90 seconds with a real picture size; a 0x0 or NaN result means the movie header is not intact');
+    'expected a clip of roughly 1-90 seconds with a real picture size; a 0x0 or NaN result means the movie header is not intact' + why);
 
   ok('F4 fits a static host (' + mb.toFixed(1) + ' MB)', mb < 100,
     'GitHub Pages refuses files of 100 MB or more, so this would not even deploy');
