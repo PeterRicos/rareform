@@ -20,7 +20,14 @@ products.push(...(window.localProducts || []));
     // ("7 1/4"). Nothing else in the catalog reads like a bare letter or a spaced
     // fraction, so both are unambiguous and get groups of their own instead of being
     // passed off as men's shoe sizes.
-    function sizeCategory(size) {
+    //
+    // A bare number is the one string that cannot say which run it belongs to: "7"
+    // is a men's shoe size in this catalog and also a real fitted-cap size, so a
+    // listing that holds 7 next to 7 1/8 read as two runs at once and the detail
+    // page called it "Mixed sizing". The listing itself declares the answer —
+    // `sizeGroup` in products.js — and it wins when it is there.
+    function sizeCategory(size, group) {
+      if (group) return group;
       const s = String(size || '').trim().toUpperCase();
       if (/^\d+\s+\d+\/\d+/.test(s)) return 'Headwear';
       if (/^[A-Z]+$/.test(s)) return 'Apparel';
@@ -32,8 +39,8 @@ products.push(...(window.localProducts || []));
     // How a single size reads to customers: shoe sizes carry "US", apparel letters and
     // hat fractions are already self-explanatory. Used by the filter dropdown, the size
     // chips, and the order message, so a hoodie can never again read as "US M".
-    function sizeDisplay(s) {
-      const cat = sizeCategory(s);
+    function sizeDisplay(s, group) {
+      const cat = sizeCategory(s, group);
       return (cat === 'Apparel' || cat === 'Headwear') ? String(s) : 'US ' + s;
     }
 
@@ -47,7 +54,8 @@ products.push(...(window.localProducts || []));
     };
 
     function sizeCategoryLabel(product) {
-      const cats = uniqSorted((product && product.sizes ? product.sizes : []).map(sizeCategory));
+      const cats = uniqSorted((product && product.sizes ? product.sizes : [])
+        .map(s => sizeCategory(s, product.sizeGroup)));
       if (!cats.length) return '';
       if (cats.length > 1) return 'Mixed sizing';
       return SIZING_LABELS[cats[0]] || 'Sizing';
@@ -63,7 +71,7 @@ products.push(...(window.localProducts || []));
     function orderSummary() {
       if (!current) return '';
       const size = selectedSize || (current.sizes || [])[0] || '';
-      return current.name + ' (SKU ' + current.sku + ')' + (size ? ', size ' + sizeDisplay(size) : '');
+      return current.name + ' (SKU ' + current.sku + ')' + (size ? ', size ' + sizeDisplay(size, current.sizeGroup) : '');
     }
 
     // '?&body=' is the iOS/Android compromise: iOS wants "&body=", Android wants

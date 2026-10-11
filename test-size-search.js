@@ -5,7 +5,10 @@
      - "11" shows products held in 11 AND 11.5 (same men's run, never 11W/11K)
      - "11.5" / "11W" / "m" match only that exact size
      - model numbers ("700") stay keyword searches
-     - the header search modal follows the same rule as the shop filter search */
+     - the header search modal follows the same rule as the shop filter search
+     - a listing whose sizes can't say which run they belong to declares it
+       (`sizeGroup`), so a fitted cap holding 7 next to 7 1/8 reads as headwear
+       instead of "Mixed sizing" with a "US 7" in its order sentence */
 
 const fs = require('fs');
 const path = require('path');
@@ -228,6 +231,33 @@ const cardIds = (html) => {
     const p = catalog.find((x) => x.id === id);
     return p && (p.brand + ' ' + p.name).toLowerCase().includes('yeezy');
   }), JSON.stringify(yeezyIds));
+
+  // ---- F. a listing declares the run its size strings can't say ---------------
+  // The fitted cap holds 7, 7 1/8 and 7 1/2. The two fractions read as hat sizes on
+  // their own, but a bare "7" is a men's shoe size in this catalog, so the listing
+  // spans two runs unless it says otherwise: the detail page called it "Mixed
+  // sizing" and the order sentence offered "size US 7" for a hat.
+  const cap = ev(H, 'window.localProducts.find(p => p.id === 85)');
+  ok('F1  the fitted cap declares its run', !!cap && cap.sizeGroup === 'Headwear', cap && cap.sizeGroup);
+  ok('F2  a declared run wins over the string',
+    ev(H, "sizeCategory('7', 'Headwear')") === 'Headwear' && ev(H, "sizeCategory('7')") === 'Men',
+    ev(H, "sizeCategory('7', 'Headwear')"));
+  ok('F3  its order sentence names a hat size, not a shoe size',
+    ev(H, "sizeDisplay('7', 'Headwear')") === '7' && ev(H, "sizeDisplay('7')") === 'US 7',
+    ev(H, "sizeDisplay('7', 'Headwear')"));
+  ok('F4  its detail page reads Headwear sizing',
+    ev(H, 'sizeCategoryLabel(window.localProducts.find(p => p.id === 85))') === 'Headwear sizing',
+    ev(H, 'sizeCategoryLabel(window.localProducts.find(p => p.id === 85))'));
+
+  // The label exists to describe the listing, so no listing may claim to span runs
+  // when it holds one: that is what a missing sizeGroup looks like from the outside.
+  const mixed = ev(H, 'window.localProducts.filter(p => sizeCategoryLabel(p) === "Mixed sizing").map(p => p.id)');
+  ok('F5  no listing reads "Mixed sizing"', mixed.length === 0, JSON.stringify(mixed));
+
+  // ...and the run a listing declares has to keep it reachable by that size.
+  ev(H, "document.getElementById('filterSearch').value = ''; document.getElementById('sizeFilter').value = '7 1/2'; renderShop();");
+  const hatIds = cardIds(ev(H, "document.getElementById('shopProducts').innerHTML"));
+  ok('F6  the size filter reaches the cap by its hat size', hatIds.indexOf(85) >= 0, JSON.stringify(hatIds));
 
   const fails = results.filter((r) => !r.pass);
   results.forEach((r) => console.log((r.pass ? 'PASS  ' : 'FAIL  ') + r.name + (r.pass ? '' : '   [' + r.extra + ']')));
