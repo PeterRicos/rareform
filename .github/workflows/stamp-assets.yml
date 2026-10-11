@@ -1,0 +1,67 @@
+name: Stamp Asset Hashes
+
+# GitHub Pages sends "Cache-Control: max-age=600" with every file, so a deploy can
+# sit behind a ten-minute cache while the URL stays the same. stamp-assets.js
+# rewrites the styles.css/products.js/app.js references in index.html to
+# "?v=<content hash>", which turns each deploy into new URLs. This runs on every
+# push to main and commits the result, so a listing edit — or a commit from another
+# workflow/agent — can never leave the page pointing at a previous file.
+#
+# Safe to delete: without it, run "node stamp-assets.js" yourself before pushing.
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'styles.css'
+      - 'products.js'
+      - 'app.js'
+      - 'index.html'
+      - 'stamp-assets.js'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pages: write
+
+# Two pushes in a row must not have two stampers racing each other to commit.
+concurrency:
+  group: stamp-assets
+  cancel-in-progress: false
+
+jobs:
+  stamp:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          # Full history so the retry below can rebase onto a branch that moved.
+          fetch-depth: 0
+
+      - name: Stamp index.html asset hashes
+        run: node stamp-assets.js
+
+      - name: Commit index.html when the hashes were stale
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          if git diff --quiet -- index.html; then
+            echo "index.html already points at the current hashes; nothing to commit"
+            exit 0
+          fi
+
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add index.html
+          git commit -m "Stamp asset hashes in index.html"
+
+          for attempt in 1 2 3; do
+            if git push; then break; fi
+            echo "push rejected (another commit landed first); rebasing"
+            git pull --rebase --autostash
+          done
+
+          # Commits pushed with the workflow token do not reliably start the Pages
+          # build, so ask for one. Harmless if the push already started it.
+          gh api -X POST "repos/${{ github.repository }}/pages/builds" \
+            || echo "Pages build request ignored (the push may have started one)"
