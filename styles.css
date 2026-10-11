@@ -1327,6 +1327,16 @@ footer .logo i { color: #b5b2ac; }
   /* The order modal stacks: the message and its buttons first, the code beneath. */
   .order-modal-grid { grid-template-columns: 1fr; }
   .order-qr-code { min-height: 0; }
+  /* iOS Safari zooms the whole page in the moment a field under 16px takes focus, and
+     it does not zoom back out on blur — so tapping the shop's search box or a filter
+     left the page stuck at about 1.3x with its own controls half off the screen until
+     the shopper pinched it back. The phone search box, the sort menu and the filter
+     menus were all 13px. 16px is the exact threshold that suppresses it; only the
+     phone layout pays the extra 3px, and the desktop rules keep their 13px. */
+  .shop-actions input,
+  .shop-actions select,
+  .filter input,
+  .filter select { font-size: 16px; }
 }
 @media (max-width: 480px) {
   .foot-grid { grid-template-columns: 1fr; }

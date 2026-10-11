@@ -1,0 +1,227 @@
+/* Static phone-contract harness for index.html + styles.css + app.js (same folder)
+   Run: node test-mobile.js     (or: node rareform/test-mobile.js)
+
+   Most shoppers arrive here on a phone, and a phone is the one browser we cannot
+   open from the build. So this suite pins the handful of rules that, if a later
+   edit drops them, break the storefront on a handset in ways a desktop window
+   never shows:
+
+     - the viewport asks for the device width and leaves pinch-zoom unlocked.
+       Locking the zoom is the other way people "fix" the field zoom below, and it
+       costs a low-vision shopper the only magnifier they have.
+     - the hero clip carries what iOS needs to play inline (muted, playsinline,
+       autoplay) with preload="metadata", and the still image stays underneath so a
+       clip that never arrives leaves a photo, not a black box.
+     - the listing QR code stays off a phone's screen: a phone cannot scan itself,
+       and the Text button already opens Messages. The reveal must live behind a
+       hover/pointer media query, and app.js must ask the same question when it
+       decides whether to open the desktop order dialog.
+     - no field on the phone layout sits under 16px. iOS Safari zooms the page in
+       when one takes focus and does not zoom back out.
+     - the shop's filters, its search box and its sort menu exist and are reachable
+       at phone widths, where the sidebar is gone.
+     - the listing page stops pinning its details column and stops sizing the hero
+       against 100vh, both of which are wrong once a URL bar is in the way.
+     - the controls a thumb has to hit stay at their documented minimum sizes.
+
+   Everything here is read out of the shipped files, so it runs anywhere Node runs. */
+
+const fs = require('fs');
+const path = require('path');
+
+const read = (f) => fs.readFileSync(path.join(__dirname, f), 'utf8');
+const html = read('index.html');
+const css = read('styles.css');
+const app = read('app.js');
+
+// Rules are read out of a comment-free copy: a /* ... */ block sitting between two
+// rules would otherwise be glued onto the next selector and that rule would look
+// missing. The raw text is still what the "does this string appear" checks use.
+const CSS = css.replace(/\/\*[\s\S]*?\*\//g, '');
+
+const results = [];
+const ok = (name, cond, extra) => results.push({ name, pass: !!cond, extra: cond ? '' : String(extra) });
+
+// ---- tiny CSS readers: enough for "what does <selector> say inside <media query>" ----
+const flat = (s) => s.replace(/\s+/g, ' ');
+
+// Body of every @media block whose query contains `query` (nesting-aware).
+function media(query) {
+  const want = flat(query);
+  const out = [];
+  const re = /@media([^{]+)\{/g;
+  let m;
+  while ((m = re.exec(CSS))) {
+    if (flat(m[1]).indexOf(want) < 0) continue;
+    let i = m.index + m[0].length;
+    let depth = 1;
+    while (i < CSS.length && depth > 0) {
+      if (CSS[i] === '{') depth++;
+      else if (CSS[i] === '}') depth--;
+      i++;
+    }
+    out.push(CSS.slice(m.index + m[0].length, i - 1));
+  }
+  return out.join('\n');
+}
+
+// Declarations of every rule whose selector list contains `sel` exactly, joined in
+// source order. Several rules legitimately mention the same selector (a base size
+// and a later phone override), and reading only the first one would report a rule
+// as missing when the browser is in fact applying the later declaration.
+function decls(src, sel) {
+  const out = [];
+  const re = /([^{}]+)\{([^{}]*)\}/g;
+  let m;
+  while ((m = re.exec(src))) {
+    const sels = m[1].split(',').map((s) => flat(s).trim());
+    if (sels.indexOf(sel) >= 0) out.push(flat(m[2]));
+  }
+  return out.length ? out.join(' ; ') : null;
+}
+
+// The value the browser ends up with: the last one declared.
+const prop = (src, sel, name) => {
+  const d = decls(src, sel);
+  if (d === null) return null;
+  const re = new RegExp('(?:^|;)\\s*' + name.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, '\\$&') + '\\s*:\\s*([^;]+)', 'g');
+  let m;
+  let value = null;
+  while ((m = re.exec(d))) value = m[1].trim();
+  return value;
+};
+const hasRule = (src, sel) => decls(src, sel) !== null;
+
+const M820 = media('max-width: 820px');
+const M480 = media('max-width: 480px');
+const M1024 = media('max-width: 1024px');
+const HOVER = media('hover: hover');
+const REDUCED = media('prefers-reduced-motion: reduce');
+
+const PX = (v) => { const m = String(v || '').match(/^([\d.]+)px$/); return m ? Number(m[1]) : NaN; };
+const find = (re, src) => { const m = String(src || '').match(re); return m ? m[0] : null; };
+
+// The sheet with every @media block removed: what a phone-agnostic reader would call
+// the default. Without this, a "hidden by default" rule reads as its phone override,
+// because that override is later in the file and later is what wins.
+function stripMedia(src) {
+  const re = /@media[^{]+\{/g;
+  let out = '';
+  let last = 0;
+  let m;
+  while ((m = re.exec(src))) {
+    out += src.slice(last, m.index);
+    let i = m.index + m[0].length;
+    let depth = 1;
+    while (i < src.length && depth > 0) {
+      if (src[i] === '{') depth++;
+      else if (src[i] === '}') depth--;
+      i++;
+    }
+    last = i;
+  }
+  return out + src.slice(last);
+}
+const BASE = stripMedia(CSS);
+
+// ---- A. the document asks to be laid out like a phone -----------------------
+const meta = (html.match(/<meta[^>]*name="viewport"[^>]*>/) || [''])[0];
+ok('A1  viewport meta asks for the device width', /content="[^"]*width=device-width/.test(meta), meta || 'no viewport meta');
+ok('A2  pinch-zoom is left unlocked for low-vision shoppers',
+  meta.length > 0 && !/maximum-scale|user-scalable\s*=\s*no/.test(meta), meta);
+
+const vid = (html.match(/<video class="hero-video"[\s\S]*?>/) || [''])[0];
+ok('A3  hero clip is muted + playsinline + autoplay (the only combination iOS plays inline)',
+  ['muted', 'playsinline', 'autoplay'].every((a) => new RegExp('\\b' + a + '\\b').test(vid)), vid);
+ok('A4  hero clip preloads metadata only, not 1.7MB of video on a phone plan',
+  /preload="metadata"/.test(vid), vid);
+ok('A5  the still image is still the hero layer behind the clip',
+  /class="hero-image"[\s\S]{0,400}<img src="images\/hero\.jpg"/.test(html));
+ok('A6  app.js fades the clip in only once it decodes, and out again on error',
+  /addEventListener\('loadeddata',\s*show\)/.test(app) && /addEventListener\('canplay',\s*show\)/.test(app) && /addEventListener\('error',\s*hide\)/.test(app));
+ok('A7  reduced-motion users get the still, not the clip',
+  /\.hero-video\s*\{\s*display:\s*none\s*!important/.test(REDUCED));
+
+// ---- B. the listing QR code stays off a phone's screen ----------------------
+ok('B1  the QR block is hidden by default', prop(BASE, '.listing-qr', 'display') === 'none', prop(BASE, '.listing-qr', 'display'));
+ok('B2  the only rule that reveals it is a hover/pointer query',
+  prop(HOVER, '.listing-qr', 'display') === 'flex', HOVER ? flat(HOVER).slice(0, 90) : 'no hover/pointer block');
+ok('B3  no width-based block turns it back on for a phone',
+  !hasRule(M820, '.listing-qr') && !hasRule(M480, '.listing-qr') && !hasRule(M1024, '.listing-qr'),
+  (hasRule(M820, '.listing-qr') ? 'max-width 820px sets .listing-qr' : '') + (hasRule(M480, '.listing-qr') ? ' max-width 480px sets .listing-qr' : ''));
+const FINE = '(hover: hover) and (pointer: fine)';
+ok('B4  app.js asks the same question of the same media query', app.indexOf("'" + FINE + "'") >= 0 || app.indexOf('"' + FINE + '"') >= 0);
+ok('B5  the two files cannot drift apart on that query', css.indexOf(FINE) >= 0 && app.indexOf(FINE) >= 0);
+ok('B6  on a phone the order dialog is skipped so the link opens Messages/the dialer',
+  /function phoneHandlesLinks\(\)\s*\{\s*return\s*!\(fineMouseQuery\s*&&\s*fineMouseQuery\.matches\);/.test(app)
+  && /if\s*\(phoneHandlesLinks\(\)\)\s*return;/.test(app));
+ok('B7  the listing still carries both links the phone hands off from',
+  /id="orderCall" href="tel:/.test(app) && /id="orderText" href="sms:/.test(app));
+
+// ---- C. no field under 16px, or iOS zooms the page and stays zoomed ---------
+['.shop-actions input', '.shop-actions select', '.filter input', '.filter select'].forEach((sel, i) => {
+  ok('C' + (i + 1) + '  ' + sel + ' is 16px at phone widths',
+    PX(prop(M820, sel, 'font-size')) >= 16, 'font-size: ' + prop(M820, sel, 'font-size'));
+});
+ok('C5  the desktop fields keep their 13px',
+  PX(prop(BASE, '.shop-actions input', 'font-size')) === 13 && PX(prop(BASE, '.shop-actions select', 'font-size')) === 13 && PX(prop(BASE, '.filter select', 'font-size')) === 13,
+  prop(BASE, '.shop-actions input', 'font-size') + ' / ' + prop(BASE, '.shop-actions select', 'font-size') + ' / ' + prop(BASE, '.filter select', 'font-size'));
+ok('C6  the search overlay field is already over the threshold',
+  !!find(/\.search-bar input\s*\{[^}]*font-size:\s*clamp\(\s*26px/, css), prop(CSS, '.search-bar input', 'font-size'));
+
+// ---- D. the shop survives without its sidebar ------------------------------
+ok('D1  the filter panel is closed by default on a phone', prop(M820, '.filters', 'display') === 'none', prop(M820, '.filters', 'display'));
+ok('D2  and the toggle opens it as a grid', prop(M820, '.filters.open', 'display') === 'grid', prop(M820, '.filters.open', 'display'));
+ok('D3  the toggle itself is phone-only', prop(BASE, '.filter-toggle', 'display') === 'none' && prop(M820, '.filter-toggle', 'display') === 'inline-flex',
+  'base=' + prop(BASE, '.filter-toggle', 'display') + ' phone=' + prop(M820, '.filter-toggle', 'display'));
+ok('D4  the phone search box is hidden on desktop and shown on a phone',
+  prop(BASE, '#mobileSearch', 'display') === 'none' && prop(M820, '#mobileSearch', 'display') === 'block',
+  'base=' + prop(BASE, '#mobileSearch', 'display') + ' phone=' + prop(M820, '#mobileSearch', 'display'));
+ok('D5  the sidebar search field is dropped on a phone so there is only one',
+  prop(M820, '.filters .filter:first-child', 'display') === 'none');
+ok('D6  the sidebar layout collapses to one column', prop(M820, '.shop-layout', 'grid-template-columns') === '1fr');
+
+// ---- E. the listing page re-flows -----------------------------------------
+ok('E1  the detail grid collapses to one column', prop(M820, '.detail', 'grid-template-columns') === '1fr');
+ok('E2  the details column stops being pinned to the viewport',
+  prop(BASE, '.details', 'position') === 'sticky' && prop(M820, '.details', 'position') === 'static',
+  'base=' + prop(BASE, '.details', 'position') + ' phone=' + prop(M820, '.details', 'position'));
+ok('E3  the gallery tightens up', PX(prop(M820, '.gallery', 'gap')) <= 8, prop(M820, '.gallery', 'gap'));
+ok('E4  the two order buttons stack on the smallest phones', prop(M480, '.order-cta', 'grid-template-columns') === '1fr');
+
+// ---- F. the hero must not be sized against a mobile URL bar -----------------
+ok('F1  the hero stops using 100vh on a phone',
+  String(prop(BASE, '.hero', 'min-height')).indexOf('100vh') >= 0 && prop(M820, '.hero', 'min-height') === 'auto',
+  'base=' + prop(BASE, '.hero', 'min-height') + ' phone=' + prop(M820, '.hero', 'min-height'));
+ok('F2  full-height overlays use dvh so they fit with the URL bar showing',
+  String(prop(BASE, '.mobile-drawer', 'height')).indexOf('dvh') >= 0 && String(prop(BASE, '.order-modal', 'max-height')).indexOf('dvh') >= 0,
+  'drawer height=' + prop(BASE, '.mobile-drawer', 'height') + ' modal max-height=' + prop(BASE, '.order-modal', 'max-height'));
+
+// ---- G. thumb-sized controls ------------------------------------------------
+ok('G1  the header icon buttons are 44px in both directions',
+  PX(prop(BASE, '.icon-btn', 'min-width')) >= 44 && PX(prop(BASE, '.icon-btn', 'min-height')) >= 44,
+  prop(BASE, '.icon-btn', 'min-width') + ' x ' + prop(BASE, '.icon-btn', 'min-height'));
+ok('G2  the hamburger is 44px on a phone',
+  PX(prop(M820, '.hamb', 'min-width')) >= 44 && PX(prop(M820, '.hamb', 'min-height')) >= 44,
+  prop(M820, '.hamb', 'min-width') + ' x ' + prop(M820, '.hamb', 'min-height'));
+ok('G3  footer links clear the 24px floor (WCAG 2.5.8)', /\.foot-grid a\s*\{\s*line-height:\s*24px/.test(css));
+ok('G4  the announcement dismiss button keeps its 40px hit area',
+  PX(prop(BASE, '.announce button', 'min-width')) >= 40 && PX(prop(BASE, '.announce button', 'min-height')) >= 40,
+  prop(BASE, '.announce button', 'min-width') + ' x ' + prop(BASE, '.announce button', 'min-height'));
+
+// ---- H. the grids ---------------------------------------------------------------
+ok('H1  product grids are 2-up on a phone', prop(M820, '.products', 'grid-template-columns') === 'repeat(2, 1fr)');
+ok('H2  and 1-up on the smallest ones', prop(M480, '.products', 'grid-template-columns') === '1fr');
+ok('H3  brand tiles go 4-up on a tablet and 2-up on a phone',
+  prop(M1024, '.brand-grid', 'grid-template-columns') === 'repeat(4, 1fr)' && prop(M820, '.brand-grid', 'grid-template-columns') === 'repeat(2, 1fr)');
+
+// ---- I. the dismissed announcement stays dismissed --------------------------
+ok('I1  index.html re-applies the dismissal before the bar is parsed',
+  /localStorage\.getItem\("randomstock\.announceDismissed"\)/.test(html));
+ok('I2  and app.js writes the same key',
+  /ANNOUNCE_KEY\s*=\s*'randomstock\.announceDismissed'/.test(app));
+
+const fails = results.filter((r) => !r.pass);
+results.forEach((r) => console.log((r.pass ? 'PASS  ' : 'FAIL  ') + r.name + (r.pass ? '' : '   [' + r.extra + ']')));
+console.log('\nTOTAL=' + results.length + ' FAIL=' + fails.length);
+process.exit(fails.length ? 1 : 0);
