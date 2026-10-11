@@ -1,0 +1,7 @@
+# qrcode.js is vendored, byte-for-byte, from qrcode-generator 1.4.4 (MIT), and the
+# comment above its <script> tag in index.html records the upstream SHA-256. A
+# Windows checkout would otherwise rewrite its line endings to CRLF and the file
+# would no longer hash to that value, so this one file is always checked out as it
+# is stored. (Everything else is hashed with line endings folded, so it does not
+# matter there — see the note in stamp-assets.js.)
+qrcode.js text eol=lf

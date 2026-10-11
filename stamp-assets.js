@@ -19,9 +19,11 @@ const path = require('path');
 const crypto = require('crypto');
 
 // Everything index.html pulls from this folder and that a deploy can change.
+// (qrcode.js is vendored rather than written here, but a deploy replaces it just
+// the same, so it is stamped like the rest.)
 // (Images and icons are left alone: they are replaced by adding a new file rather
 // than by editing one in place.)
-const ASSETS = ['styles.css', 'products.js', 'app.js'];
+const ASSETS = ['styles.css', 'products.js', 'jsonld.js', 'app.js', 'qrcode.js'];
 const PAGE = 'index.html';
 
 const page = path.join(__dirname, PAGE);

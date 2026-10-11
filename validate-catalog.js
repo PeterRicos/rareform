@@ -34,3 +34,21 @@ console.log('FZ5000 SKU entries (expect 1 = deduped): ' + fz);
 
 const pricing = (h.match(/price|retail|money\(|\$[0-9]/gi) || []).length;
 console.log('pricing refs (expect 0): ' + pricing);
+
+// The catalog JSON-LD that ships inside index.html has to describe the same
+// listings as products.js. build-jsonld.js writes it and the stamp-assets workflow
+// keeps it current, so this only ever fires on a stale commit or a hand edit.
+const page = fs.readFileSync(__dirname + '/index.html', 'utf8');
+const block = /<!-- catalog-jsonld:begin -->[\s\S]*?<script type="application\/ld\+json">([\s\S]*?)<\/script>[\s\S]*?<!-- catalog-jsonld:end -->/.exec(page);
+if (!block) {
+  console.log('catalog jsonld: MISSING — run "node build-jsonld.js"');
+} else {
+  const list = (JSON.parse(block[1])['@graph'] || []).filter(n => n['@type'] === 'ItemList')[0];
+  const items = list ? list.itemListElement : [];
+  const listed = new Set(items.map(e => e.item && e.item.sku));
+  const absent = skus.filter(s => !listed.has(s));
+  const priced = items.filter(e => e.item && e.item.offers && 'price' in e.item.offers).length;
+  console.log('catalog jsonld: items=' + items.length + '/' + skus.length +
+    ' listedSkusMissing=' + absent.length + (absent.length ? ' (' + absent.slice(0, 3).join(', ') + ')' : '') +
+    ' priced=' + priced + ' (expect 0 while the catalog has no prices)');
+}

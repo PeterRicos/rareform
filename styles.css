@@ -963,6 +963,154 @@ html.announce-dismissed .announce { display: none; }
   border-color: var(--ink);
 }
 
+/* Order Modal
+   Opened by app.js when a desktop click lands on a tel:/sms: link — a pointer
+   with no phone behind it. Centred card, two columns: the message the shopper
+   types, and the code their phone scans. Phone-width layouts stack (see the
+   responsive query at the foot of this file), though touch devices normally open
+   the dialer instead of this. */
+.order-modal {
+  position: fixed;
+  left: 50%;
+  top: 50%;
+  width: min(880px, calc(100vw - 32px));
+  max-height: calc(100dvh - 32px);
+  overflow-y: auto;
+  background: #fff;
+  border-radius: var(--radius);
+  box-shadow: 0 30px 80px rgba(0,0,0,0.35);
+  z-index: 70;
+  padding: clamp(22px, 3.2vw, 36px);
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transform: translate(-50%, -46%) scale(0.98);
+  transition: opacity 0.3s cubic-bezier(0.16, 1, 0.3, 1),
+              transform 0.3s cubic-bezier(0.16, 1, 0.3, 1),
+              visibility 0.3s;
+}
+.order-modal.open {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+  transform: translate(-50%, -50%) scale(1);
+}
+.order-modal-close {
+  position: absolute;
+  right: 14px;
+  top: 10px;
+  font-size: 30px;
+  line-height: 1;
+  padding: 6px 10px;
+  color: var(--ink);
+}
+.order-modal-close:hover { opacity: 0.7; }
+.order-modal-grid {
+  display: grid;
+  grid-template-columns: 1fr minmax(240px, 290px);
+  gap: clamp(18px, 3vw, 34px);
+  align-items: start;
+}
+.order-modal h2 {
+  font-size: clamp(21px, 2.4vw, 27px);
+  letter-spacing: -0.03em;
+  line-height: 1.15;
+  margin: 10px 0 10px;
+}
+.order-modal-lede {
+  font-size: 13.5px;
+  line-height: 1.65;
+  color: var(--muted);
+  margin: 0;
+}
+.order-field { margin-top: 20px; }
+.order-field label {
+  display: block;
+  font: 700 10px/1 'Manrope', sans-serif;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 8px;
+}
+.order-field textarea {
+  width: 100%;
+  min-height: 108px;
+  padding: 12px 14px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: #fff;
+  color: var(--ink);
+  font: 500 13.5px/1.6 'Manrope', sans-serif;
+  resize: vertical;
+}
+.order-field textarea:focus {
+  outline: 0;
+  border-color: var(--ink);
+}
+.order-actions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  align-items: center;
+  margin-top: 14px;
+}
+.order-hint {
+  font-size: 11.5px;
+  line-height: 1.6;
+  color: var(--muted);
+  margin: 14px 0 0;
+  max-width: 42ch;
+}
+.order-qr {
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 16px;
+  text-align: center;
+}
+.order-qr-tabs {
+  display: inline-flex;
+  gap: 2px;
+  padding: 3px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: #fff;
+  margin-bottom: 16px;
+}
+.order-qr-tabs button {
+  font: 700 10px/1 'Manrope', sans-serif;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted);
+  padding: 8px 14px;
+  border-radius: 999px;
+  transition: var(--transition);
+}
+.order-qr-tabs button[aria-pressed="true"] {
+  background: var(--ink);
+  color: #fff;
+}
+.order-qr-code {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 232px;
+}
+.order-qr-code svg {
+  display: block;
+  width: 100%;
+  max-width: 232px;
+  height: auto;
+  background: #fff;
+  border-radius: 2px;
+}
+.order-qr-note {
+  font-size: 11.5px;
+  line-height: 1.55;
+  color: var(--muted);
+  margin: 14px 0 0;
+}
+
 /* Toast */
 .toast {
   position: fixed;
@@ -1126,6 +1274,9 @@ footer .logo i { color: #b5b2ac; }
     min-height: 44px;
   }
   .foot-grid { grid-template-columns: 1fr 1fr; }
+  /* The order modal stacks: the message and its buttons first, the code beneath. */
+  .order-modal-grid { grid-template-columns: 1fr; }
+  .order-qr-code { min-height: 0; }
 }
 @media (max-width: 480px) {
   .foot-grid { grid-template-columns: 1fr; }
