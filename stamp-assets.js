@@ -26,8 +26,16 @@ const PAGE = 'index.html';
 
 const page = path.join(__dirname, PAGE);
 const escape = (s) => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+
+// The hash is taken over the file's text with CRLF folded to LF. The repo stores
+// LF, but a Windows checkout writes CRLF, so hashing the raw bytes would give this
+// folder one hash and the Linux workflow a different one for the same source —
+// every local push would then be "corrected" by a workflow commit, and back again.
+// Normalising makes both agree, and means a change that only flips line endings
+// does not reshuffle the URLs. Only the fact that the hash changes matters, never
+// its value.
 const hash = (file) => crypto.createHash('sha1')
-  .update(fs.readFileSync(path.join(__dirname, file)))
+  .update(fs.readFileSync(path.join(__dirname, file), 'utf8').replace(/\r\n/g, '\n'))
   .digest('hex')
   .slice(0, 8);
 
