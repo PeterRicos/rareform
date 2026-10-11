@@ -129,15 +129,31 @@
       <div class="hero-image">
         <img src="images/hero.jpg" alt="Air Jordan 1 Retro High OG" width="1600" height="1068" decoding="async">
         <!-- Hero video slot: drop a ~10 second clip at video/reel.mp4 and it fades in
-             over the still. Until that file exists the still image is the hero, so
-             the page never shows an empty player or a black box.
-             The tag is commented out for now: with no file to load it requested
-             video/reel.mp4 on every visit and logged a 404 in the console.
-             Uncomment to re-enable once the clip is in place.
+             over the still. Until that file exists the still image is the hero, so the
+             page never shows an empty player or a black box.
+             Install or swap the clip with one file and one push: overwrite
+             video/reel.mp4 and commit. The block between the markers below is rewritten
+             by stamp-assets.js on every push, and that is what
+               - switches this tag on only while the clip is really here, so the page
+                 never requests a file that is not there. That request, on every visit,
+                 is why the tag is not simply left uncommented, and
+               - gives the clip a "?v=<hash of its bytes>" URL, so a swapped clip is a
+                 new URL at once instead of sitting behind the ten-minute Pages cache,
+                 so no cache can serve yesterday's clip under today's name.
+             Do not edit between the markers by hand: the next push rewrites them.
+             Before pushing, "node test-hero-video.js" checks both halves of that
+             pairing and reads the container, so a clip that is present, wanted, and yet
+             not actually decodable is caught here instead of by a shopper.
+             Keep the file small: it plays muted, and it loops for every visitor who
+             reaches the hero, on whatever connection they are on. -->
+        <!-- hero-video:begin -->
+        <!-- No clip in this checkout, so the tag stays off rather than requesting a
+             file that is not there: the still image above it is the whole hero.
         <video class="hero-video" id="heroVideo" autoplay muted loop playsinline preload="metadata" aria-hidden="true" tabindex="-1">
           <source src="video/reel.mp4" type="video/mp4">
         </video>
         -->
+        <!-- hero-video:end -->
         <div class="hero-stamp">
           VERIFIED<br>100%<br>AUTHENTIC
         </div>

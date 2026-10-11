@@ -29,6 +29,9 @@ on:
       - 'index.html'
       - 'stamp-assets.js'
       - 'build-jsonld.js'
+      # The hero clip: dropping a new video/reel.mp4 has to re-stamp index.html like any
+      # other asset change, or the swap would sit behind the ten-minute cache.
+      - 'video/reel.mp4'
   workflow_dispatch:
 
 permissions:
@@ -54,6 +57,13 @@ jobs:
 
       - name: Rebuild the catalog JSON-LD in index.html
         run: node build-jsonld.js
+
+      # index.html only turns the hero tag on when the clip is really here, so this step
+      # is what proves the pairing held — and what refuses to let a clip that is not
+      # actually a video (an .mp4 that has been through a text pipeline, say) go
+      # unnoticed, since the page itself would just fall back to the still image.
+      - name: Check the hero clip
+        run: node test-hero-video.js
 
       - name: Commit index.html when it was stale
         env:

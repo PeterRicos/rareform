@@ -5,3 +5,10 @@
 # is stored. (Everything else is hashed with line endings folded, so it does not
 # matter there — see the note in stamp-assets.js.)
 qrcode.js text eol=lf
+
+# A clip is binary, and nothing here should ever treat one as text. A tool that decodes
+# a video as UTF-8 and re-encodes it replaces every byte it cannot decode with U+FFFD:
+# the file keeps a valid-looking header, doubles in length, and every browser then
+# refuses to open it. Marking .mp4 binary keeps git and its diff/patch helpers out of
+# the bytes, whatever the local editor or checkout decides about line endings.
+*.mp4 binary
