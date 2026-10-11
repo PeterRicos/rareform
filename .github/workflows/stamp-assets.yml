@@ -1,4 +1,4 @@
-name: Stamp Asset Hashes
+name: Refresh index.html
 
 # GitHub Pages sends "Cache-Control: max-age=600" with every file, so a deploy can
 # sit behind a ten-minute cache while the URL stays the same. stamp-assets.js
@@ -6,6 +6,14 @@ name: Stamp Asset Hashes
 # "?v=<content hash>", which turns each deploy into new URLs. This runs on every
 # push to main and commits the result, so a listing edit — or a commit from another
 # workflow/agent — can never leave the page pointing at a previous file.
+#
+# The same push has to keep index.html's generated JSON-LD in step with the catalog,
+# because that block is the only product data a crawler or unfurler gets from an HTML
+# document on its own: build-jsonld.js writes it from products.js through jsonld.js,
+# the same builder the shop page runs, so a listing edit can never leave the two
+# describing different products.
+#
+# Both steps only ever touch index.html, so the commit below covers each of them.
 #
 # Safe to delete: without it, run "node stamp-assets.js" yourself before pushing.
 
@@ -15,9 +23,12 @@ on:
     paths:
       - 'styles.css'
       - 'products.js'
+      - 'jsonld.js'
       - 'app.js'
+      - 'qrcode.js'
       - 'index.html'
       - 'stamp-assets.js'
+      - 'build-jsonld.js'
   workflow_dispatch:
 
 permissions:
@@ -41,19 +52,22 @@ jobs:
       - name: Stamp index.html asset hashes
         run: node stamp-assets.js
 
-      - name: Commit index.html when the hashes were stale
+      - name: Rebuild the catalog JSON-LD in index.html
+        run: node build-jsonld.js
+
+      - name: Commit index.html when it was stale
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           if git diff --quiet -- index.html; then
-            echo "index.html already points at the current hashes; nothing to commit"
+            echo "index.html already points at the current hashes and listings; nothing to commit"
             exit 0
           fi
 
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add index.html
-          git commit -m "Stamp asset hashes in index.html"
+          git commit -m "Refresh index.html asset hashes and catalog JSON-LD"
 
           for attempt in 1 2 3; do
             if git push; then break; fi

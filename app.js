@@ -53,16 +53,38 @@ products.push(...(window.localProducts || []));
       return SIZING_LABELS[cats[0]] || 'Sizing';
     }
 
+    // The shop answers orders by phone or text; this is the number, written once.
+    const ORDER_PHONE = '+19144821144';
+    const ORDER_PHONE_DISPLAY = '(914) 482-1144';
+
+    // One sentence identifies a pair, so it is written once: the detail page's order
+    // links, the desktop order dialog and its QR code all build their message from
+    // it, and every one of them names the same SKU and size.
+    function orderSummary() {
+      if (!current) return '';
+      const size = selectedSize || (current.sizes || [])[0] || '';
+      return current.name + ' (SKU ' + current.sku + ')' + (size ? ', size ' + sizeDisplay(size) : '');
+    }
+
+    // '?&body=' is the iOS/Android compromise: iOS wants "&body=", Android wants
+    // "?body=", and both tolerate the pair.
+    function smsHref(message) {
+      return 'sms:' + ORDER_PHONE + (message ? '?&body=' + encodeURIComponent(message) : '');
+    }
+
+    function defaultOrderMessage() {
+      const summary = orderSummary();
+      return summary ? 'Hi Random Stock, is the ' + summary + ' still available?' : '';
+    }
+
     // The size chips report what we hold; these links carry the pair and the chosen
     // size into the message so nobody has to retype a SKU.
     function updateOrderLinks() {
       const call = $('orderCall');
       const text = $('orderText');
       if (!call || !text || !current) return;
-      const size = selectedSize || (current.sizes || [])[0] || '';
-      const summary = current.name + ' (SKU ' + current.sku + ')' + (size ? ', size ' + sizeDisplay(size) : '');
-      call.href = 'tel:+19144821144';
-      text.href = 'sms:+19144821144?&body=' + encodeURIComponent('Hi Random Stock, is the ' + summary + ' still available?');
+      call.href = 'tel:' + ORDER_PHONE;
+      text.href = smsHref(defaultOrderMessage());
     }
 
     // Dialogs: keep Tab inside the open drawer/modal and hand focus back on close.
@@ -430,6 +452,7 @@ products.push(...(window.localProducts || []));
       if (target.dataset.view === 'product' && (restore || pid)) {
         renderProduct(pid || current.id);
       }
+      syncStructuredData(target.dataset.view || page);
       closeAllDrawers();
       syncRouteUI();
     }
@@ -653,6 +676,8 @@ products.push(...(window.localProducts || []));
       // The search overlay must never outlive the view it opened from —
       // otherwise a result click navigates underneath it and the page looks frozen.
       $('searchModal').classList.remove('open');
+      // Same rule for the order dialog, which also opens over a product view.
+      if ($('orderModal')) $('orderModal').classList.remove('open');
       $('shade').classList.remove('open');
     }
 
@@ -703,6 +728,185 @@ products.push(...(window.localProducts || []));
       globalSearch();
     }
 
+    // ---- Order dialog: what a click on a tel:/sms: link opens on a desktop ------
+    //
+    // A phone hands tel: and sms: to the dialer and to Messages, so there the links
+    // are left exactly as they were — tap and it opens. A desktop browser has
+    // nowhere to put them: the click lands on nothing and the shopper is invited to
+    // call a number they cannot call from a laptop. The dialog gives them the two
+    // things that do work from a desk: a code their phone can scan, with whatever
+    // they typed riding inside it, and actions that need no phone at all.
+    //
+    // The media feature, not a user-agent sniff, decides which case this is: it asks
+    // the only question that matters — is there a pointer here that is not a finger.
+    const fineMouseQuery = window.matchMedia ? window.matchMedia('(hover: hover) and (pointer: fine)') : null;
+    let orderModeState = 'text';
+
+    function phoneHandlesLinks() {
+      return !(fineMouseQuery && fineMouseQuery.matches);
+    }
+
+    function orderModalOpen(href) {
+      const link = String(href || '');
+      orderModeState = link.indexOf('tel:') === 0 ? 'call' : 'text';
+
+      // The page already knows what the shopper is looking at — the sms: link it
+      // builds carries the pair and the chosen size — so the dialog starts from that
+      // same sentence rather than an empty box.
+      let message = '';
+      const body = link.match(/[?&]body=([^&]*)/);
+      if (body) {
+        try { message = decodeURIComponent(body[1]); } catch (err) { message = ''; }
+      }
+      if (!message && orderModeState === 'text' && document.querySelector('#view-product.active')) {
+        message = defaultOrderMessage();
+      }
+      if ($('orderMessage')) $('orderMessage').value = message;
+
+      // closeAllDrawers() first: it is what puts the shade up for one dialog at a
+      // time, and every one of them shares it.
+      closeAllDrawers();
+      $('orderModal').classList.add('open');
+      $('shade').classList.add('open');
+      trapFocus($('orderModal'));
+      orderModalSync();
+      setTimeout(() => { if ($('orderMessage')) $('orderMessage').focus(); }, 150);
+    }
+
+    function orderModalClose() {
+      const modal = $('orderModal');
+      if (!modal || !modal.classList.contains('open')) return;
+      modal.classList.remove('open');
+      $('shade').classList.remove('open');
+      releaseFocus();
+    }
+
+    function orderModalMode(mode) {
+      orderModeState = mode === 'call' ? 'call' : 'text';
+      orderModalSync();
+    }
+
+    // What the code and the buttons point at right now: the typed message in text
+    // mode, so a shopper's sentence arrives on the phone with the text.
+    function orderTargetHref() {
+      if (orderModeState === 'call') return 'tel:' + ORDER_PHONE;
+      const field = $('orderMessage');
+      return smsHref(field ? field.value.trim() : '');
+    }
+
+    function orderModalSync() {
+      const isCall = orderModeState === 'call';
+      const target = orderTargetHref();
+      const message = ($('orderMessage') && $('orderMessage').value.trim()) || '';
+
+      $('orderModalTitle').textContent = isCall ? 'Call us from your phone' : 'Text us from your phone';
+      $('orderTabText').setAttribute('aria-pressed', isCall ? 'false' : 'true');
+      $('orderTabCall').setAttribute('aria-pressed', isCall ? 'true' : 'false');
+      $('orderQrNote').textContent = isCall
+        ? 'Point your camera at the code to dial ' + ORDER_PHONE_DISPLAY
+        : (message ? 'Point your camera at the code — your message goes with it'
+                   : 'Point your camera at the code to open a text to ' + ORDER_PHONE_DISPLAY);
+      $('orderQr').innerHTML = qrSvg(target, isCall
+        ? 'QR code that dials ' + ORDER_PHONE_DISPLAY
+        : 'QR code that opens a text message to Random Stock');
+
+      const wa = $('orderWhatsApp');
+      if (wa) wa.href = 'https://wa.me/' + ORDER_PHONE.replace('+', '') + (message ? '?text=' + encodeURIComponent(message) : '');
+    }
+
+    // Drawn as one SVG path. A <rect> per dark module would be several hundred nodes
+    // for a code a scanner reads at a glance; runs of touching dark modules in a row
+    // collapse into single rectangles instead, which is the same picture with a
+    // fraction of the markup.
+    function qrFallbackNote(reason) {
+      return '<p class="order-qr-note">' + reason + '</p>';
+    }
+
+    function qrSvg(text, label, mayRetry) {
+      if (typeof qrcode !== 'function') {
+        return qrFallbackNote('Text or call ' + ORDER_PHONE_DISPLAY + ' — the code needs qrcode.js.');
+      }
+      try {
+        // UTF-8: a message with an emoji or an accent is common and the library's
+        // default converter is one byte per character, which would put mojibake in
+        // the text the phone receives. Set once, on the first code drawn.
+        if (!qrSvg.utf8 && qrcode.stringToBytesFuncs && qrcode.stringToBytesFuncs['UTF-8']) {
+          qrcode.stringToBytes = qrcode.stringToBytesFuncs['UTF-8'];
+          qrSvg.utf8 = true;
+        }
+
+        const qr = qrcode(0, 'M');   // 0 = smallest version that fits; M ≈ 15% recovery
+        qr.addData(text);
+        qr.make();
+
+        const count = qr.getModuleCount();
+        const quiet = 4;             // the margin every scanner is told to expect
+        const runs = [];
+        for (let row = 0; row < count; row += 1) {
+          let col = 0;
+          while (col < count) {
+            if (!qr.isDark(row, col)) { col += 1; continue; }
+            let run = 1;
+            while (col + run < count && qr.isDark(row, col + run)) run += 1;
+            runs.push('M' + (col + quiet) + ' ' + (row + quiet) + 'h' + run + 'v1h-' + run + 'z');
+            col += run;
+          }
+        }
+
+        const size = count + quiet * 2;
+        return '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ' + size + ' ' + size +
+          '" role="img" aria-label="' + label + '" shape-rendering="crispEdges">' +
+          '<rect width="' + size + '" height="' + size + '" fill="#ffffff"/>' +
+          '<path d="' + runs.join('') + '" fill="#151515"/></svg>';
+      } catch (err) {
+        // Past the capacity of a version-40 code. The message is dropped rather than
+        // the code: a shopper still scans it, and the Copy button still holds their text.
+        const cut = text.indexOf('?');
+        if (mayRetry !== false && cut > 0) return qrSvg(text.slice(0, cut), label, false);
+        return qrFallbackNote('Text or call ' + ORDER_PHONE_DISPLAY + ' — the code could not be drawn here.');
+      }
+    }
+
+    // navigator.clipboard needs a secure context and a live user gesture; the
+    // select-and-execCommand path is what keeps the button honest on http:// or in a
+    // browser that withholds the modern API.
+    function legacyCopy(text) {
+      const scratch = document.createElement('textarea');
+      scratch.value = text;
+      scratch.setAttribute('readonly', 'readonly');
+      scratch.style.position = 'fixed';
+      scratch.style.top = '-1000px';
+      scratch.style.opacity = '0';
+      document.body.appendChild(scratch);
+      scratch.select();
+      let ok = false;
+      try { ok = document.execCommand('copy'); } catch (err) { ok = false; }
+      document.body.removeChild(scratch);
+      return ok;
+    }
+
+    function copyText(text) {
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        return navigator.clipboard.writeText(text).then(() => true, () => legacyCopy(text));
+      }
+      return Promise.resolve(legacyCopy(text));
+    }
+
+    function orderCopy() {
+      const field = $('orderMessage');
+      const message = field ? field.value.trim() : '';
+      if (!message) {
+        toast('Write your message first, then copy it.');
+        if (field) field.focus();
+        return;
+      }
+      copyText(message).then((ok) => {
+        toast(ok
+          ? 'Message copied — text it to ' + ORDER_PHONE_DISPLAY
+          : 'Copy blocked by the browser — select the text and copy it by hand');
+      });
+    }
+
     // Toast Utility
     let toastTimer;
     function toast(msg) {
@@ -718,6 +922,7 @@ products.push(...(window.localProducts || []));
       if (e.key === 'Escape') {
         menuClose();
         searchClose();
+        orderModalClose();
       }
     });
 
@@ -805,6 +1010,44 @@ products.push(...(window.localProducts || []));
       if (!a || !a.hasAttribute('onclick')) return;
       e.preventDefault();
     });
+
+    // tel: and sms: are only useful where something can answer them. On a fine
+    // pointer — no phone behind it — the click becomes the order dialog instead.
+    // Everywhere else the link is left alone, so a tap on a phone still opens the
+    // dialer or Messages the way it always did.
+    document.addEventListener('click', e => {
+      if (phoneHandlesLinks()) return;
+      const a = e.target && e.target.closest ? e.target.closest('a[href^="tel:"], a[href^="sms:"]') : null;
+      if (!a) return;
+      // A tel:/sms: link inside the dialog itself is meant to act on its own.
+      if (a.closest && a.closest('#orderModal')) return;
+      e.preventDefault();
+      orderModalOpen(a.getAttribute('href'));
+    });
+
+    // ---- Structured data for the view on screen -------------------------------
+    //
+    // index.html already carries the whole catalog as JSON-LD (written by
+    // build-jsonld.js), which is what a crawler that never runs this script reads.
+    // What only a live page can do is describe the product being looked at, with
+    // every gallery shot, the packaging and one offering per size. It is removed as
+    // soon as the view is not a product, so the page never advertises something it
+    // is not showing.
+    function syncStructuredData(page) {
+      const existing = $('productJsonLd');
+      // jsonld.js ships with the page; the Node test harnesses load app.js alone.
+      const canWrite = typeof structuredData !== 'undefined' && page === 'product' && current;
+      if (!canWrite) {
+        if (existing && existing.parentNode) existing.parentNode.removeChild(existing);
+        return;
+      }
+      const node = structuredData.product(current, { variants: true });
+      const script = existing || document.createElement('script');
+      script.type = 'application/ld+json';
+      script.id = 'productJsonLd';
+      script.textContent = structuredData.stringify(node);
+      if (!existing) document.head.appendChild(script);
+    }
 
     // Initial Render — filters first: renderShop() reads their values to label the count
     // Hero video: the still image is the hero until the clip actually decodes, so a
