@@ -545,12 +545,18 @@ products.push(...(window.localProducts || []));
       current = products.find(p => p.id === id) || products[0];
       selectedSize = current.sizes[0]; // initialize default selected size
 
+      // A listing with one photo shows one photo. This used to repeat current.img
+      // four times to fill the 2x2 grid, so a single-angle item read as the same
+      // shot pasted four times. .gallery img:only-child already spans a lone image
+      // across the full width, and the "angle N" alt only means anything when there
+      // really are several angles to page through.
       const galleryImages = current.gallery && current.gallery.length
         ? current.gallery
-        : [current.img, current.img, current.img, current.img];
+        : [current.img];
+      const singlePhoto = galleryImages.length < 2;
 
       $('gallery').innerHTML = galleryImages.map((src, i) => `
-        <img src="${src}" alt="${current.name} angle ${i + 1}" loading="lazy">
+        <img src="${src}" alt="${singlePhoto ? current.name : current.name + ' angle ' + (i + 1)}" loading="lazy">
       `).join('');
 
       const isSneaker = productCategory(current) === 'sneakers';
