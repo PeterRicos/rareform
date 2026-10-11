@@ -2,6 +2,15 @@
 // index.html loads this first, then app.js renders window.localProducts.
 // Keep each product as one JSON-shaped object; app.js derives the store
 // (brands, sizes, conditions, tiles) from whatever array is here.
+//
+// `category` is optional — a listing without one is a sneaker unless its brand
+// reads Supreme — and picks the homepage section it lands in: "clothing" is
+// Clothing & Accessories, "random" is Random Shit.
+//
+// `sizeGroup` is optional too, and only needed when the size strings alone
+// cannot say which run a listing belongs to: a bare "7" is a men's shoe size
+// here, so a fitted cap that holds 7 next to 7 1/8 declares sizeGroup:
+// "Headwear" (the runs are Men, Women, Youth, Apparel and Headwear).
 
 /* == local-products:begin == */
 const localProducts = [
@@ -1078,6 +1087,34 @@ const localProducts = [
       "Quilted two-tone saddle — cream top over a brown leather-look trim panel — on a chrome seat post with a quick-release clamp",
       "Swept-back cruiser handlebars with wood-tone grips and wide platform pedals",
       "Cream tires on chrome rims; colorway: Mint Green"
+    ]
+  },
+  {
+    id: 85,
+    brand: "New Era",
+    category: "clothing",
+    sizeGroup: "Headwear",
+    name: "Mariano Rivera 2013 World Series 59FIFTY Fitted Cap New York Yankees Navy",
+    color: "Navy",
+    condition: "New",
+    box: "Original Packaging",
+    sizes: ["7", "7 1/8", "7 1/2"],
+    img: "images/clothing/mariano-rivera-2013-world-series-new-era-59fifty-navy.jpg",
+    gallery: [
+      "images/clothing/mariano-rivera-2013-world-series-new-era-59fifty-navy.jpg",
+      "images/clothing/mariano-rivera-2013-world-series-new-era-59fifty-navy-front.jpg",
+      "images/clothing/mariano-rivera-2013-world-series-new-era-59fifty-navy-undervisor.jpg"
+    ],
+    sku: "NEWERA-59FIFTY-MR-2013-NYY-NAVY",
+    details: [
+      "New Era 59FIFTY fitted cap, New York Yankees",
+      "Metallic gold Yankees logo embroidered on the front panels",
+      "2013 World Series side patch embroidered on the side",
+      "Gold New Era flag embroidered on the side",
+      "Mariano Rivera's signature embroidered in gold on the grey undervisor, above a baseball graphic",
+      "Black sweatband with the 59FIFTY taping and New Era tags",
+      "Two of each size listed in stock",
+      "Colorway: Navy"
     ]
   }
 ];
