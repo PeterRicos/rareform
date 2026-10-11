@@ -356,7 +356,11 @@
 
   <!-- SCRIPT LOGIC -->
   <!-- Catalog data and site logic live in products.js and app.js; adding or changing
-       a listing never touches this page. -->
+       a listing never touches this page. The ?v= on these two files (and on
+       styles.css) is a content hash written by stamp-assets.js: it is what stops
+       GitHub Pages' ten-minute cache from serving a previous deploy, so do not
+       "clean up" the query string. Change a file and let the stamp-assets workflow
+       (or "node stamp-assets.js") update the hash. -->
   <script src="products.js" defer></script>
   <script src="app.js" defer></script>
   
