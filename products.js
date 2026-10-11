@@ -1055,6 +1055,30 @@ const localProducts = [
       "Hands sculpted as sweets: one blue drip hand and one yellow banana hand, both splashed with chocolate",
       "Black legs set on chunky pink block boots, glossy finish all over"
     ]
+  },
+  {
+    id: 84,
+    brand: "Huffy",
+    category: "random",
+    name: "Huffy Nel Lusso Girls Cruiser Bike 24-Inch Mint Green",
+    color: "Mint Green",
+    condition: "New",
+    box: "Original Box",
+    sizes: [],
+    img: "images/random/huffy-nel-lusso-girls-cruiser-bike-24-mint-green.jpg",
+    gallery: [
+      "images/random/huffy-nel-lusso-girls-cruiser-bike-24-mint-green.jpg",
+      "images/random/huffy-nel-lusso-girls-cruiser-bike-24-mint-green-saddle.jpg"
+    ],
+    sku: "HUFFY-NEL-LUSSO-24-MINT",
+    details: [
+      "Huffy Nel Lusso girls' cruiser bike with 24-inch wheels, in mint green",
+      "Step-through cruiser frame with a single-speed drivetrain, full chain guard and matching front and rear fenders",
+      "Front wicker basket and a matching rear rack",
+      "Quilted two-tone saddle — cream top over a brown leather-look trim panel — on a chrome seat post with a quick-release clamp",
+      "Swept-back cruiser handlebars with wood-tone grips and wide platform pedals",
+      "Cream tires on chrome rims; colorway: Mint Green"
+    ]
   }
 ];
 /* == local-products:end == */
