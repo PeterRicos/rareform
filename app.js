@@ -215,7 +215,10 @@ products.push(...(window.localProducts || []));
     // confusing empty grid. As soon as a product carries the brand, the tile goes
     // live on its own with no edit here. Matching is case-insensitive, so
     // "SUPREME" picks up products whose brand string reads "Supreme".
-    const BRAND_TILES = ['Jordan', 'Nike', 'adidas', 'New Balance', 'ASICS', 'TRAVIS SCOTT', 'SUPREME'];
+    //
+    // This one list is also what the shop's BRAND dropdown offers, so a brand taken
+    // out of it leaves both the grid and that dropdown.
+    const BRAND_TILES = ['Jordan', 'Nike', 'adidas', 'New Balance', 'TRAVIS SCOTT', 'SUPREME'];
 
     // Hat sizes are fractions ("7 1/4"), so turn them into decimals before comparing.
     function sizeNumber(m) {
