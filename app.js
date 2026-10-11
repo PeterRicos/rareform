@@ -293,12 +293,18 @@ products.push(...(window.localProducts || []));
       if (!m) return null;
       const value = parseFloat(m[1]);
       if (!Number.isFinite(value) || value > MAX_SIZE_QUERY) return null;
-      return { value, suffix: m[2].toLowerCase(), letters: false, display: 'US ' + value };
+      // A whole number covers its half size too ("11" reads as 11 / 11.5), so the
+      // empty-state copy can say exactly what was searched.
+      const suffix = m[2].toLowerCase();
+      const half = suffix === '' && value % 1 === 0 ? ' / ' + (value + 0.5) : '';
+      return { value, suffix, letters: false, display: 'US ' + value + half };
     }
 
-    // "11" matches only exact size 11 (no suffix). "5.5w" / "13k" only match that same run, since a
-    // suffix means the shopper named a specific women's or kids' size rather than a number.
-    // Letter queries ("m", "xl") match the exact apparel size.
+    // A whole-number query ("11") shows that size and its half ("11.5") — shoe runs
+    // come in half steps, and a shopper typing "11" wants both. A query that already
+    // names the half ("11.5") or a specific run ("5.5w", "13k") matches only that
+    // exact size, and letter queries ("m", "xl") match the exact apparel size.
+    // A suffixed run never bleeds into a bare number: "11" stays clear of 11W/11K.
     function matchesSize(product, sizeQuery) {
       return (product.sizes || []).some(s => {
         const st = String(s).trim();
@@ -306,9 +312,11 @@ products.push(...(window.localProducts || []));
         const parsed = /^(\d+(?:\.\d+)?)(.*)$/.exec(st);
         if (!parsed) return false;
         const value = parseFloat(parsed[1]);
-        if (!Number.isFinite(value) || value !== sizeQuery.value) return false;
+        if (!Number.isFinite(value)) return false;
         const suffix = parsed[2].toLowerCase();
-        return suffix === sizeQuery.suffix;
+        if (suffix !== sizeQuery.suffix) return false;
+        if (value === sizeQuery.value) return true;
+        return sizeQuery.suffix === '' && sizeQuery.value % 1 === 0 && value === sizeQuery.value + 0.5;
       });
     }
 
@@ -641,18 +649,27 @@ products.push(...(window.localProducts || []));
       releaseFocus();
     }
 
+    // Same rule as the shop filter search: a bare number is a size, not a keyword.
+    // Typing "11" here has to surface the pairs actually held in 11 / 11.5 — not
+    // every model whose name happens to contain the digits.
     function globalSearch() {
       const q = ($('globalSearch').value || '').trim().toLowerCase();
       if (!q) {
         $('searchResults').innerHTML = '';
         return;
       }
-      const matches = products.filter(p => 
-        (p.brand + ' ' + p.name + ' ' + p.color + ' ' + p.sku).toLowerCase().includes(q)
+      const sizeQuery = parseSizeQuery(q);
+      const matches = (sizeQuery
+        ? products.filter(p => matchesSize(p, sizeQuery))
+        : products.filter(p =>
+            (p.brand + ' ' + p.name + ' ' + p.color + ' ' + p.sku).toLowerCase().includes(q)
+          )
       ).slice(0, 4);
 
       if (!matches.length) {
-        $('searchResults').innerHTML = '<p style="grid-column: 1/-1; color: var(--muted); padding: 20px 0;">No matching sneakers found.</p>';
+        $('searchResults').innerHTML = sizeQuery
+          ? '<p style="grid-column: 1/-1; color: var(--muted); padding: 20px 0;">Nothing in ' + sizeQuery.display + ' right now — try another size.</p>'
+          : '<p style="grid-column: 1/-1; color: var(--muted); padding: 20px 0;">No matching sneakers found.</p>';
       } else {
         $('searchResults').innerHTML = matches.map(productCard).join('');
       }
