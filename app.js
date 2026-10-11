@@ -611,6 +611,23 @@ products.push(...(window.localProducts || []));
       updateOrderLinks();
     }
 
+    // Announcement bar. The bar in index.html hides itself by adding "hide" — but
+    // that only lasts until the next load, which is why closing it felt pointless.
+    // The choice is kept in localStorage, and index.html re-applies
+    // "announce-dismissed" from the same key before the bar is parsed so a returning
+    // shopper never sees it flash back. Keep the key in sync with that snippet.
+    const ANNOUNCE_KEY = 'randomstock.announceDismissed';
+
+    function announceDismiss() {
+      if ($('announce')) $('announce').classList.add('hide');
+      document.documentElement.classList.add('announce-dismissed');
+      try {
+        localStorage.setItem(ANNOUNCE_KEY, '1');
+      } catch (err) {
+        /* Storage blocked: the bar still closes for this visit, just not the next. */
+      }
+    }
+
     // Mobile Menu Drawer Handlers
     function menuOpen() {
       closeAllDrawers();

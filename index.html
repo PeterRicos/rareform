@@ -28,7 +28,22 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=DM+Mono:ital,wght@0,400;0,500;1,400&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css?v=915b766f">
+  <!-- Announcement bar memory. Runs while the head is parsed — before the bar
+       exists and before the stylesheet can paint it — so a shopper who dismissed
+       the bar on an earlier visit never sees it flash back on the way in.
+       The key must match ANNOUNCE_KEY in app.js, which is what writes it. -->
+  <script>
+    (function announceMemory() {
+      try {
+        if (localStorage.getItem("randomstock.announceDismissed") === "1") {
+          document.documentElement.classList.add("announce-dismissed");
+        }
+      } catch (err) {
+        /* Storage blocked (private mode, storage switched off): the bar shows again. */
+      }
+    })();
+  </script>
+  <link rel="stylesheet" href="styles.css?v=aa3a8425">
 </head>
 <body>
 
@@ -47,7 +62,7 @@
         </a>
       </span>
     </div>
-    <button onclick="document.getElementById('announce').classList.add('hide')" aria-label="Dismiss announcement">×</button>
+    <button onclick="announceDismiss()" aria-label="Dismiss announcement">×</button>
   </aside>
 
   <!-- Navigation Header -->
@@ -362,7 +377,7 @@
        "clean up" the query string. Change a file and let the stamp-assets workflow
        (or "node stamp-assets.js") update the hash. -->
   <script src="products.js?v=0d0e57b7" defer></script>
-  <script src="app.js?v=fe56f0e5" defer></script>
+  <script src="app.js?v=7a503f24" defer></script>
   
 
   <!-- Invisible visit counter (Cloudflare Worker + KV).

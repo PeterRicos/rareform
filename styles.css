@@ -86,6 +86,9 @@ img { width: 100%; display: block; object-fit: cover; }
 }
 .announce button:hover { opacity: 1; }
 .announce.hide { display: none; }
+/* Dismissed for good. index.html puts this class on <html> while the head is parsed,
+   before the bar exists, so a returning shopper never sees it — not even for a frame. */
+html.announce-dismissed .announce { display: none; }
 
 /* Navigation */
 .nav {
