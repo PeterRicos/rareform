@@ -16,8 +16,15 @@
 
   const SITE_URL = 'https://randomstock.shop/';
   const STORE_NAME = 'Random Stock';
-  const PHONE = 'REDACTED-PHONE';
-  const PHONE_DISPLAY = 'REDACTED-PHONE';
+  // The store's number, in its three pieces — the same groups app.js assembles
+  // (its note explains why a number is never written out whole here). The baked
+  // catalog block in index.html omits it entirely, so the one file a scraper can
+  // fetch without running JavaScript names no number: the live page builds it,
+  // and the dialer and the runtime structured data still get it.
+  const PHONE_GROUPS = ['914', '482', '1144'];
+  const PHONE = '+1' + PHONE_GROUPS.join('');
+  const PHONE_DISPLAY = '(' + PHONE_GROUPS[0] + ') ' +
+    PHONE_GROUPS[1] + '-' + PHONE_GROUPS[2];
 
   // Photos and links must be absolute here: a crawler or an unfurler has no page
   // context to resolve "sneaker_images/square/foo.jpg" against.
@@ -129,16 +136,21 @@
     return node;
   }
 
-  function organization() {
-    return {
+  function organization(options) {
+    const node = {
       '@type': 'Organization',
       '@id': SITE_URL + '#store',
       name: STORE_NAME,
       url: SITE_URL,
       image: absolute('og-image.jpg'),
-      telephone: PHONE,
       description: 'A small, hand-checked sneaker inventory. Every pair is inspected by hand before it ships.'
     };
+    // Baked into index.html the phone comes off on purpose: the markup is what a
+    // scraper can read without running anything (see the note near PHONE). The
+    // live product node — built by the page, where the dialer links are too —
+    // still carries it.
+    if (!options || options.phone !== false) node.telephone = PHONE;
+    return node;
   }
 
   // The whole catalog as one ItemList, with the store node the offers reference.
@@ -146,7 +158,7 @@
     return {
       '@context': 'https://schema.org',
       '@graph': [
-        organization(),
+        organization({ phone: false }),
         {
           '@type': 'ItemList',
           '@id': SITE_URL + '#catalog',
@@ -176,6 +188,7 @@
     STORE_NAME: STORE_NAME,
     PHONE: PHONE,
     PHONE_DISPLAY: PHONE_DISPLAY,
+    PHONE_GROUPS: PHONE_GROUPS,
     absolute: absolute,
     productUrl: productUrl,
     conditionUrl: conditionUrl,

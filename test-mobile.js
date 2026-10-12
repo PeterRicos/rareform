@@ -36,6 +36,8 @@ const read = (f) => fs.readFileSync(path.join(__dirname, f), 'utf8');
 const html = read('index.html');
 const css = read('styles.css');
 const app = read('app.js');
+const structuredData = require('./jsonld.js');
+
 
 // Rules are read out of a comment-free copy: a /* ... */ block sitting between two
 // rules would otherwise be glued onto the next selector and that rule would look
@@ -284,13 +286,17 @@ ok('J9  the bar keeps clear of the home indicator if the page opts into the notc
 
 const bar = (html.match(/<nav class="order-bar"[\s\S]*?<\/nav>/) || [''])[0];
 ok('J10 the bar ships the three actions as ordinary links',
-  /href="tel:\REDACTED-PHONE"/.test(bar) && /href="sms:\REDACTED-PHONE"/.test(bar)
-  && /href="https:\/\/wa\.me\/REDACTED-PHONE"/.test(bar),
+  /href="tel:/.test(bar) && /href="sms:/.test(bar)
+  && /href="https:\/\/wa\.me\//.test(bar),
   bar.slice(0, 90) || 'no .order-bar nav in index.html');
 ok('J11 no onclick on the bar, so the phone/mouse split in app.js still decides a click',
   bar.length > 0 && !/onclick=/.test(bar));
-ok('J12 each of the three links names the number for a screen reader',
-  (bar.match(/aria-label="[^"]*\(914\) 482-1144"/g) || []).length === 3,
+// The digits themselves are never written into the markup — index.html is the one
+// file a scraper can fetch without running anything, so it ships with none, and the
+// bar names the number from app.js (J14). What the markup must carry is the three
+// actions as plain links, each with an accessible name.
+ok('J12 each of the three links carries an accessible name, the digits arriving from app.js (J14)',
+  (bar.match(/aria-label="[^"]+"/g) || []).length >= 3,
   (bar.match(/aria-label="[^"]*"/g) || []).join(' | ') || 'none');
 ok('J13 WhatsApp leaves the page, the way the order dialog link does',
   /id="barWa"[^>]*target="_blank"[^>]*rel="noopener"/.test(bar), find(/<a id="barWa"[^>]*>/, bar));
@@ -301,6 +307,10 @@ ok('J15 the bar names the pair only while a listing is on screen',
 ok('J16 and it is refreshed with the view, not only when a listing renders',
   /function syncRouteUI\(\)\s*\{[\s\S]{0,600}updateOrderBar\(\)/.test(app)
   && /function updateOrderLinks\(\)\s*\{[\s\S]{0,500}updateOrderBar\(\)/.test(app));
+ok('J17 the number is never written into the markup — shoppers get it from app.js',
+  html.indexOf(structuredData.PHONE) === -1
+  && html.indexOf(structuredData.PHONE_DISPLAY) === -1,
+  'plaintext number found in index.html');
 
 const fails = results.filter((r) => !r.pass);
 results.forEach((r) => console.log((r.pass ? 'PASS  ' : 'FAIL  ') + r.name + (r.pass ? '' : '   [' + r.extra + ']')));

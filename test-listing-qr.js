@@ -30,6 +30,14 @@ const bootCode = (withQr) => (withQr ? QR_SRC + '\n' : '') + CODE;
 const lib = new Function(QR_SRC + '\nreturn qrcode;')();
 lib.stringToBytes = lib.stringToBytesFuncs['UTF-8'];
 
+const structuredData = require('./jsonld.js');
+// The digits live in jsonld.js only (see its note near PHONE); the tests read the
+// assembled number back from it instead of writing it out, so a committed test can
+// never leak the number again.
+const PHONE = structuredData.PHONE;
+const DISPLAY = structuredData.PHONE_DISPLAY;
+const escRe = (s) => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+
 const results = [];
 const ok = (name, cond, extra) => results.push({ name, pass: !!cond, extra: cond ? '' : String(extra) });
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
@@ -214,7 +222,7 @@ function libModules(uri) {
   const a = block();
   ok('A1  the listing draws a code, not just the dialog', /^<div class="listing-qr-code"><svg /.test(a), a.slice(0, 120));
   ok('A2  the code is labelled for screen readers',
-    /role="img" aria-label="QR code that opens a text to \(914\) 482-1144/.test(a));
+    new RegExp('role="img" aria-label="QR code that opens a text to ' + escRe(DISPLAY)).test(a));
 
   // ---- B. the code and the Text button carry the same sentence -----------------
   const drawn = modulesFromSvg(a);
@@ -223,7 +231,7 @@ function libModules(uri) {
     drawn && drawn.count === want.count && JSON.stringify(drawn.dark) === JSON.stringify(want.dark),
     drawn ? drawn.count + ' modules vs ' + want.count : 'no viewBox in ' + a.slice(0, 80));
   ok('B2  the payload is an sms: URI to the shop number',
-    /^sms:\REDACTED-PHONE\?&body=/.test(textHref()), textHref().slice(0, 60));
+    new RegExp('^sms:' + escRe(PHONE) + '\\?&body=').test(textHref()), textHref().slice(0, 60));
   const body = bodyOf(textHref());
   ok('B3  the message names the item, its SKU and the chosen size',
     body.indexOf(jordan.name) >= 0 && body.indexOf(jordan.sku) >= 0 && body.indexOf('size US ' + jordan.sizes[0]) >= 0,
@@ -278,7 +286,7 @@ function libModules(uri) {
   try { vm.runInContext('renderProduct(' + jordan.id + ')', H2.ctx); } catch (err) { threw = err; }
   const f = String(vm.runInContext("document.getElementById('listingQr').innerHTML", H2.ctx));
   ok('F1  a missing qrcode.js does not throw', !threw, threw && threw.message);
-  ok('F2  the block still names the number', f.indexOf('482-1144') >= 0, f.slice(0, 140));
+  ok('F2  the block still names the number', f.indexOf(DISPLAY) >= 0, f.slice(0, 140));
   ok('F3  and draws no half-built svg', f.indexOf('<svg') < 0);
 
   const fails = results.filter((r) => !r.pass);

@@ -64,8 +64,20 @@ products.push(...(window.localProducts || []));
     }
 
     // The shop answers orders by phone or text; this is the number, written once.
-    const ORDER_PHONE = 'REDACTED-PHONE';
-    const ORDER_PHONE_DISPLAY = 'REDACTED-PHONE';
+    //
+    // Its digits are kept in three pieces and joined here rather than written out
+    // whole: this file ships to every visitor and the repo is public, so a number
+    // sitting in the source is a number a scraper pulls with one regex. Nothing
+    // here makes it secret — the page has to hand a real number to the dialer, so
+    // anyone who renders it can read it off the links — but printing it nowhere
+    // means harvesting the repo or the raw HTML takes a browser and a parser, not
+    // `grep`. Keep the pieces in order; jsonld.js holds the same three groups
+    // (the two files never load together in the harnesses, so neither can read the
+    // other, and test-privacy.js verifies the copies agree).
+    const ORDER_PHONE_GROUPS = ['914', '482', '1144'];
+    const ORDER_PHONE = '+1' + ORDER_PHONE_GROUPS.join('');
+    const ORDER_PHONE_DISPLAY = '(' + ORDER_PHONE_GROUPS[0] + ') ' +
+      ORDER_PHONE_GROUPS[1] + '-' + ORDER_PHONE_GROUPS[2];
 
     // One sentence identifies a pair, so it is written once: the detail page's order
     // links, the desktop order dialog and its QR code all build their message from
@@ -821,8 +833,8 @@ products.push(...(window.localProducts || []));
           </div>
         </div>` : ''}
         <div class="order-cta">
-          <a class="btn" id="orderCall" href="tel:REDACTED-PHONE">Call to order</a>
-          <a class="btn light" id="orderText" href="sms:REDACTED-PHONE">Text this ${itemLabel}</a>
+          <a class="btn" id="orderCall" href="tel:${ORDER_PHONE}">Call to order</a>
+          <a class="btn light" id="orderText" href="sms:${ORDER_PHONE}">Text this ${itemLabel}</a>
         </div>
         <p class="order-note">${hasSizes ? `Sizes listed are what we hold right now. Call or text the ${itemLabel} and your size and we will confirm availability, condition and shipping.` : `Call or text about this ${itemLabel} and we will confirm availability, condition and shipping.`}</p>
         <div class="listing-qr" id="listingQr"></div>
@@ -1440,6 +1452,15 @@ products.push(...(window.localProducts || []));
       if (video.readyState >= 2) show();
     })();
 
+    // The order dialog's lede sentence names the number, so it is written here from
+    // the constant instead of typed into index.html: the markup is the one file a
+    // scraper can fetch without running anything. A browser that never runs this
+    // script cannot open the dialog anyway — app.js is what opens it — so nothing
+    // is lost by the number arriving with the script.
+    (function initOrderLede() {
+      const slot = $('orderPhone');
+      if (slot) slot.textContent = ORDER_PHONE_DISPLAY;
+    })();
     renderFilterUI();
     renderHome();
     renderShop();

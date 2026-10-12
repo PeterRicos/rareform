@@ -29,6 +29,7 @@ on:
       - 'index.html'
       - 'stamp-assets.js'
       - 'build-jsonld.js'
+      - 'test-privacy.js'
       # The hero clip: dropping a new video/reel.mp4 has to re-stamp index.html like any
       # other asset change, or the swap would sit behind the ten-minute cache.
       - 'video/reel.mp4'
@@ -70,6 +71,12 @@ jobs:
       # renderer arms it.
       - name: Check the card reveal
         run: node test-reveal.js
+
+      # The shop answers by phone and text, so a real number has to reach a dialer — it
+      # does not have to sit in the shipped files where a scraper reads it. This keeps it
+      # split into groups in app.js/jsonld.js and absent from the markup.
+      - name: Check the number stays out of the shipped files
+        run: node test-privacy.js
 
       - name: Commit index.html when it was stale
         env:
