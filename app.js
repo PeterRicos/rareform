@@ -865,9 +865,6 @@ products.push(...(window.localProducts || []));
       $('orderQr').innerHTML = qrSvg(target, isCall
         ? 'QR code that dials ' + ORDER_PHONE_DISPLAY
         : 'QR code that opens a text message to Random Stock');
-
-      const wa = $('orderWhatsApp');
-      if (wa) wa.href = 'https://wa.me/' + ORDER_PHONE.replace('+', '') + (message ? '?text=' + encodeURIComponent(message) : '');
     }
 
     // Drawn as one SVG path. A <rect> per dark module would be several hundred nodes
