@@ -43,7 +43,7 @@
       }
     })();
   </script>
-  <link rel="stylesheet" href="styles.css?v=c287fbbe">
+  <link rel="stylesheet" href="styles.css?v=c37e6c0a">
   <!-- Catalog structured data (schema.org). build-jsonld.js writes the block
        between these markers from products.js, so every listing a crawler can see
        here carries the same SKU, condition, image and availability the shop page
@@ -424,6 +424,21 @@
     </div>
   </section>
 
+  <!-- PHOTO ZOOM — opened by a press on any photo in a listing's gallery. The gallery
+       draws each shot whole and uncropped so a silhouette is never cut off, which is
+       exactly why a buyer cannot check the details this shop is selling on. This shows
+       the same image at the largest size the screen allows, and leaves the phone's own
+       pinch working on top of it. app.js fills in the src, the alt text, the arrows and
+       the "n / m" counter; the file it points at is the one already in the gallery, so
+       opening this costs no second download. -->
+  <section class="zoom" id="zoom" role="dialog" aria-modal="true" aria-label="Photo viewer">
+    <button class="zoom-close" type="button" onclick="zoomClose()" aria-label="Close photo viewer">&times;</button>
+    <button class="zoom-step prev" type="button" id="zoomPrev" onclick="zoomStep(-1)" aria-label="Previous photo" hidden>&lsaquo;</button>
+    <img id="zoomImg" alt="">
+    <button class="zoom-step next" type="button" id="zoomNext" onclick="zoomStep(1)" aria-label="Next photo" hidden>&rsaquo;</button>
+    <span class="zoom-count" id="zoomCount" aria-hidden="true"></span>
+  </section>
+
   <!-- SCRIPT LOGIC -->
   <!-- Catalog data and site logic live in products.js and app.js; adding or changing
        a listing never touches this page. The ?v= on these scripts (and on
@@ -442,7 +457,7 @@
   <!-- jsonld.js turns a listing into schema.org data. app.js reads it immediately
        (the first view is rendered on load), so it has to come before app.js. -->
   <script src="jsonld.js?v=8338431b" defer></script>
-  <script src="app.js?v=990757af" defer></script>
+  <script src="app.js?v=72acbf8f" defer></script>
   
 
   <!-- Invisible visit counter (Cloudflare Worker + KV).

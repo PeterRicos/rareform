@@ -749,15 +749,32 @@ html.announce-dismissed .announce { display: none; }
   grid-template-columns: 1fr 1fr;
   gap: 12px;
 }
-.gallery img {
+/* Each shot is a button rather than a bare <img>, so looking closer is reachable with
+   Tab and Enter the way every other action on this page is — a click-only <img> is the
+   one thing here a keyboard could not do. The tinted panel and the hairline move to
+   this wrapper; the photo itself is still drawn whole and uncropped (object-fit:
+   contain below), which is right for browsing and useless for checking a stitch line,
+   so a press opens it full-viewport instead (see .zoom). */
+.gallery-shot {
+  display: block;
+  width: 100%;
+  padding: 0;
   aspect-ratio: 1;
-  object-fit: contain; /* never crop — the whole sneaker stays visible */
+  overflow: hidden;
   background: #e7e5e0;
   border-radius: var(--radius);
   border: 1px solid var(--line);
+  cursor: zoom-in;
 }
 /* Single-photo listings: span the full gallery width */
-.gallery img:only-child { grid-column: 1 / -1; }
+.gallery-shot:only-child { grid-column: 1 / -1; }
+.gallery-shot img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain; /* never crop — the whole sneaker stays visible */
+  transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.gallery-shot:hover img { transform: scale(1.04); }
 .details {
   position: sticky;
   top: 100px;
@@ -1109,6 +1126,86 @@ html.announce-dismissed .announce { display: none; }
   line-height: 1.55;
   color: var(--muted);
   margin: 14px 0 0;
+}
+
+/* Photo Zoom
+   Opened by a press on a gallery shot (.gallery-shot). The gallery draws every pair
+   whole and uncropped, which is the right way to browse and the wrong way to check the
+   thing this shop actually sells on: the stitch line, the box label, the production
+   stamp. This shows that same file at the largest size the viewport allows.
+   Two deliberate choices: the src is the URL already on the page, so it comes out of
+   the browser's cache and costs no second download; and we never scale the image up
+   ourselves, so the phone's own pinch still magnifies on top of it — which is the
+   magnifier a low-vision shopper expects to keep.
+   Sits above the search and order dialogs (60/70) and below the toast (90), which can
+   therefore still report a copy over an open photo. */
+.zoom {
+  position: fixed;
+  inset: 0;
+  z-index: 80;
+  display: grid;
+  place-items: center;
+  padding: clamp(12px, 3vw, 46px);
+  background: rgba(21, 21, 21, 0.97);
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transition: opacity 0.25s cubic-bezier(0.16, 1, 0.3, 1), visibility 0.25s;
+}
+.zoom.open {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+}
+.zoom img {
+  width: auto;
+  height: auto;
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+  background: #fff;
+  border-radius: var(--radius);
+  box-shadow: 0 30px 80px rgba(0,0,0,0.5);
+  touch-action: pinch-zoom;   /* the phone magnifies further on its own */
+}
+/* The close button and the arrows are the whole navigation here, so they are held at
+   the same 44px minimum the rest of the page's thumb targets use. */
+.zoom-close,
+.zoom-step {
+  position: absolute;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 44px;
+  min-height: 44px;
+  color: #fff;
+  font-size: 30px;
+  line-height: 1;
+  border-radius: 50%;
+  transition: background 0.2s ease;
+}
+.zoom-close { top: 10px; right: 12px; }
+.zoom-step { top: 50%; transform: translateY(-50%); }
+.zoom-step.prev { left: 8px; }
+.zoom-step.next { right: 8px; }
+/* display above outranks the user-agent [hidden] rule, so a single-photo listing has to
+   be told to hide its arrows explicitly. */
+.zoom-step[hidden] { display: none; }
+.zoom-close:hover, .zoom-step:hover { background: rgba(255,255,255,0.14); }
+/* The page-wide focus ring is ink, which is invisible against this backdrop. */
+.zoom-close:focus-visible, .zoom-step:focus-visible {
+  outline: 2px solid #fff;
+  outline-offset: 2px;
+}
+.zoom-count {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: clamp(10px, 2.5vw, 20px);
+  text-align: center;
+  font: 500 11px/1 'DM Mono', monospace;
+  letter-spacing: 0.12em;
+  color: #cfccc5;
 }
 
 /* Toast */

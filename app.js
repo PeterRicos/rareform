@@ -10,6 +10,8 @@ products.push(...(window.localProducts || []));
 // State Management
     let current = products[0];
     let selectedSize = null;
+    let galleryList = [];   // photos of `current`, in the order the gallery draws them
+    let zoomIndex = 0;      // which of them the zoom viewer is showing
 
     const $ = id => document.getElementById(id);
 
@@ -625,7 +627,7 @@ products.push(...(window.localProducts || []));
 
       // A listing with one photo shows one photo. This used to repeat current.img
       // four times to fill the 2x2 grid, so a single-angle item read as the same
-      // shot pasted four times. .gallery img:only-child already spans a lone image
+      // shot pasted four times. .gallery-shot:only-child already spans a lone image
       // across the full width, and the "angle N" alt only means anything when there
       // really are several angles to page through.
       const galleryImages = current.gallery && current.gallery.length
@@ -633,8 +635,21 @@ products.push(...(window.localProducts || []));
         : [current.img];
       const singlePhoto = galleryImages.length < 2;
 
-      $('gallery').innerHTML = galleryImages.map((src, i) => `
-        <img src="${src}" alt="${singlePhoto ? current.name : current.name + ' angle ' + (i + 1)}" loading="lazy">
+      // The zoom viewer is handed this list rather than re-deriving it: the grid and the
+      // full-viewport view are then incapable of disagreeing about which photo is which.
+      galleryList = galleryImages.map((src, i) => ({
+        src,
+        alt: singlePhoto ? current.name : current.name + ' angle ' + (i + 1)
+      }));
+
+      // Each shot is a button (see .gallery-shot): looking closer is the one thing a
+      // buyer does here, and a bare <img> could only be clicked, never tabbed to or
+      // opened from the keyboard.
+      $('gallery').innerHTML = galleryList.map((shot, i) => `
+        <button class="gallery-shot" type="button" onclick="zoomOpen(${i})"
+                aria-label="Zoom in on ${esc(shot.alt)}">
+          <img src="${shot.src}" alt="${esc(shot.alt)}" loading="lazy">
+        </button>
       `).join('');
 
       const isSneaker = productCategory(current) === 'sneakers';
@@ -734,6 +749,9 @@ products.push(...(window.localProducts || []));
       $('searchModal').classList.remove('open');
       // Same rule for the order dialog, which also opens over a product view.
       if ($('orderModal')) $('orderModal').classList.remove('open');
+      // And again for the photo viewer, which covers the whole screen: a route change
+      // has to take it down with it, or the page navigates out of sight behind it.
+      zoomClose();
       $('shade').classList.remove('open');
     }
 
@@ -971,6 +989,103 @@ products.push(...(window.localProducts || []));
       });
     }
 
+    // Photo Zoom
+    //
+    // The gallery draws every pair whole (object-fit: contain) so browsing never crops a
+    // shoe — which is exactly why a shopper cannot check the thing this shop sells on:
+    // the stitch line, the box label, the production stamp. Pressing a photo shows that
+    // same file at the largest size the viewport allows. Nothing is fetched a second
+    // time, because it is the URL the gallery already loaded, and we never scale the
+    // image up ourselves, so the phone's own pinch still works on top of it.
+    //
+    // Listings here show one photo each today, so the arrows and the counter stay off
+    // until a gallery really holds several angles — `gallery` in products.js and the
+    // images jsonld.js advertises already allow them — rather than announcing "1 / 1".
+    //
+    // It is the gallery's own file, never a re-encoded or "bigger" version of it. The
+    // squares in sneaker_images/square/ are 600px and are the whole of the detail this
+    // shop holds for a pair, so scaling one up would only inflate a blur: on a phone the
+    // pinch below reaches the file's own pixels, which is the most there is to see, and
+    // the way to show a shopper more stitching than this is a larger source photo, not a
+    // larger box to put it in.
+    let zoomSwipeBound = false;
+
+    function zoomChrome() {
+      const many = galleryList.length > 1;
+      if ($('zoomPrev')) $('zoomPrev').hidden = !many;
+      if ($('zoomNext')) $('zoomNext').hidden = !many;
+      if ($('zoomCount')) $('zoomCount').textContent = many ? (zoomIndex + 1) + ' / ' + galleryList.length : '';
+    }
+
+    function zoomShow(index) {
+      const shot = galleryList[index];
+      if (!shot) return;
+      zoomIndex = index;
+      $('zoomImg').src = shot.src;
+      $('zoomImg').alt = shot.alt;
+      zoomChrome();
+    }
+
+    function zoomOpen(index) {
+      if (!galleryList.length) return;
+      closeAllDrawers();
+      zoomShow(index);
+      $('zoom').classList.add('open');
+      bindZoomSwipe();
+      trapFocus($('zoom'));
+      const close = $('zoom').querySelector('.zoom-close');
+      // Deferred for the same reason searchOpen() defers its focus: the viewer fades in
+      // from visibility: hidden, and a hidden element cannot take focus — until the
+      // browser has recomputed the style, this call lands nowhere and a keyboard user is
+      // left standing on the photo with no way forward. The guard keeps a shopper who
+      // closes it inside the 150ms from having focus pulled off whatever they moved on to.
+      if (close) setTimeout(() => { if ($('zoom').classList.contains('open')) close.focus(); }, 150);
+    }
+
+    // A no-op on a one-photo listing, so the ordinary case cannot be stepped off into a
+    // blank frame.
+    function zoomStep(delta) {
+      if (galleryList.length < 2) return;
+      zoomShow((zoomIndex + delta + galleryList.length) % galleryList.length);
+    }
+
+    function zoomClose() {
+      const el = $('zoom');
+      if (!el || !el.classList.contains('open')) return;
+      el.classList.remove('open');
+      releaseFocus();   // hands focus back to the photo it was opened from
+    }
+
+    // A sideways drag is the gesture a thumb makes on a full-screen photo, so it pages
+    // through the angles. It is bound on the first open rather than at load — there is
+    // no reason to hold a listener on a viewer nobody has asked for yet — and a mostly
+    // vertical drag is left alone so the page can still be scrolled behind it.
+    function bindZoomSwipe() {
+      const el = $('zoom');
+      if (zoomSwipeBound || !el) return;
+      zoomSwipeBound = true;
+      let startX = 0;
+      let startY = 0;
+      let tracking = false;
+      el.addEventListener('touchstart', e => {
+        tracking = e.touches.length === 1 && galleryList.length > 1;
+        if (!tracking) return;
+        startX = e.touches[0].clientX;
+        startY = e.touches[0].clientY;
+      }, { passive: true });
+      el.addEventListener('touchend', e => {
+        if (!tracking || !e.changedTouches.length) return;
+        tracking = false;
+        const dx = e.changedTouches[0].clientX - startX;
+        const dy = e.changedTouches[0].clientY - startY;
+        if (Math.abs(dx) < 45 || Math.abs(dx) < Math.abs(dy)) return;
+        zoomStep(dx < 0 ? 1 : -1);
+      }, { passive: true });
+      // Tapping the backdrop dismisses; tapping the photo itself must not, or a shopper
+      // leaning in to read a label closes the thing they opened.
+      el.addEventListener('click', e => { if (e.target === el) zoomClose(); });
+    }
+
     // Toast Utility
     let toastTimer;
     function toast(msg) {
@@ -987,6 +1102,15 @@ products.push(...(window.localProducts || []));
         menuClose();
         searchClose();
         orderModalClose();
+        zoomClose();
+        return;
+      }
+      // Arrow keys page through a listing's angles while the viewer is up. Nothing else
+      // on this page answers to the arrows, and there is only ever something to step to
+      // when a gallery holds more than one photo (see zoomStep).
+      if ($('zoom') && $('zoom').classList.contains('open')) {
+        if (e.key === 'ArrowRight') zoomStep(1);
+        else if (e.key === 'ArrowLeft') zoomStep(-1);
       }
     });
 
