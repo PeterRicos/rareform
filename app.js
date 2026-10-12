@@ -389,19 +389,74 @@ products.push(...(window.localProducts || []));
     // Scroll-reveal for product grids: a staggered IntersectionObserver on .product.
     // Products start hidden (opacity: 0, translateY: 20px) and reveal as they enter
     // the viewport, with a 50ms delay between each for a cascade effect.
-    function observeProducts() {
-      const observer = new IntersectionObserver((entries) => {
-        entries.forEach((entry, index) => {
-          if (entry.isIntersecting) {
-            setTimeout(() => {
-              entry.target.classList.add('reveal');
-            }, index * 50);
-            observer.unobserve(entry.target);
-          }
-        });
-      }, { threshold: 0.1, rootMargin: '0px 0px -50px 0px' });
+    //
+    // Two rules keep a grid from ever being drawn blank, both learned the hard way
+    // when search results came back as empty space:
+    //  · Every function that injects .product cards has to call this again. The
+    //    observer only ever watches the nodes handed to it, and re-rendering a grid
+    //    throws the old ones away — search results and the header modal's shortlist
+    //    were never watched, so they stayed at opacity 0 and the panel looked empty
+    //    even though the cards were in the DOM.
+    //  · Anything already behind the reader is shown at once (revealPast): a card above
+    //    the viewport never intersects, so waiting for the observer would hide it for
+    //    good. That is also what covers a grid drawn while its view was still hidden —
+    //    a card with no layout yet is left to the observer instead, so the cascade
+    //    survives the menus being built off-screen.
+    // The hidden state itself lives behind body.reveals-armed, which only this function
+    // sets, so a browser without IntersectionObserver — or a future render path that
+    // forgets to call this — shows the cards instead of swallowing them.
+    let revealObserver = null;
+    let sweepQueued = false;
 
-      document.querySelectorAll('.product').forEach(el => observer.observe(el));
+    // Reads first, then writes: a scroll runs this on every tick and interleaving
+    // getBoundingClientRect with classList would force a layout per card.
+    function revealPast() {
+      if (!document.body || !document.body.classList) return;
+      if (!document.body.classList.contains('reveals-armed')) return;
+      const behind = [];
+      document.querySelectorAll('.product').forEach((el) => {
+        if (el.classList.contains('reveal')) return;
+        const rect = el.getBoundingClientRect ? el.getBoundingClientRect() : null;
+        if (rect && rect.height > 0 && rect.bottom <= 0) behind.push(el);
+      });
+      behind.forEach((el) => el.classList.add('reveal'));
+    }
+
+    function queueRevealPast() {
+      if (sweepQueued) return;
+      sweepQueued = true;
+      setTimeout(() => { sweepQueued = false; revealPast(); }, 0);
+    }
+
+    function observeProducts() {
+      if (typeof IntersectionObserver !== 'function') return;   // no effect, but no blank grid either
+      if (document.body && document.body.classList) document.body.classList.add('reveals-armed');
+
+      if (!revealObserver) {
+        revealObserver = new IntersectionObserver((entries) => {
+          entries.forEach((entry, index) => {
+            if (!entry.isIntersecting) return;
+            revealObserver.unobserve(entry.target);
+            setTimeout(() => entry.target.classList.add('reveal'), index * 50);
+          });
+        }, { threshold: 0.1, rootMargin: '0px 0px -50px 0px' });
+
+        // One listener each for the two moments a card can slip behind the reader: the
+        // shopper scrolling down past a grid, and a view change that leaves the page
+        // somewhere below the top of the grid it just drew.
+        if (window.addEventListener) {
+          window.addEventListener('scroll', queueRevealPast, { passive: true });
+          window.addEventListener('hashchange', queueRevealPast);
+        }
+      }
+
+      // Behind-the-reader cards are shown first, so the loop below only hands over the ones
+      // the observer can still report on.
+      revealPast();
+      document.querySelectorAll('.product').forEach((el) => {
+        if (el.classList.contains('reveal')) return;   // already shown, don't queue it again
+        revealObserver.observe(el);
+      });
     }
 
     // Render Home Sections
@@ -876,6 +931,7 @@ products.push(...(window.localProducts || []));
           : '<p style="grid-column: 1/-1; color: var(--muted); padding: 20px 0;">No matching sneakers found.</p>';
       } else {
         $('searchResults').innerHTML = matches.map(productCard).join('');
+        observeProducts();   // fresh nodes: the reveal observer has never seen them
       }
     }
 

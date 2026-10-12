@@ -375,6 +375,13 @@ html.announce-dismissed .announce { display: none; }
   flex-direction: column;
   overflow: hidden;
   transition: transform var(--transition), box-shadow var(--transition);
+}
+/* Hidden only while the reveal observer is armed — app.js sets body.reveals-armed when
+   it has actually wired an IntersectionObserver up. Cards are visible by default so a
+   render path that never reaches the observer (or a browser without one) can't draw an
+   empty grid. :not(.reveal) keeps the revealed card's own rules intact, including the
+   hover lift below. */
+.reveals-armed .product:not(.reveal) {
   opacity: 0;
   transform: translateY(20px);
 }

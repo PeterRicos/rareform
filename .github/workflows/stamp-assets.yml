@@ -65,6 +65,12 @@ jobs:
       - name: Check the hero clip
         run: node test-hero-video.js
 
+      # Cards are hidden until a scroll-reveal observer shows them, so a grid nobody
+      # observed is indistinguishable from no results. This is the check that every
+      # renderer arms it.
+      - name: Check the card reveal
+        run: node test-reveal.js
+
       - name: Commit index.html when it was stale
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
