@@ -181,6 +181,11 @@ html.announce-dismissed .announce { display: none; }
   letter-spacing: -0.075em;
   margin: 20px 0 24px;
   max-width: 720px;
+}
+.hero h1 .outline {
+  -webkit-text-stroke: 1.5px currentColor;
+  color: transparent;
+}
   font-weight: 800;
 }
 .hero p {
@@ -221,6 +226,16 @@ html.announce-dismissed .announce { display: none; }
   letter-spacing: 0.12em;
   text-align: center;
   box-shadow: 0 10px 30px rgba(0,0,0,0.22);
+  transform: rotate(-6deg);
+  animation: stampWobble 40s ease-in-out infinite;
+}
+@keyframes stampWobble {
+  0%, 100% { transform: rotate(-6deg); }
+  50% { transform: rotate(-3deg); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .hero-stamp { animation: none; }
+}
   user-select: none;
 }
 
@@ -304,6 +319,18 @@ html.announce-dismissed .announce { display: none; }
   align-items: flex-end;
   margin-bottom: 32px;
   gap: 16px;
+  position: relative;
+  padding-left: 70px;
+}
+.section-head::before {
+  content: attr(data-index);
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  font: 800 72px/1 'DM Mono', monospace;
+  letter-spacing: -0.03em;
+  color: rgba(21, 21, 21, 0.08);
+  pointer-events: none;
 }
 /* Narrow phones: the section h2 and the "view all" link stop fitting on one line here,
    and the nowrap link is what gets pushed out - 6px of horizontal page scroll at
@@ -1344,6 +1371,11 @@ html.announce-dismissed .announce { display: none; }
   .products { grid-template-columns: repeat(3, 1fr); }
 }
 @media (max-width: 600px) {
+  .section-head { padding-left: 55px; }
+  .section-head::before {
+    font-size: 48px;
+    left: 0;
+  }
   .announce {
     font-size: 9px;
     letter-spacing: 0.06em;
@@ -1394,6 +1426,7 @@ html.announce-dismissed .announce { display: none; }
 @media (max-width: 480px) {
   .products { grid-template-columns: 1fr; }
   .hero h1 { font-size: 38px; }
+  .hero h1 .outline { -webkit-text-stroke: 1px currentColor; }
   .foot-grid { grid-template-columns: 1fr; }
   .foot-grid > div:first-child { grid-column: span 1; }
   .toast { border-radius: 16px; padding: 12px 18px; }
