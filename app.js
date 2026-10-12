@@ -406,12 +406,31 @@ products.push(...(window.localProducts || []));
       };
     }
 
+    // Scroll-reveal for product grids: a staggered IntersectionObserver on .product.
+    // Products start hidden (opacity: 0, translateY: 20px) and reveal as they enter
+    // the viewport, with a 50ms delay between each for a cascade effect.
+    function observeProducts() {
+      const observer = new IntersectionObserver((entries) => {
+        entries.forEach((entry, index) => {
+          if (entry.isIntersecting) {
+            setTimeout(() => {
+              entry.target.classList.add('reveal');
+            }, index * 50);
+            observer.unobserve(entry.target);
+          }
+        });
+      }, { threshold: 0.1, rootMargin: '0px 0px -50px 0px' });
+
+      document.querySelectorAll('.product').forEach(el => observer.observe(el));
+    }
+
     // Render Home Sections
     function renderHome() {
       $('trending').innerHTML = products.slice(0, 4).map(productCard).join('');
       $('recent').innerHTML = products.slice(-4).map(productCard).join('');
       $('clothing-accessories').innerHTML = products.filter(p => productCategory(p) === 'clothing').map(productCard).join('');
       $('random-shit').innerHTML = products.filter(p => productCategory(p) === 'random').map(productCard).join('');
+      observeProducts();
     }
 
     // Handle Dual Search Inputs (Desktop & Mobile)
@@ -524,6 +543,7 @@ products.push(...(window.localProducts || []));
       $('productTotal').textContent = list.length + ' ITEMS AVAILABLE';
       if ($('shopTitle')) $('shopTitle').textContent = CATEGORY_TITLES[shopCategoryFilter] || 'SHOP ALL';
       updateFilterCount();
+      observeProducts();
     }
 
     function toggleFilters(forceOpen) {
