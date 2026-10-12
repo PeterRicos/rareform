@@ -96,6 +96,29 @@ products.push(...(window.localProducts || []));
       call.href = 'tel:' + ORDER_PHONE;
       text.href = smsHref(defaultOrderMessage());
       updateListingQr();
+      updateOrderBar();
+    }
+
+    // The bar at the foot of a phone screen carries the same two actions and the same
+    // sentence as the listing's own buttons: while a listing is on screen it names the
+    // pair and the chosen size, so a tap on Text opens Messages with the order already
+    // written; on any other view it is the number on its own, because a bare number is
+    // the whole of what a call or a text from the home page can say. WhatsApp takes the
+    // same ?text=, and — unlike tel: and sms: — has somewhere to land from a desk, so
+    // it has no part in the phoneHandlesLinks() split.
+    //
+    // The call link is rewritten from ORDER_PHONE rather than trusted from the markup,
+    // which is the same rule the listing's own Call button follows: the number is
+    // written once in this file.
+    function updateOrderBar() {
+      const call = $('barCall');
+      const text = $('barText');
+      if (!call || !text) return;   // a page that ships without the bar
+      call.href = 'tel:' + ORDER_PHONE;
+      const message = document.querySelector('#view-product.active') ? defaultOrderMessage() : '';
+      text.href = smsHref(message);
+      const wa = $('barWa');
+      if (wa) wa.href = 'https://wa.me/' + ORDER_PHONE.replace('+', '') + (message ? '?text=' + encodeURIComponent(message) : '');
     }
 
     // The catalog has a name with an "&" in it (the Bearbrick "... 100% & 400% Set
@@ -569,6 +592,10 @@ products.push(...(window.localProducts || []));
     function syncRouteUI() {
       const active = document.querySelector('.page.active');
       const page = (active && active.dataset.view) || 'home';
+      // Refreshed here rather than only when a listing renders: the phone order bar
+      // names the pair while one is on screen, so leaving a listing has to take the
+      // pair back off it.
+      updateOrderBar();
       document.querySelectorAll('.nav-links a').forEach(a => {
         const href = (a.getAttribute('href') || '').replace(/^#/, '');
         let on;

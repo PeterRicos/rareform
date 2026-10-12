@@ -1362,6 +1362,60 @@ footer .logo i { color: #b5b2ac; }
   line-height: 1.6;
 }
 
+/* Order bar
+   The phone's persistent way to order. Nearly all of this shop's traffic arrives on a
+   handset and every order it takes starts with a call or a text, but on a phone the
+   only calls to action sat inside a listing or at the foot of the footer — both of
+   which a thumb has to go looking for, on a page whose whole job is one tap. Below
+   820px this pins the same three actions to the bottom edge, where the thumb already
+   is. It sits above the page but under the shade (40), so the mobile drawer still
+   passes over it, and under every dialog. The links are ordinary tel:/sms:/wa.me
+   links: app.js only rewrites their hrefs to name the pair being viewed, and a click
+   from a mouse — which has no dialer behind it — still becomes the order dialog
+   exactly as the footer's links do.
+   padding-bottom is the home-indicator inset, which only resolves on a page that opts
+   into viewport-fit=cover. index.html's viewport meta does not, so it is 0 here and
+   the layout viewport is already laid out clear of the indicator. It is not inert
+   bookkeeping: it is what keeps the bar off the indicator the day the meta changes. */
+.order-bar {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 35;
+  display: none;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 1px;   /* the --line background shows through the gaps as hairlines */
+  background: var(--line);
+  padding-bottom: env(safe-area-inset-bottom);
+}
+.order-bar a {
+  background: var(--ink);
+  color: #fff;
+  min-height: 58px;   /* well over the 44px floor, and a full thumb row */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font: 800 11px/1 'Manrope', sans-serif;
+  letter-spacing: .09em;
+  text-transform: uppercase;
+}
+/* The middle third is Text, the shop's fastest path — the message names the pair and
+   the size — so it carries the lime the brand keeps for the one action that matters. */
+.order-bar a.accent {
+  background: var(--lime);
+  color: var(--ink);
+}
+@media (max-width: 820px) {
+  .order-bar { display: grid; }
+  /* The bar is 58px of fixed chrome over the foot of every view, so the page reserves
+     that height: the footer's last line would otherwise sit underneath it. */
+  body { padding-bottom: 62px; }
+  /* The toast is the one other thing that lives on the bottom edge, and it is
+     transient: 28px against a 58px bar leaves it behind the bar. Lifted clear. */
+  .toast { bottom: calc(70px + env(safe-area-inset-bottom)); }
+}
+
 /* The listing's own code: for a desk, where there is no dialer to hand an sms: link to.
    Hidden wherever the pointer is a finger — there a tap on the Text button opens
    Messages directly, and a phone cannot scan its own screen. It is the same question

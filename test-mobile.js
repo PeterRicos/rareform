@@ -23,6 +23,9 @@
      - the listing page stops pinning its details column and stops sizing the hero
        against 100vh, both of which are wrong once a URL bar is in the way.
      - the controls a thumb has to hit stay at their documented minimum sizes.
+     - the order bar gives a phone the persistent call/text/WhatsApp path it never
+       had: off on a desktop, on below 820px, clear of the page it covers, and built
+       from the same tel:/sms:/wa.me links everything else hands to the phone.
 
    Everything here is read out of the shipped files, so it runs anywhere Node runs. */
 
@@ -99,6 +102,9 @@ const HOVER = media('hover: hover');
 const REDUCED = media('prefers-reduced-motion: reduce');
 
 const PX = (v) => { const m = String(v || '').match(/^([\d.]+)px$/); return m ? Number(m[1]) : NaN; };
+// The first px length in a value. The bottom offsets that have to clear the order bar
+// are written as calc() with the home-indicator inset appended, which PX() reads as NaN.
+const firstPx = (v) => { const m = String(v || '').match(/([\d.]+)px/); return m ? Number(m[1]) : NaN; };
 const find = (re, src) => { const m = String(src || '').match(re); return m ? m[0] : null; };
 
 // The sheet with every @media block removed: what a phone-agnostic reader would call
@@ -220,6 +226,69 @@ ok('I1  index.html re-applies the dismissal before the bar is parsed',
   /localStorage\.getItem\("randomstock\.announceDismissed"\)/.test(html));
 ok('I2  and app.js writes the same key',
   /ANNOUNCE_KEY\s*=\s*'randomstock\.announceDismissed'/.test(app));
+
+// ---- J. the phone's persistent order bar ------------------------------------
+// Every order this shop takes starts with a call or a text and nearly all of its
+// traffic arrives on a handset, but until this bar the only calls to action sat inside
+// a listing or at the foot of the footer, both of which a thumb has to go looking for.
+// It is fixed chrome over the bottom of the viewport, so what has to hold is that a
+// desktop never sees it, a phone always does, all three links are big enough to hit,
+// the page it covers is not left hidden underneath it, and the links are the same
+// ordinary tel:/sms:/wa.me links the rest of the site uses — which is what keeps
+// app.js's phone/mouse split (B6) deciding where a click on one of them goes.
+ok('J1  the bar is off by default and a grid below 820px',
+  prop(BASE, '.order-bar', 'display') === 'none' && prop(M820, '.order-bar', 'display') === 'grid',
+  'base=' + prop(BASE, '.order-bar', 'display') + ' phone=' + prop(M820, '.order-bar', 'display'));
+ok('J2  it is pinned to the bottom edge across the full width',
+  prop(BASE, '.order-bar', 'position') === 'fixed' && prop(BASE, '.order-bar', 'bottom') === '0'
+  && prop(BASE, '.order-bar', 'left') === '0' && prop(BASE, '.order-bar', 'right') === '0',
+  'position=' + prop(BASE, '.order-bar', 'position') + ' bottom=' + prop(BASE, '.order-bar', 'bottom')
+  + ' left=' + prop(BASE, '.order-bar', 'left') + ' right=' + prop(BASE, '.order-bar', 'right'));
+ok('J3  it sits above the page but under the shade, so the drawer still covers it',
+  Number(prop(BASE, '.order-bar', 'z-index')) > Number(prop(BASE, '.nav', 'z-index'))
+  && Number(prop(BASE, '.order-bar', 'z-index')) < Number(prop(BASE, '.overlay', 'z-index')),
+  'bar=' + prop(BASE, '.order-bar', 'z-index') + ' nav=' + prop(BASE, '.nav', 'z-index')
+  + ' shade=' + prop(BASE, '.overlay', 'z-index'));
+ok('J4  three equal thirds, divided by a hairline',
+  prop(BASE, '.order-bar', 'grid-template-columns') === '1fr 1fr 1fr'
+  && PX(prop(BASE, '.order-bar', 'gap')) === 1
+  && prop(BASE, '.order-bar', 'background') === 'var(--line)',
+  prop(BASE, '.order-bar', 'grid-template-columns') + ' gap=' + prop(BASE, '.order-bar', 'gap')
+  + ' ' + prop(BASE, '.order-bar', 'background'));
+ok('J5  every link clears the 44px thumb floor',
+  PX(prop(BASE, '.order-bar a', 'min-height')) >= 44, prop(BASE, '.order-bar a', 'min-height'));
+ok('J6  one third is picked out in the brand accent',
+  /\.order-bar a\.accent\s*\{[^}]*background:\s*var\(--lime\)/.test(css));
+ok('J7  the page reserves the bar height, so nothing is left hidden under it',
+  PX(prop(M820, 'body', 'padding-bottom')) >= PX(prop(BASE, '.order-bar a', 'min-height')),
+  'body padding-bottom=' + prop(M820, 'body', 'padding-bottom')
+  + ' bar=' + prop(BASE, '.order-bar a', 'min-height'));
+ok('J8  the toast is lifted clear of the bar on a phone, and keeps 28px on a desktop',
+  firstPx(prop(M820, '.toast', 'bottom')) > PX(prop(BASE, '.order-bar a', 'min-height'))
+  && PX(prop(BASE, '.toast', 'bottom')) === 28,
+  'phone=' + prop(M820, '.toast', 'bottom') + ' desktop=' + prop(BASE, '.toast', 'bottom'));
+ok('J9  the bar keeps clear of the home indicator if the page opts into the notch',
+  /\.order-bar\s*\{[^}]*padding-bottom:\s*env\(safe-area-inset-bottom\)/.test(css));
+
+const bar = (html.match(/<nav class="order-bar"[\s\S]*?<\/nav>/) || [''])[0];
+ok('J10 the bar ships the three actions as ordinary links',
+  /href="tel:\REDACTED-PHONE"/.test(bar) && /href="sms:\REDACTED-PHONE"/.test(bar)
+  && /href="https:\/\/wa\.me\/REDACTED-PHONE"/.test(bar),
+  bar.slice(0, 90) || 'no .order-bar nav in index.html');
+ok('J11 no onclick on the bar, so the phone/mouse split in app.js still decides a click',
+  bar.length > 0 && !/onclick=/.test(bar));
+ok('J12 each of the three links names the number for a screen reader',
+  (bar.match(/aria-label="[^"]*\(914\) 482-1144"/g) || []).length === 3,
+  (bar.match(/aria-label="[^"]*"/g) || []).join(' | ') || 'none');
+ok('J13 WhatsApp leaves the page, the way the order dialog link does',
+  /id="barWa"[^>]*target="_blank"[^>]*rel="noopener"/.test(bar), find(/<a id="barWa"[^>]*>/, bar));
+ok('J14 app.js writes the bar number from the one constant, not from the markup',
+  /function updateOrderBar\(\)/.test(app) && /call\.href = 'tel:' \+ ORDER_PHONE;/.test(app));
+ok('J15 the bar names the pair only while a listing is on screen',
+  /function updateOrderBar\(\)[\s\S]{0,600}document\.querySelector\('#view-product\.active'\)[\s\S]{0,200}smsHref\(message\)/.test(app));
+ok('J16 and it is refreshed with the view, not only when a listing renders',
+  /function syncRouteUI\(\)\s*\{[\s\S]{0,600}updateOrderBar\(\)/.test(app)
+  && /function updateOrderLinks\(\)\s*\{[\s\S]{0,500}updateOrderBar\(\)/.test(app));
 
 const fails = results.filter((r) => !r.pass);
 results.forEach((r) => console.log((r.pass ? 'PASS  ' : 'FAIL  ') + r.name + (r.pass ? '' : '   [' + r.extra + ']')));

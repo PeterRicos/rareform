@@ -43,7 +43,7 @@
       }
     })();
   </script>
-  <link rel="stylesheet" href="styles.css?v=c37e6c0a">
+  <link rel="stylesheet" href="styles.css?v=0eb44a8a">
   <!-- Catalog structured data (schema.org). build-jsonld.js writes the block
        between these markers from products.js, so every listing a crawler can see
        here carries the same SKU, condition, image and availability the shop page
@@ -370,6 +370,22 @@
     </div>
   </footer>
 
+  <!-- ORDER BAR — the phone's persistent way to order. Shown below 820px only (see
+       .order-bar in styles.css), where a handset is almost certainly what is holding
+       the page: every order this shop takes starts with a call or a text, and the
+       only other calls to action are inside a listing or at the foot of the footer,
+       both of which a thumb has to go looking for.
+       These are ordinary tel:, sms: and wa.me links, so a tap opens the dialer,
+       Messages or WhatsApp with nothing in between. app.js rewrites the text and the
+       WhatsApp hrefs to name the pair and the size being viewed, and a click from a
+       mouse — which has no dialer behind it — becomes the desktop order dialog, the
+       same as the footer's two links. -->
+  <nav class="order-bar" id="orderBar" aria-label="Order">
+    <a id="barCall" href="tel:REDACTED-PHONE" aria-label="Call REDACTED-PHONE">Call</a>
+    <a id="barText" class="accent" href="sms:REDACTED-PHONE" aria-label="Text REDACTED-PHONE">Text</a>
+    <a id="barWa" href="https://wa.me/REDACTED-PHONE" target="_blank" rel="noopener" aria-label="WhatsApp REDACTED-PHONE">WhatsApp</a>
+  </nav>
+
   <!-- MODAL SHADE / OVERLAY -->
   <div class="overlay" id="shade" onclick="closeAllDrawers()"></div>
 
@@ -457,7 +473,7 @@
   <!-- jsonld.js turns a listing into schema.org data. app.js reads it immediately
        (the first view is rendered on load), so it has to come before app.js. -->
   <script src="jsonld.js?v=8338431b" defer></script>
-  <script src="app.js?v=72acbf8f" defer></script>
+  <script src="app.js?v=970fa78c" defer></script>
   
 
   <!-- Invisible visit counter (Cloudflare Worker + KV).
