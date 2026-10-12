@@ -369,10 +369,23 @@ html.announce-dismissed .announce { display: none; }
   cursor: pointer;
   display: block;
   width: 100%;
-  padding: 0;
+  padding: clamp(10px, 3%, 22px);
   color: inherit;
   text-align: left;
 }
+.product-image::after {
+  content: '';
+  position: absolute;
+  left: 18%;
+  right: 18%;
+  bottom: 8%;
+  height: 10px;
+  border-radius: 50%;
+  background: radial-gradient(closest-side, rgba(0,0,0,.16), transparent);
+  opacity: 0;
+  transition: opacity var(--transition);
+}
+.product:hover .product-image::after { opacity: 1; }
 .product-image img {
   width: 100%;
   height: 100%;
