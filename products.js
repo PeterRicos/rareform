@@ -1099,10 +1099,10 @@ const localProducts = [
     condition: "New",
     box: "Original Packaging",
     sizes: ["7", "7 1/8", "7 1/2"],
-    img: "images/clothing/mariano-rivera-2013-world-series-new-era-59fifty-navy.jpg",
+    img: "images/clothing/mariano-rivera-2013-world-series-new-era-59fifty-navy-front.jpg",
     gallery: [
-      "images/clothing/mariano-rivera-2013-world-series-new-era-59fifty-navy.jpg",
       "images/clothing/mariano-rivera-2013-world-series-new-era-59fifty-navy-front.jpg",
+      "images/clothing/mariano-rivera-2013-world-series-new-era-59fifty-navy-new.jpg",
       "images/clothing/mariano-rivera-2013-world-series-new-era-59fifty-navy-undervisor.jpg"
     ],
     sku: "NEWERA-59FIFTY-MR-2013-NYY-NAVY",
