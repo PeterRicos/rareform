@@ -1371,9 +1371,9 @@ html.announce-dismissed .announce { display: none; }
   .products { grid-template-columns: repeat(3, 1fr); }
 }
 @media (max-width: 600px) {
-  .section-head { padding-left: 55px; }
+  .section-head { padding-left: 45px; }
   .section-head::before {
-    font-size: 48px;
+    font-size: 36px;
     left: 0;
   }
   .announce {
