@@ -253,6 +253,35 @@ products.push(...(window.localProducts || []));
     // out of it leaves both the grid and that dropdown.
     const BRAND_TILES = ['Jordan', 'Nike', 'adidas', 'New Balance', 'TRAVIS SCOTT', 'SUPREME'];
 
+    // A wordmark per brand, drawn rather than fetched. Nothing in this table is a logo
+    // file and nothing is asked of a third party: a brand's lockup is mostly its
+    // letterforms, so each name is *set* — in the two families the page already loads,
+    // shaped by weight, width, slant, tracking and case — and the tile reads as the
+    // brand without an image anybody has to have the right to use. The one place a mark
+    // really is a shape (adidas's three bars, Supreme's box) the shape is drawn in CSS
+    // in styles.css, next to the rest of the mark.
+    //
+    // `wm` is markup, so the only HTML in it is the <br> that stacks Travis Scott's two
+    // words; a brand name is never interpolated into it. `mark` names the
+    // .brand-tile[data-mark=…] rule that shapes it, and the casing here is the casing
+    // the brand writes — the sheet only spells out what this table already decided, so
+    // the DOM keeps "adidas" and "Supreme" as the brands write them.
+    const BRAND_MARKS = {
+      // Condensed caps that lean forward, set tight: the letterforms of the Jordan lockup.
+      'jordan':       { wm: 'JORDAN',          mark: 'condensed' },
+      // Four letters, set as large as the tile allows and leaning hard — the way the
+      // wordmark is drawn on a box.
+      'nike':         { wm: 'NIKE',            mark: 'oblique' },
+      // Lowercase and upright, letterforms closed up, with the three bars beneath.
+      'adidas':       { wm: 'adidas',          mark: 'bars' },
+      // Lowercase and slanted, the way the tag reads.
+      'new balance':  { wm: 'new balance',     mark: 'lower' },
+      // Two words in wide-tracked caps, stacked — the lockup's whole character.
+      'travis scott': { wm: 'TRAVIS<br>SCOTT', mark: 'wide' },
+      // White, oblique, title case, on the red the box is printed in.
+      'supreme':      { wm: 'Supreme',         mark: 'box' }
+    };
+
     // Hat sizes are fractions ("7 1/4"), so turn them into decimals before comparing.
     function sizeNumber(m) {
       if (!m[1]) return 999;
@@ -332,14 +361,22 @@ products.push(...(window.localProducts || []));
       // Tiles are <button>, so they take focus and activate on Enter/Space. The
       // .brand-tile:focus-visible rule further up was written for exactly this and
       // could never fire while these were <div onclick>…>.
+      //
+      // What a tile shows is a wordmark, not the catalog's brand string: data-mark names
+      // the mark (BRAND_MARKS above), and the span carries the name as the brand writes
+      // it. The text comes from the table rather than from the catalog string so
+      // "adidas" keeps its lowercase and "Supreme" its capital, while the tile still
+      // filters by the catalog's own spelling — TILE_BRANDS is what a click looks up.
       $('brandGrid').innerHTML =
-        `<button type="button" class="brand-tile" onclick="filterByBrand('', this)">All Brands</button>` +
+        `<button type="button" class="brand-tile" data-mark="all" onclick="filterByBrand('', this)">` +
+          `<span class="wm">All Brands</span></button>` +
         tiles.map((b, i) => {
           const has = inStock.some(s => s.toLowerCase() === b.toLowerCase());
-          return `<button type="button" class="brand-tile${has ? '' : ' soon'}" ` +
-            `onclick="filterByBrandAt(${i}, this)"` +
-            `${has ? '' : ' aria-label="' + b + ' — no pairs in stock yet"'}` +
-            `><span>${b}</span>${has ? '' : '<span class="tag">Soon</span>'}</button>`;
+          const m = brandMark(b);
+          return `<button type="button" class="brand-tile${has ? '' : ' soon'}" data-mark="${m.mark}"` +
+            `${m.len ? ` data-len="${m.len}"` : ''} onclick="filterByBrandAt(${i}, this)"` +
+            `${has ? '' : ` aria-label="${esc(b)} — no pairs in stock yet"`}` +
+            `><span class="wm">${m.wm}</span>${has ? '' : '<span class="tag">Soon</span>'}</button>`;
         }).join('');
 
       // Chips follow the stricter rule — only brands that can actually return a
@@ -352,6 +389,22 @@ products.push(...(window.localProducts || []));
     // containing an apostrophe can't break out of the inline handler.
     function filterByBrandAt(i, el) { filterByBrand(TILE_BRANDS[i], el); }
     function setSearchBrand(i) { setSearch(CATALOG_BRANDS[i]); }
+
+    // The mark for a brand: BRAND_MARKS if there is one, otherwise the plain title
+    // treatment, stepped down as the name gets longer. A brand the catalog carries and
+    // this table has never heard of is not a hole in the grid — it is set in the same
+    // face as everything else and still names itself, which is what "The North Face"
+    // needs at 150px.
+    function brandMark(name) {
+      const plain = String(name || '').trim();
+      const known = BRAND_MARKS[plain.toLowerCase()];
+      if (known) return known;
+      return {
+        wm: esc(plain),
+        mark: 'plain',
+        len: plain.length > 13 ? 'long' : (plain.length > 9 ? 'med' : 'short')
+      };
+    }
 
     // Render Home Sections
     function renderHome() {
