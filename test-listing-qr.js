@@ -62,6 +62,28 @@ function makeEl(id) {
   return el;
 }
 
+// app.js reveals each product as it scrolls into view, through an IntersectionObserver that
+// Node does not have — without one the page script dies the moment it draws the home grid,
+// which is how this harness stopped running. The stub never fires by itself (the stub DOM
+// draws no .product cards to watch): enter(el) plays the entry a browser would hand over for
+// an element that has just come on screen, and observed() reports what app.js asked to watch.
+function makeObserver() {
+  const instances = [];
+  function Observer(cb) {
+    this.cb = cb;
+    this.targets = [];
+    instances.push(this);
+    this.observe = (el) => { if (this.targets.indexOf(el) < 0) this.targets.push(el); };
+    this.unobserve = (el) => { const i = this.targets.indexOf(el); if (i >= 0) this.targets.splice(i, 1); };
+    this.disconnect = () => { this.targets = []; };
+    this.takeRecords = () => [];
+  }
+  Observer.enter = (el) => instances.slice().forEach((o) => o.cb(
+    [{ isIntersecting: true, target: el, intersectionRatio: 1 }], o));
+  Observer.observed = () => instances.reduce((acc, o) => acc.concat(o.targets), []);
+  Observer.count = () => instances.length;
+  return Observer;
+}
 
 function boot(initialHash, withQr) {
   const PAGE_IDS = ['home', 'shop', 'product', 'about'];
@@ -136,10 +158,13 @@ function boot(initialHash, withQr) {
     document: doc, history, location
   };
 
-  const ctx = vm.createContext({ window: win, document: doc, history, location, setTimeout, clearTimeout, console });
+  // The reveal is the one thing the page script needs that Node cannot supply (makeObserver).
+  const Observer = makeObserver();
+
+  const ctx = vm.createContext({ window: win, document: doc, history, location, setTimeout, clearTimeout, console, IntersectionObserver: Observer });
   new vm.Script(bootCode(withQr), { filename: 'rareform-inline.js' }).runInContext(ctx);
 
-  return { win, doc, history, location, pages, getEl, listeners, ctx };
+  return { win, doc, history, location, pages, getEl, listeners, ctx, Observer };
 }
 
 // Read the dark modules back out of the drawn SVG. qrSvg emits one path of

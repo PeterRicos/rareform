@@ -45,6 +45,29 @@ function makeEl(id) {
   return el;
 }
 
+// app.js reveals each product as it scrolls into view, through an IntersectionObserver that
+// Node does not have — without one the page script dies the moment it draws the home grid,
+// which is how this harness stopped running. The stub never fires by itself (the stub DOM
+// draws no .product cards to watch): enter(el) plays the entry a browser would hand over for
+// an element that has just come on screen, and observed() reports what app.js asked to watch.
+function makeObserver() {
+  const instances = [];
+  function Observer(cb) {
+    this.cb = cb;
+    this.targets = [];
+    instances.push(this);
+    this.observe = (el) => { if (this.targets.indexOf(el) < 0) this.targets.push(el); };
+    this.unobserve = (el) => { const i = this.targets.indexOf(el); if (i >= 0) this.targets.splice(i, 1); };
+    this.disconnect = () => { this.targets = []; };
+    this.takeRecords = () => [];
+  }
+  Observer.enter = (el) => instances.slice().forEach((o) => o.cb(
+    [{ isIntersecting: true, target: el, intersectionRatio: 1 }], o));
+  Observer.observed = () => instances.reduce((acc, o) => acc.concat(o.targets), []);
+  Observer.count = () => instances.length;
+  return Observer;
+}
+
 // cfg.opaque === true simulates a file:// document, where pushState(url) throws.
 function boot(initialHash, cfg) {
   cfg = cfg || {};
@@ -63,6 +86,11 @@ function boot(initialHash, cfg) {
   const els = new Map(PAGE_IDS.map((id) => ['view-' + id, pages[id]]));
   const getEl = (id) => { if (!els.has(id)) els.set(id, makeEl(id)); return els.get(id); };
 
+  // The grids are drawn as markup, so a stub DOM has no elements to hand back for '.product'.
+  // It returns this fixed trio instead: the page script cannot tell them from real cards, and
+  // a test can watch the scroll reveal take them (see makeObserver, Observer.enter).
+  const cards = [makeEl('card-1'), makeEl('card-2'), makeEl('card-3')];
+
   const listeners = { window: {}, document: {} };
   const addL = (target, t, fn) => { (listeners[target][t] = listeners[target][t] || []).push(fn); };
   const fire = (target, t, ev) => (listeners[target][t] || []).forEach((fn) => fn(ev));
@@ -72,7 +100,8 @@ function boot(initialHash, cfg) {
     title: '',
     body: makeEl('body'),
     getElementById: getEl,
-    querySelectorAll: (sel) => (sel === '.page' ? PAGE_IDS.map((id) => pages[id]) : []),
+    querySelectorAll: (sel) => (sel === '.page' ? PAGE_IDS.map((id) => pages[id])
+      : (sel === '.product' ? cards : [])),
     querySelector: (sel) => (sel === '.page.active'
       ? PAGE_IDS.map((id) => pages[id]).find((p) => p._classes.has('active')) || null
       : null),
@@ -135,7 +164,10 @@ function boot(initialHash, cfg) {
     document: doc, history, location
   };
 
-  const ctx = vm.createContext({ window: win, document: doc, history, location, setTimeout, clearTimeout, console });
+  // The reveal is the one thing the page script needs that Node cannot supply (makeObserver).
+  const Observer = makeObserver();
+
+  const ctx = vm.createContext({ window: win, document: doc, history, location, setTimeout, clearTimeout, console, IntersectionObserver: Observer });
   new vm.Script(CODE, { filename: 'rareform-inline.js' }).runInContext(ctx);
 
   // Report the view key (data-view), not the DOM id — assertions compare against
@@ -145,7 +177,7 @@ function boot(initialHash, cfg) {
     return (el && el.dataset.view) || '';
   };
 
-  return { win, doc, history, location, pages, getEl, listeners, fire, queueFire, scrollCalls, ctx, active: activeView, activeId: () => (doc.querySelector('.page.active') || {}).id };
+  return { win, doc, history, location, pages, getEl, cards, listeners, fire, queueFire, scrollCalls, ctx, active: activeView, activeId: () => (doc.querySelector('.page.active') || {}).id, Observer };
 }
 
 (async function main() {
@@ -157,6 +189,17 @@ function boot(initialHash, cfg) {
   ok('A1  hash normalised to #home', A.location.hash === '#home', A.location.hash);
   ok('A2  home page active', A.active() === 'home', A.active());
   ok('A3  default title', A.doc.title === 'Random Stock — Verified Sneakers', A.doc.title);
+  // The sheet draws a card invisible (opacity: 0) until something adds .reveal, so a view
+  // that never hands its grid to an observer draws a blank page. A stub DOM would not notice
+  // that on its own — it is the one place this used to be hidden, by dying on the call.
+  ok('A4  every card the home grid draws is handed to the scroll reveal',
+    A.cards.length > 0 && A.cards.every((c) => A.Observer.observed().indexOf(c) >= 0),
+    'cards=' + A.cards.length + ' watched=' + A.Observer.observed().length);
+  A.Observer.enter(A.cards[0]);
+  await sleep(160);
+  ok('A5  an entry on screen reveals that card and stops watching it',
+    A.cards[0]._classes.has('reveal') && A.Observer.observed().indexOf(A.cards[0]) < 0,
+    Array.from(A.cards[0]._classes).join(',') || '(no classes)');
 
   // ---- B. refresh on a shared product link ---------------------------------
   const B = boot('#product/3');
@@ -236,6 +279,11 @@ function boot(initialHash, cfg) {
   await sleep(220);
   ok('J1  scrolling keeps the url', J.location.hash === '#shop', J.location.hash);
   ok('J2  scroll offset stored in state', !!J.history.state && J.history.state.y === 640, JSON.stringify(J.history.state));
+  // The shop draws the same cards as home and they are invisible until the reveal takes them,
+  // so the shop view has to wire it too — one renderer is not the other.
+  ok('J3  the shop grid hands its cards to the scroll reveal as well',
+    J.cards.every((c) => J.Observer.observed().indexOf(c) >= 0),
+    'watched=' + J.Observer.observed().length);
 
   // ---- K. file:// fallback where pushState(url) throws ---------------------
   const K = boot('', { opaque: true });
