@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="Random Stock is a small, hand-checked sneaker inventory: Yeezy, Jordan, Nike, New Balance and more. Every pair is inspected by hand before it ships.">
+  <meta name="description" content="Random Stock is a small, hand-checked sneaker vault: Yeezy, Jordan, Nike, New Balance and more. No cart and no checkout — every pair is inspected by hand and claimed directly by call, text or WhatsApp.">
   <meta name="theme-color" content="#151515">
   <link rel="icon" href="favicon.ico" sizes="any">
   <link rel="icon" href="favicon.svg" type="image/svg+xml">
@@ -16,13 +16,13 @@
   <meta property="og:url" content="https://randomstock.shop/">
   <meta property="og:site_name" content="Random Stock">
   <meta property="og:title" content="Random Stock - Verified Sneakers">
-  <meta property="og:description" content="A small, hand-checked inventory of authentic sneakers. Every pair is inspected by hand before it ships.">
+  <meta property="og:description" content="A small, hand-checked vault of authentic sneakers. No cart, no checkout — claim a pair by call, text or WhatsApp and we confirm the price with you.">
   <meta property="og:image" content="https://randomstock.shop/og-image.jpg">
   <meta property="og:image:width" content="1200">
   <meta property="og:image:height" content="630">
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="Random Stock - Verified Sneakers">
-  <meta name="twitter:description" content="A small, hand-checked inventory of authentic sneakers.">
+  <meta name="twitter:description" content="A small, hand-checked vault of authentic sneakers. No cart — claim a pair by call, text or WhatsApp.">
   <meta name="twitter:image" content="https://randomstock.shop/og-image.jpg">
   <title>Random Stock — Verified Sneakers</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -43,7 +43,7 @@
       }
     })();
   </script>
-  <link rel="stylesheet" href="styles.css?v=4239b04b">
+  <link rel="stylesheet" href="styles.css?v=b627b634">
   <!-- Catalog structured data (schema.org). build-jsonld.js writes the block
        between these markers from products.js, so every listing a crawler can see
        here carries the same SKU, condition, image and availability the shop page
@@ -60,7 +60,7 @@
   <!-- Announcement Bar -->
   <aside class="announce" id="announce" role="region" aria-label="Announcement">
     <div class="announce-content">
-      <span class="announce-copy"><span class="announce-shipping">ORDERS SHIP WITHIN 1-2 BUSINESS DAYS</span></span>
+      <span class="announce-copy"><span class="announce-claim">NO CART — CLAIM A PAIR BY CALL, TEXT OR WHATSAPP</span><span class="announce-shipping"> · ORDERS SHIP WITHIN 1-2 BUSINESS DAYS</span></span>
     </div>
     <button onclick="announceDismiss()" aria-label="Dismiss announcement">×</button>
   </aside>
@@ -109,13 +109,13 @@
       <!-- Hero Banner -->
     <section class="hero">
       <div class="hero-copy">
-        <span class="eyebrow">Verified culture / since 2021</span>
+        <span class="eyebrow">The friends &amp; family vault / since 2021</span>
         <h1>THE PAIRS YOU'VE BEEN LOOKING FOR.</h1>
-        <p>Authentic sneakers, sourced from collectors, checked by hand, and ready for your rotation.</p>
+        <p>Authentic sneakers, sourced from collectors, checked by hand, and ready for your rotation. This is our friends &amp; family vault: no cart, no checkout. Claim a pair by call, text or WhatsApp and we confirm the price with you.</p>
         <div class="btn-row hero-tiles">
-          <button class="btn" onclick="shopCategory('sneakers')">SHOP SNEAKERS</button>
-          <button class="btn" onclick="shopCategory('clothing')">SHOP CLOTHING &amp; ACCESSORIES</button>
-          <button class="btn" onclick="shopCategory('random')">SHOP RANDOM SHIT</button>
+          <button class="btn" onclick="shopCategory('sneakers')">BROWSE SNEAKERS</button>
+          <button class="btn" onclick="shopCategory('clothing')">BROWSE CLOTHING &amp; ACCESSORIES</button>
+          <button class="btn" onclick="shopNav('all')">EXPLORE THE VAULT</button>
         </div>
       </div>
       <div class="hero-image">
@@ -149,6 +149,25 @@
       </div>
     </section>
 
+    <!-- How To Claim: the page has no cart and no checkout, so this band says what
+         replaces them. Friends and family were hunting for an Add to Cart button and
+         reading its absence as "sold out" or "broken" — in fact a pair is claimed by
+         message, so that answer sits directly under the hero, before any product. -->
+    <section class="section auth">
+      <div class="auth-inner auth-grid">
+        <div>
+          <span class="eyebrow">How it works</span>
+          <h2>NO CART. NO CHECKOUT. JUST MESSAGE US.</h2>
+          <p>Every pair here is in hand and claimed directly. Find the one you want, tell us your size, and we reply with the price, the condition and the shipping. Nothing is sold out unless we tell you it is.</p>
+        </div>
+        <div class="steps">
+          <div class="step"><b>01</b><span>Browse the vault</span></div>
+          <div class="step"><b>02</b><span>Call, text or WhatsApp the pair</span></div>
+          <div class="step"><b>03</b><span>We confirm the price &amp; shipping</span></div>
+        </div>
+      </div>
+    </section>
+
     <!-- Trending Now -->
     <section class="section">
       <div class="section-head" data-index="01">
@@ -156,7 +175,7 @@
           <span class="eyebrow">The Rotation</span>
           <h2>TRENDING NOW</h2>
         </div>
-        <a class="text-link" href="#shop" onclick="go('shop')">SHOP ALL →</a>
+        <a class="text-link" href="#shop" onclick="go('shop')">EXPLORE THE VAULT →</a>
       </div>
       <div class="products" id="trending"></div>
     </section>
@@ -165,7 +184,7 @@
     <section class="section" style="padding-top:10px">
       <div class="section-head" data-index="02">
         <div>
-          <span class="eyebrow">Shop The Icons</span>
+          <span class="eyebrow">Browse The Icons</span>
           <h2>BY BRAND</h2>
         </div>
       </div>
@@ -176,7 +195,7 @@
     <section class="section" id="categories">
       <div class="section-head" data-index="03">
         <div>
-          <span class="eyebrow">Shop By Category</span>
+          <span class="eyebrow">Browse By Category</span>
           <h2>BEYOND THE PAIRS</h2>
         </div>
       </div>
@@ -185,7 +204,7 @@
         <div class="category-tile-copy">
           <span class="eyebrow">Street Wear</span>
           <h3>CLOTHING &amp; ACCESSORIES</h3>
-          <span class="btn white">SHOP NOW →</span>
+          <span class="btn white">EXPLORE VAULT →</span>
         </div>
       </a>
 
@@ -194,7 +213,7 @@
         <div class="category-tile-copy">
           <span class="eyebrow">Other Goods</span>
           <h3>RANDOM SHIT</h3>
-          <span class="btn white">SHOP NOW →</span>
+          <span class="btn white">EXPLORE VAULT →</span>
         </div>
       </a>
     </section>
@@ -222,7 +241,7 @@
           <span class="eyebrow">Just Landed</span>
           <h2>RECENTLY ADDED</h2>
         </div>
-        <a class="text-link" href="#shop" onclick="go('shop')">VIEW INVENTORY →</a>
+        <a class="text-link" href="#shop" onclick="go('shop')">BROWSE THE VAULT →</a>
       </div>
       <div class="products" id="recent"></div>
     </section>
@@ -234,7 +253,7 @@
           <span class="eyebrow">Street Wear</span>
           <h2>CLOTHING & ACCESSORIES</h2>
         </div>
-        <a class="text-link" href="#shop" onclick="shopCategory('clothing')">VIEW COLLECTION →</a>
+        <a class="text-link" href="#shop" onclick="shopCategory('clothing')">BROWSE THE COLLECTION →</a>
       </div>
       <div class="products" id="clothing-accessories"></div>
     </section>
@@ -246,7 +265,7 @@
           <span class="eyebrow">Other Goods</span>
           <h2>RANDOM SHIT</h2>
         </div>
-        <a class="text-link" href="#shop" onclick="event.preventDefault(); shopCategory('random')">VIEW ALL →</a>
+        <a class="text-link" href="#shop" onclick="event.preventDefault(); shopCategory('random')">BROWSE ALL →</a>
       </div>
       <div class="products" id="random-shit"></div>
     </section>
@@ -257,11 +276,12 @@
   <div id="view-shop" data-view="shop" class="page">
     <div class="shop-top">
       <div>
-        <span class="eyebrow">Authenticated Inventory</span>
-        <h1 id="shopTitle">SHOP ALL</h1>
+        <span class="eyebrow">The Vault</span>
+        <h1 id="shopTitle">THE VAULT</h1>
       </div>
       <span class="eyebrow" id="productTotal" aria-live="polite"></span>
     </div>
+    <p class="shop-note">No cart, no checkout — call, text or WhatsApp the pair and your size and we confirm the price, the condition and the shipping. Everything listed is in hand.</p>
     <section class="section" style="padding-top:15px">
       <div class="shop-layout">
         <!-- Desktop Filters Sidebar -->
@@ -323,6 +343,7 @@
     <section class="about">
       <span class="eyebrow">The Random Stock Story</span>
       <h1>BUILT AROUND THE PAIR.</h1>
+      <p>This is a vault, not a cart. Every pair is in hand, priced on request, and claimed directly by call, text or WhatsApp — no checkout, no queue, no add-to-cart button that does nothing.</p>
       <p>Random Stock began with the belief that the right pair can mark a moment in time. We are collectors, wearers, and relentless students of the details—and we built the shop we always wanted to buy from: considered inventory, straightforward pricing, and zero doubt about authenticity.</p>
       <div class="about-hero">
         <img src="images/about.jpg" alt="Sneaker collection and community" width="1600" height="1068" loading="lazy" decoding="async">
@@ -339,12 +360,12 @@
     <div class="foot-grid">
       <div>
         <a class="logo" href="#home" onclick="event.preventDefault(); go('home');">RANDOM&nbsp;<i>STOCK</i></a>
-        <p class="foot-tag">Verified sneakers for the permanent rotation. Sourced from collectors, inspected in hand before anything ships.</p>
+        <p class="foot-tag">Verified sneakers for the permanent rotation. Sourced from collectors, inspected in hand before anything ships. There is no cart here: message us and we confirm the price and send it out.</p>
       </div>
       <div>
-        <h2 class="foot-head">Shop</h2>
+        <h2 class="foot-head">The Vault</h2>
         <nav class="foot-links" aria-label="Footer">
-          <a href="#shop" onclick="event.preventDefault(); shopNav('all')">Shop all</a>
+          <a href="#shop" onclick="event.preventDefault(); shopNav('all')">The whole vault</a>
           <a href="#shop" onclick="event.preventDefault(); shopCategory('clothing')">Clothing &amp; Accessories</a>
           <a href="#shop" onclick="event.preventDefault(); shopCategory('random')">Random Shit</a>
           <a href="#about" onclick="event.preventDefault(); go('about')">About</a>
@@ -447,7 +468,7 @@
   <!-- jsonld.js turns a listing into schema.org data. app.js reads it immediately
        (the first view is rendered on load), so it has to come before app.js. -->
   <script src="jsonld.js?v=8f9d7a7f" defer></script>
-  <script src="app.js?v=909e861b" defer></script>
+  <script src="app.js?v=23291df2" defer></script>
   
 
   <!-- Invisible visit counter (Cloudflare Worker + KV).

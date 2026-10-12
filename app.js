@@ -216,6 +216,7 @@ products.push(...(window.localProducts || []));
             <button class="name" type="button" onclick="openProduct(${p.id})">${p.name}</button>
             <div class="color">${p.color}</div>
             ${sizeText ? `<div class="sizes">${sizeText}</div>` : ''}
+            <div class="price-note">Price on request</div>
             <button class="quick" onclick="event.stopPropagation(); openProduct(${p.id})">
               ${buttonText}
             </button>
@@ -588,7 +589,7 @@ products.push(...(window.localProducts || []));
         : `<div class="empty-state"><p>${emptyCopy}</p><button class="btn light" onclick="clearFilters()">Reset All Filters</button></div>`;
 
       $('productTotal').textContent = list.length + ' ITEMS AVAILABLE';
-      if ($('shopTitle')) $('shopTitle').textContent = CATEGORY_TITLES[shopCategoryFilter] || 'SHOP ALL';
+      if ($('shopTitle')) $('shopTitle').textContent = CATEGORY_TITLES[shopCategoryFilter] || 'THE VAULT';
       updateFilterCount();
       observeProducts();
     }
@@ -814,7 +815,8 @@ products.push(...(window.localProducts || []));
         <div class="meta">
           SKU: ${current.sku}<br>
           CONDITION: ${current.condition}<br>
-          PACKAGING: ${current.box || 'Original Box'}
+          PACKAGING: ${current.box || 'Original Box'}<br>
+          PRICE: ON REQUEST — ASK US
         </div>
         ${current.details ? `<ul class="product-details">${current.details.map(d => `<li>${d}</li>`).join('')}</ul>` : ''}
         ${hasSizes ? `<div style="margin-top: 24px">
@@ -833,10 +835,10 @@ products.push(...(window.localProducts || []));
           </div>
         </div>` : ''}
         <div class="order-cta">
-          <a class="btn" id="orderCall" href="tel:${ORDER_PHONE}">Call to order</a>
-          <a class="btn light" id="orderText" href="sms:${ORDER_PHONE}">Text this ${itemLabel}</a>
+          <a class="btn" id="orderCall" href="tel:${ORDER_PHONE}">Call to claim</a>
+          <a class="btn light" id="orderText" href="sms:${ORDER_PHONE}">Text to claim this ${itemLabel}</a>
         </div>
-        <p class="order-note">${hasSizes ? `Sizes listed are what we hold right now. Call or text the ${itemLabel} and your size and we will confirm availability, condition and shipping.` : `Call or text about this ${itemLabel} and we will confirm availability, condition and shipping.`}</p>
+        <p class="order-note">${hasSizes ? `Sizes listed are what we hold right now. Call or text the ${itemLabel} and your size and we will confirm the price, availability, condition and shipping.` : `Call or text about this ${itemLabel} and we will confirm the price, availability, condition and shipping.`}</p>
         <div class="listing-qr" id="listingQr"></div>
         <div class="perks">
           <p>✓ <b>100% Authenticity Guaranteed:</b> Hand-inspected by verification specialists.</p>

@@ -262,14 +262,14 @@ ok('E6  a tile is still a thumb-sized target, on a desktop and on a phone',
 
 // ---- F. the hero's tiles route to the shop they name ----------------------------
 // The first hero tile used to be a bare go('shop'), which keeps whatever category
-// the last visit left on the shop: browse Random Shit, come home, click SHOP
+// the last visit left on the shop: browse Random Shit, come home, click BROWSE
 // SNEAKERS, and the shop still said RANDOM SHIT with its four items. A tile that
 // names a category has to route through shopCategory(), which clears the filters
 // first — and the shop header needs a title for the sneakers run it then shows,
 // or the tile filters to sneakers while the page still reads SHOP ALL.
 const heroTiles = find(/<div class="btn-row hero-tiles">[\s\S]*?<\/div>/, html) || '';
-ok('F1  SHOP SNEAKERS routes through shopCategory, not a bare go()',
-  /onclick="shopCategory\('sneakers'\)">SHOP SNEAKERS/.test(heroTiles),
+ok('F1  BROWSE SNEAKERS routes through shopCategory, not a bare go()',
+  /onclick="shopCategory\('sneakers'\)">BROWSE SNEAKERS/.test(heroTiles),
   heroTiles);
 ok('F2  no hero tile navigates without clearing the category first',
   !/onclick="go\('/.test(heroTiles),
@@ -277,6 +277,23 @@ ok('F2  no hero tile navigates without clearing the category first',
 ok('F3  the shop header names the sneakers run the tile lands on',
   /CATEGORY_TITLES\s*=\s*\{[^}]*sneakers:\s*'SNEAKERS'/.test(app),
   find(/const CATEGORY_TITLES[^;]+;/, app) || 'no CATEGORY_TITLES');
+
+// ---- F4-F6. this page is a vault, not a cart -------------------------------------
+// Friends and family went looking for an Add to Cart button and a price tag, found
+// neither, and read the page as sold out or unfinished. There is no cart by design, so
+// the page has to say what replaces it -- and it must never quietly grow one instead.
+ok('F4  no cart, checkout or buy-now affordance creeps into the page',
+  !/>(add to cart|checkout|buy now)/i.test(html) && !/>(add to cart|checkout|buy now)/i.test(app),
+  (html.match(/>[^<\n]*(add to cart|checkout|buy now)[^<\n]*/gi) || []).join(' | '));
+ok('F5  the page says a pair is claimed by message, and the price comes on asking',
+  /no cart,? no checkout/i.test(html) && /claim a pair by call, text or whatsapp/i.test(html)
+    && /we will confirm the price/.test(app),
+  'no-cart: ' + /no cart,? no checkout/i.test(html)
+    + '  claim: ' + /claim a pair by call, text or whatsapp/i.test(html)
+    + '  price: ' + /we will confirm the price/.test(app));
+ok('F6  the unfiltered shop is named the vault in both the markup and the render path',
+  /<h1 id="shopTitle">THE VAULT<\/h1>/.test(html) && /\|\| 'THE VAULT'/.test(app),
+  find(/\|\|[^;]*THE VAULT[^;]*/, app) || 'no vault fallback title');
 
 
 const fails = results.filter((r) => !r.pass);

@@ -466,6 +466,19 @@ html.announce-dismissed .announce { display: none; }
   text-overflow: ellipsis;
 }
 .p-info .sizes { margin-bottom: 12px; }
+/* Cards carry no price by design. Saying so on the card beats leaving a gap where a
+   price tag would sit, which is what read as "sold out" or "broken". */
+.p-info .price-note {
+  align-self: flex-start;
+  margin: 0 0 12px;
+  padding: 3px 7px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  font: 10px/1.2 'DM Mono', monospace;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
 .quick {
   width: 100%;
   margin-top: auto;
@@ -771,6 +784,16 @@ html.announce-dismissed .announce { display: none; }
   align-items: flex-end;
   max-width: 1600px;
   margin: auto;
+}
+/* The vault has no cart, so the shop header says how a pair is actually claimed before
+   the grid starts. Aligned to .section so it sits over the same column as the cards. */
+.shop-note {
+  max-width: 1600px;
+  margin: 0 auto;
+  padding: 0 clamp(18px, 4vw, 56px);
+  font-size: 13px;
+  line-height: 1.7;
+  color: var(--muted);
 }
 .shop-top h1, .about h1 {
   font-size: clamp(42px, 6vw, 84px);
