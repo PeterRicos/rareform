@@ -43,7 +43,7 @@
       }
     })();
   </script>
-  <link rel="stylesheet" href="styles.css?v=44de4368">
+  <link rel="stylesheet" href="styles.css?v=0b10c5e4">
   <!-- Catalog structured data (schema.org). build-jsonld.js writes the block
        between these markers from products.js, so every listing a crawler can see
        here carries the same SKU, condition, image and availability the shop page
@@ -304,7 +304,13 @@
   <!-- PRODUCT DETAIL PAGE -->
   <div id="view-product" data-view="product" class="page">
     <section class="product-page">
-      <a class="back" href="#shop" onclick="go('shop')">← BACK TO INVENTORY</a>
+      <nav class="breadcrumbs" aria-label="Breadcrumb">
+        <a href="#home" onclick="event.preventDefault(); go('home')">Home</a>
+        <span>/</span>
+        <a href="#shop" onclick="event.preventDefault(); go('shop')">Shop</a>
+        <span>/</span>
+        <span id="breadcrumbProduct"></span>
+      </nav>
       <div class="detail">
         <div class="gallery" id="gallery"></div>
         <div class="details" id="details"></div>
@@ -441,7 +447,7 @@
   <!-- jsonld.js turns a listing into schema.org data. app.js reads it immediately
        (the first view is rendered on load), so it has to come before app.js. -->
   <script src="jsonld.js?v=8338431b" defer></script>
-  <script src="app.js?v=227fedc0" defer></script>
+  <script src="app.js?v=4a035630" defer></script>
   
 
   <!-- Invisible visit counter (Cloudflare Worker + KV).

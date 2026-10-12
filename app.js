@@ -515,7 +515,7 @@ products.push(...(window.localProducts || []));
 
       $('shopProducts').innerHTML = list.length
         ? list.map(productCard).join('')
-        : `<div style="grid-column: 1/-1; padding: 48px 0; text-align: center; color: var(--muted);"><p style="font-size: 16px; font-weight:700">${emptyCopy}</p><button class="btn light" style="margin-top:12px" onclick="clearFilters()">Reset All Filters</button></div>`;
+        : `<div class="empty-state"><p>${emptyCopy}</p><button class="btn light" onclick="clearFilters()">Reset All Filters</button></div>`;
 
       $('productTotal').textContent = list.length + ' ITEMS AVAILABLE';
       if ($('shopTitle')) $('shopTitle').textContent = CATEGORY_TITLES[shopCategoryFilter] || 'SHOP ALL';
@@ -697,6 +697,12 @@ products.push(...(window.localProducts || []));
     function renderProduct(id) {
       current = products.find(p => p.id === id) || products[0];
       selectedSize = current.sizes[0]; // initialize default selected size
+
+      // Update breadcrumb
+      if ($('breadcrumbProduct')) $('breadcrumbProduct').textContent = current.name;
+
+      // Track recently viewed
+      trackRecentlyViewed(current);
 
       // A listing with one photo shows one photo. This used to repeat current.img
       // four times to fill the 2x2 grid, so a single-angle item read as the same
@@ -1307,6 +1313,60 @@ products.push(...(window.localProducts || []));
       if (!existing) document.head.appendChild(script);
     }
 
+    // Recently Viewed - localStorage-based visual return hook
+    const RECENTLY_VIEWED_KEY = 'randomstock.recentlyViewed';
+    const MAX_RECENT = 4;
+
+    function trackRecentlyViewed(product) {
+      try {
+        let viewed = JSON.parse(localStorage.getItem(RECENTLY_VIEWED_KEY) || '[]');
+        viewed = viewed.filter(id => id !== product.id); // remove if already exists
+        viewed.unshift(product.id); // add to front
+        viewed = viewed.slice(0, MAX_RECENT); // keep only last 4
+        localStorage.setItem(RECENTLY_VIEWED_KEY, JSON.stringify(viewed));
+        renderRecentlyViewed();
+      } catch (err) {
+        // localStorage blocked or full
+      }
+    }
+
+    function renderRecentlyViewed() {
+      try {
+        const viewed = JSON.parse(localStorage.getItem(RECENTLY_VIEWED_KEY) || '[]');
+        if (!viewed.length) return;
+
+        const recentProducts = viewed.map(id => products.find(p => p.id === id)).filter(Boolean);
+        if (!recentProducts.length) return;
+
+        // Check if section already exists
+        let section = document.getElementById('recentlyViewedSection');
+        if (!section) {
+          section = document.createElement('section');
+          section.id = 'recentlyViewedSection';
+          section.className = 'section';
+          section.innerHTML = `
+            <div class="section-head" data-index="07">
+              <div>
+                <span class="eyebrow">Your History</span>
+                <h2>RECENTLY VIEWED</h2>
+              </div>
+            </div>
+            <div class="products" id="recentlyViewed"></div>
+          `;
+          // Insert before Random Shit section
+          const randomSection = document.getElementById('random-section');
+          if (randomSection && randomSection.parentNode) {
+            randomSection.parentNode.insertBefore(section, randomSection);
+          }
+        }
+
+        $('recentlyViewed').innerHTML = recentProducts.map(productCard).join('');
+        observeProducts();
+      } catch (err) {
+        // localStorage blocked
+      }
+    }
+
     // Initial Render — filters first: renderShop() reads their values to label the count
     // Hero video: the still image is the hero until the clip actually decodes, so a
     // missing video/reel.mp4 is invisible rather than a broken player.
@@ -1324,6 +1384,7 @@ products.push(...(window.localProducts || []));
     renderFilterUI();
     renderHome();
     renderShop();
+    renderRecentlyViewed();
 
     // Then restore whatever the URL asked for (refresh, shared link, bookmark)
     hydrateFromURL();
