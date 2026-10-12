@@ -403,7 +403,7 @@ products.push(...(window.localProducts || []));
 
     // Render Home Sections
     function renderHome() {
-      $('trending').innerHTML = products.slice(0, 4).map(productCard).join('');
+      $('trending').innerHTML = products.filter(p => p.brand.toLowerCase() === 'jordan').slice(0, 4).map(productCard).join('');
       $('recent').innerHTML = products.slice(-4).map(productCard).join('');
       $('clothing-accessories').innerHTML = products.filter(p => productCategory(p) === 'clothing').map(productCard).join('');
       $('random-shit').innerHTML = products.filter(p => productCategory(p) === 'random').map(productCard).join('');
