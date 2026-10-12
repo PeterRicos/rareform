@@ -218,8 +218,20 @@ ok('G4  the announcement dismiss button keeps its 40px hit area',
 // ---- H. the grids ---------------------------------------------------------------
 ok('H1  product grids are 2-up on a phone', prop(M820, '.products', 'grid-template-columns') === 'repeat(2, 1fr)');
 ok('H2  and 1-up on the smallest ones', prop(M480, '.products', 'grid-template-columns') === '1fr');
-ok('H3  brand tiles go 4-up on a tablet and 2-up on a phone',
-  prop(M1024, '.brand-grid', 'grid-template-columns') === 'repeat(4, 1fr)' && prop(M820, '.brand-grid', 'grid-template-columns') === 'repeat(2, 1fr)');
+// The brand grid is no longer a fixed 8/4/2 column ladder. "Six roadmap brands plus
+// 'All Brands' plus every other brand the catalog carries" is not a count that divides
+// into eight, so the last row stopped short and left a hole where two tiles would have
+// been. auto-fit holds the same 150px floor and takes the columns from the room it has,
+// which is what lands two across a phone and four across a tablet — so what has to stay
+// true is that the floor is there, and that no breakpoint has gone back to naming a
+// count that has to be kept in sync with the catalog by hand.
+ok('H3  brand tiles size themselves to the row (150px floor, no fixed column count)',
+  prop(BASE, '.brand-grid', 'grid-template-columns') === 'repeat(auto-fit, minmax(150px, 1fr))'
+  && prop(M1024, '.brand-grid', 'grid-template-columns') === null
+  && prop(M820, '.brand-grid', 'grid-template-columns') === null,
+  'base=' + prop(BASE, '.brand-grid', 'grid-template-columns')
+  + ' 1024=' + prop(M1024, '.brand-grid', 'grid-template-columns')
+  + ' 820=' + prop(M820, '.brand-grid', 'grid-template-columns'));
 
 // ---- I. the dismissed announcement stays dismissed --------------------------
 ok('I1  index.html re-applies the dismissal before the bar is parsed',
