@@ -17,6 +17,12 @@
         A screenshot cannot tell that apart from "no clip installed", so this harness
         reads the container itself instead of trusting the file extension.
 
+     4. the outlined word in the headline loses its ink. That word is not written in a
+        colour - its fill is transparent and a stroke supplies the whole of it - so one
+        declaration carries the difference between the word and a hole in the hero. It
+        went that way once, through a stroke drawn in currentColor (which is the same
+        rule's transparent fill), and nothing else in the repo reads the hero copy.
+
    It also checks the markup/CSS/JS contract the slot is built on, and that the ?v= on
    the clip in index.html really is the hash of the bytes on disk - the stamp is what
    keeps a swapped clip from being served out of a cache under its old name.        */
@@ -31,6 +37,12 @@ const page = read('index.html');
 const css = read('styles.css');
 const app = read('app.js');
 const stamp = read('stamp-assets.js');
+
+// Rules are read out of a comment-free copy (the shape test-brand-tiles.js reads the sheet
+// with): the outlined word below is explained by a comment that names currentColor, and a
+// comment paints nothing - reading the rule out of the raw text would fail it for its own
+// explanation. The raw text is still what the "does this string appear" checks use.
+const CSS = css.replace(/\/\*[\s\S]*?\*\//g, '');
 
 // Optional argument: a different clip path, so a candidate file can be inspected
 // before it is installed (node test-hero-video.js "C:\path\to\new-clip.mp4").
@@ -97,6 +109,25 @@ ok('V5 app.js still wires the readiness class',
   /\$\('heroVideo'\)/.test(app) && /classList\.add\('is-ready'\)/.test(app) && /classList\.remove\('is-ready'\)/.test(app),
   "initHeroVideo() must look up $('heroVideo'), add is-ready on decode and remove it on error");
 ok('V5 app.js still falls back when the clip fails', /addEventListener\('error',\s*hide\)/.test(app), 'a clip that stops decoding must return to the still image');
+
+// ------------------------------------------------------- the outlined word in the hero
+// "LOOKING" in the headline is an outline: its fill is transparent and the stroke is all of
+// its ink, which makes the stroke's colour the whole difference between the word and a hole
+// in the hero. currentColor is the one value that erases it - currentColor is that rule's own
+// color, the transparent fill - and that is exactly how the word went missing once, with the
+// markup and the rule both still in place. Nothing else in the repo reads the hero copy, so
+// the four checks below are the only guard this word has.
+const outlineRules = CSS.match(/\.hero h1 \.outline\s*\{[^}]*\}/g) || [];
+ok('W1 the headline still carries an outlined word',
+  /<h1>[^<]*<span class="outline">[^<]+<\/span>[^<]*<\/h1>/.test(page),
+  'index.html has no <h1>...<span class="outline">word</span>...</h1>: the accent is gone from the markup, where no CSS can draw it back');
+ok('W2 the outlined word has a rule of its own', outlineRules.length > 0,
+  'styles.css no longer has a .hero h1 .outline rule, so its transparent fill is left with nothing painted over it');
+ok('W3 its stroke is never currentColor', outlineRules.length > 0 && !outlineRules.some((r) => /currentColor/.test(r)),
+  'a currentColor stroke takes its colour from the same rule\'s transparent fill, so it paints the word in nothing: the ink has to be named (var(--ink))');
+ok('W4 a browser with no -webkit-text-stroke still gets a word',
+  /@supports\s+not\s*\(\s*-webkit-text-stroke[^{]*\)\s*\{\s*\.hero h1 \.outline\s*\{[^}]*color:\s*(?:inherit|var\(--ink\))/.test(CSS),
+  'with no stroke support the transparent fill is the only paint, so the word needs an opaque fallback: @supports not (-webkit-text-stroke: ...) { .hero h1 .outline { color: inherit; } }');
 
 // ------------------------------------------------------- stamping
 ok('V6 stamp-assets.js knows about the clip', /HERO_CLIP\s*=\s*'video\/reel\.mp4'/.test(stamp) && /stamp\(MEDIA,\s*hashBytes\)/.test(stamp),

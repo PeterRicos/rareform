@@ -184,8 +184,17 @@ html.announce-dismissed .announce { display: none; }
   font-weight: 800;
 }
 .hero h1 .outline {
-  -webkit-text-stroke: 1.5px currentColor;
+  /* The stroke is this word's only ink - the fill underneath it is transparent - so it cannot
+     be drawn in currentColor: currentColor is this rule's own color, which is that transparent
+     fill, and the word ends up painted in nothing at all. Name the ink instead. */
+  -webkit-text-stroke: 1.5px var(--ink);
   color: transparent;
+}
+/* Nothing here can draw the stroke, so hand the word its ink back rather than leaving a
+   transparent fill with no outline over it: a browser with no -webkit-text-stroke would
+   otherwise render the headline with a hole where its fourth word should be. */
+@supports not (-webkit-text-stroke: 1.5px var(--ink)) {
+  .hero h1 .outline { color: inherit; }
 }
 .hero p {
   max-width: 420px;
@@ -1458,7 +1467,9 @@ html.announce-dismissed .announce { display: none; }
 @media (max-width: 480px) {
   .products { grid-template-columns: 1fr; }
   .hero h1 { font-size: 38px; }
-  .hero h1 .outline { -webkit-text-stroke: 1px currentColor; }
+  /* Width only: repeating the colour here is how this override drifted into currentColor and
+     took the word with it. The ink is named once, in .hero h1 .outline above. */
+  .hero h1 .outline { -webkit-text-stroke-width: 1px; }
   .foot-grid { grid-template-columns: 1fr; }
   .foot-grid > div:first-child { grid-column: span 1; }
   .toast { border-radius: 16px; padding: 12px 18px; }
