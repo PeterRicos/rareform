@@ -183,7 +183,10 @@ products.push(...(window.localProducts || []));
     function productCategory(p) {
       return p.category || (p.brand.toLowerCase() === 'supreme' ? 'clothing' : 'sneakers');
     }
-    const CATEGORY_TITLES = { clothing: 'CLOTHING & ACCESSORIES', random: 'RANDOM SHIT' };
+    // The hero's own SHOP SNEAKERS tile routes here with 'sneakers', so a shopper
+    // coming back from Clothing or Random Shit lands on every pair in the catalog,
+    // not on whatever category their last visit left on the shop.
+    const CATEGORY_TITLES = { sneakers: 'SNEAKERS', clothing: 'CLOTHING & ACCESSORIES', random: 'RANDOM SHIT' };
     let shopCategoryFilter = '';
 
     // Product Card Template

@@ -260,6 +260,25 @@ ok('E6  a tile is still a thumb-sized target, on a desktop and on a phone',
   PX(prop(BASE, '.brand-tile', 'height')) >= 44 && PX(prop(M820, '.brand-tile', 'height')) >= 44,
   prop(BASE, '.brand-tile', 'height') + ' / ' + prop(M820, '.brand-tile', 'height'));
 
+// ---- F. the hero's tiles route to the shop they name ----------------------------
+// The first hero tile used to be a bare go('shop'), which keeps whatever category
+// the last visit left on the shop: browse Random Shit, come home, click SHOP
+// SNEAKERS, and the shop still said RANDOM SHIT with its four items. A tile that
+// names a category has to route through shopCategory(), which clears the filters
+// first — and the shop header needs a title for the sneakers run it then shows,
+// or the tile filters to sneakers while the page still reads SHOP ALL.
+const heroTiles = find(/<div class="btn-row hero-tiles">[\s\S]*?<\/div>/, html) || '';
+ok('F1  SHOP SNEAKERS routes through shopCategory, not a bare go()',
+  /onclick="shopCategory\('sneakers'\)">SHOP SNEAKERS/.test(heroTiles),
+  heroTiles);
+ok('F2  no hero tile navigates without clearing the category first',
+  !/onclick="go\('/.test(heroTiles),
+  heroTiles);
+ok('F3  the shop header names the sneakers run the tile lands on',
+  /CATEGORY_TITLES\s*=\s*\{[^}]*sneakers:\s*'SNEAKERS'/.test(app),
+  find(/const CATEGORY_TITLES[^;]+;/, app) || 'no CATEGORY_TITLES');
+
+
 const fails = results.filter((r) => !r.pass);
 results.forEach((r) => console.log((r.pass ? 'PASS  ' : 'FAIL  ') + r.name + (r.pass ? '' : '   [' + r.extra + ']')));
 console.log('\nTOTAL=' + results.length + ' FAIL=' + fails.length);
