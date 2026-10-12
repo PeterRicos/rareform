@@ -102,39 +102,12 @@ products.push(...(window.localProducts || []));
     // The size chips report what we hold; these links carry the pair and the chosen
     // size into the message so nobody has to retype a SKU.
     function updateOrderLinks() {
-      updateOrderBar();
       const call = $('orderCall');
       const text = $('orderText');
       if (!call || !text || !current) return;
       call.href = 'tel:' + ORDER_PHONE;
       text.href = smsHref(defaultOrderMessage());
       updateListingQr();
-    }
-
-    // The phone's persistent way to claim a pair. index.html ships the three actions
-    // as ordinary links — an empty tel:/sms: and a bare wa.me host, so the one file a
-    // scraper can fetch without running anything names no number — and this fills
-    // every one of them from the same ORDER_PHONE the listing uses, with the same
-    // sentence, but only while a listing is on screen: anywhere else the bar is three
-    // plain ways to reach the shop, and a text that would otherwise ask about a pair
-    // the reader cannot see. It runs on every view change (syncRouteUI) and on every
-    // listing render (updateOrderLinks), which is what keeps the pair named in the
-    // message the one actually on the page.
-    function updateOrderBar() {
-      const call = $('barCall');
-      const text = $('barText');
-      const wa = $('barWa');
-      if (!call || !text || !wa) return;
-      const listing = document.querySelector('#view-product.active');
-      const message = listing && current ? defaultOrderMessage() : '';
-      text.href = smsHref(message);
-      call.href = 'tel:' + ORDER_PHONE;
-      wa.href = 'https://wa.me/' + ORDER_PHONE.replace(/^\+/, '') + (message ? '?text=' + encodeURIComponent(message) : '');
-      const item = current && productCategory(current) === 'sneakers' ? 'pair' : 'item';
-      const about = listing && current ? ' about the ' + item + ' on screen (' + current.sku + ')' : '';
-      call.setAttribute('aria-label', 'Call Random Stock' + about);
-      text.setAttribute('aria-label', 'Text Random Stock' + about);
-      wa.setAttribute('aria-label', 'Message Random Stock on WhatsApp' + about);
     }
 
     // The catalog has a name with an "&" in it (the Bearbrick "... 100% & 400% Set
@@ -738,7 +711,6 @@ products.push(...(window.localProducts || []));
 
     // Keep header links, the page title and assistive state in sync with the view
     function syncRouteUI() {
-      updateOrderBar();
       const active = document.querySelector('.page.active');
       const page = (active && active.dataset.view) || 'home';
       document.querySelectorAll('.nav-links a').forEach(a => {
