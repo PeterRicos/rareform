@@ -282,9 +282,12 @@ ok('F3  the shop header names the sneakers run the tile lands on',
 // Friends and family went looking for an Add to Cart button and a price tag, found
 // neither, and read the page as sold out or unfinished. There is no cart by design, so
 // the page has to say what replaces it -- and it must never quietly grow one instead.
-ok('F4  no cart, checkout or buy-now affordance creeps into the page',
-  !/>(add to cart|checkout|buy now)/i.test(html) && !/>(add to cart|checkout|buy now)/i.test(app),
-  (html.match(/>[^<\n]*(add to cart|checkout|buy now)[^<\n]*/gi) || []).join(' | '));
+// The phrase itself is gone, not merely unlinked: "add to cart" in a comment or an
+// aria-label is still a promise a scraper, a search engine or a screen reader can read.
+ok('F4  nothing in the page even names a cart, a checkout or a buy-now path',
+  !/add[\s-]*to[\s-]*cart|>\s*(checkout|buy now)/i.test(html)
+    && !/add[\s-]*to[\s-]*cart|>\s*(checkout|buy now)/i.test(app),
+  ((html + app).match(/[^>\n]{0,40}add[\s-]*to[\s-]*cart[^<\n]{0,40}/gi) || []).join(' | '));
 ok('F5  the page says a pair is claimed by message, and the price comes on asking',
   /no cart,? no checkout/i.test(html) && /claim a pair by call, text or whatsapp/i.test(html)
     && /we will confirm the price/.test(app),
