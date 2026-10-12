@@ -17,11 +17,12 @@
         A screenshot cannot tell that apart from "no clip installed", so this harness
         reads the container itself instead of trusting the file extension.
 
-     4. the outlined word in the headline loses its ink. That word is not written in a
-        colour - its fill is transparent and a stroke supplies the whole of it - so one
-        declaration carries the difference between the word and a hole in the hero. It
-        went that way once, through a stroke drawn in currentColor (which is the same
-        rule's transparent fill), and nothing else in the repo reads the hero copy.
+     4. a word in the headline loses its ink. "LOOKING" was once an outline here - a
+        transparent fill with a stroke as the whole of its ink - so one declaration carried
+        the difference between that word and a hole in the hero, and a stroke drawn in
+        currentColor (that same transparent fill) is how it went. The outline is retired in
+        favour of solid ink; the checks below hold the fill painted and the outline gone, and
+        nothing else in the repo reads the hero copy.
 
    It also checks the markup/CSS/JS contract the slot is built on, and that the ?v= on
    the clip in index.html really is the hash of the bytes on disk - the stamp is what
@@ -39,9 +40,10 @@ const app = read('app.js');
 const stamp = read('stamp-assets.js');
 
 // Rules are read out of a comment-free copy (the shape test-brand-tiles.js reads the sheet
-// with): the outlined word below is explained by a comment that names currentColor, and a
-// comment paints nothing - reading the rule out of the raw text would fail it for its own
-// explanation. The raw text is still what the "does this string appear" checks use.
+// with): the retired outline below is explained by a comment that names currentColor and
+// -webkit-text-stroke, and a comment paints nothing - reading rules out of the raw text would
+// fail them for their own explanation. The raw text is still what "does this string appear"
+// checks use.
 const CSS = css.replace(/\/\*[\s\S]*?\*\//g, '');
 
 // Optional argument: a different clip path, so a candidate file can be inspected
@@ -110,24 +112,24 @@ ok('V5 app.js still wires the readiness class',
   "initHeroVideo() must look up $('heroVideo'), add is-ready on decode and remove it on error");
 ok('V5 app.js still falls back when the clip fails', /addEventListener\('error',\s*hide\)/.test(app), 'a clip that stops decoding must return to the still image');
 
-// ------------------------------------------------------- the outlined word in the hero
-// "LOOKING" in the headline is an outline: its fill is transparent and the stroke is all of
-// its ink, which makes the stroke's colour the whole difference between the word and a hole
-// in the hero. currentColor is the one value that erases it - currentColor is that rule's own
-// color, the transparent fill - and that is exactly how the word went missing once, with the
-// markup and the rule both still in place. Nothing else in the repo reads the hero copy, so
-// the four checks below are the only guard this word has.
-const outlineRules = CSS.match(/\.hero h1 \.outline\s*\{[^}]*\}/g) || [];
-ok('W1 the headline still carries an outlined word',
-  /<h1>[^<]*<span class="outline">[^<]+<\/span>[^<]*<\/h1>/.test(page),
-  'index.html has no <h1>...<span class="outline">word</span>...</h1>: the accent is gone from the markup, where no CSS can draw it back');
-ok('W2 the outlined word has a rule of its own', outlineRules.length > 0,
-  'styles.css no longer has a .hero h1 .outline rule, so its transparent fill is left with nothing painted over it');
-ok('W3 its stroke is never currentColor', outlineRules.length > 0 && !outlineRules.some((r) => /currentColor/.test(r)),
-  'a currentColor stroke takes its colour from the same rule\'s transparent fill, so it paints the word in nothing: the ink has to be named (var(--ink))');
-ok('W4 a browser with no -webkit-text-stroke still gets a word',
-  /@supports\s+not\s*\(\s*-webkit-text-stroke[^{]*\)\s*\{\s*\.hero h1 \.outline\s*\{[^}]*color:\s*(?:inherit|var\(--ink\))/.test(CSS),
-  'with no stroke support the transparent fill is the only paint, so the word needs an opaque fallback: @supports not (-webkit-text-stroke: ...) { .hero h1 .outline { color: inherit; } }');
+// ------------------------------------------------------- the headline is all one ink
+// "LOOKING" in the headline was an outline once: its fill was transparent and a stroke was the
+// whole of its ink, so a single declaration decided whether the word was there or a hole in the
+// hero - and a stroke whose colour comes from the rule's own fill paints the word in that fill,
+// which is how it went missing with both the markup and the rule still in place. It is plain
+// text now, in the h1's own font and black, and these two checks hold the two ways that fails:
+// the word leaving the markup, and a rule painting the headline's text in nothing. Nothing else
+// in the repo reads the hero copy.
+const heroRules = CSS.match(/\.hero h1[^{}]*\{[^}]*\}/g) || [];
+ok('W1 the headline still carries its fourth word',
+  /<h1>[\s\S]*?LOOKING[\s\S]*?<\/h1>/.test(page),
+  'index.html has no hero <h1> containing LOOKING: the word is gone from the markup, where no CSS can draw it back');
+ok('W2 no .hero h1 rule paints text transparent',
+  heroRules.length > 0 && !heroRules.some((r) => /color:\s*transparent/.test(r)),
+  'a transparent fill with nothing opaque painted over it is an invisible word: the headline is solid ink, so no .hero h1 rule may set color: transparent (see the comment where the .outline rule was)');
+ok('W3 nothing strokes the headline',
+  heroRules.length > 0 && !heroRules.some((r) => /text-stroke/.test(r)),
+  'the outlined word was retired for solid ink - a text-stroke on the headline is how the word became a hole once, its stroke drawn in that same rule\'s transparent fill');
 
 // ------------------------------------------------------- stamping
 ok('V6 stamp-assets.js knows about the clip', /HERO_CLIP\s*=\s*'video\/reel\.mp4'/.test(stamp) && /stamp\(MEDIA,\s*hashBytes\)/.test(stamp),
