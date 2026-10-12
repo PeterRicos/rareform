@@ -892,6 +892,15 @@ html.announce-dismissed .announce { display: none; }
   color: var(--ink);
   font-weight: 600;
 }
+@media (max-width: 600px) {
+  .breadcrumbs {
+    font-size: 11px;
+    margin-bottom: 16px;
+  }
+  .breadcrumbs span {
+    margin: 0 6px;
+  }
+}
 .product-page {
   padding: 36px clamp(18px, 4vw, 56px) 90px;
   max-width: 1480px;
@@ -1395,6 +1404,7 @@ html.announce-dismissed .announce { display: none; }
   .products { grid-template-columns: repeat(3, 1fr); }
 }
 @media (max-width: 600px) {
+  #recentlyViewedSection { display: none; }
   .section-head { padding-left: 45px; }
   .section-head::before {
     font-size: 36px;
