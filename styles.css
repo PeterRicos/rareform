@@ -433,9 +433,17 @@ html.announce-dismissed .announce { display: none; }
 }
 
 /* Brand Grid Section */
+/* The grid sizes its own columns. The tile list is not a fixed length — the six
+   roadmap brands, plus "All Brands", plus every other brand the catalog carries (five
+   more today) — so a hand-picked column count goes wrong the moment the catalog
+   changes: at eight columns the last row stopped short and left a hole where two tiles
+   would have been, and the shorter rows it drew at other widths stretched the tiles
+   past the shape the rest of the page is drawn in. auto-fit lays out as many 150px
+   tracks as the row actually holds, so the tiles fill the width at every size and
+   there is no per-breakpoint column count left to keep in sync. */
 .brand-grid {
   display: grid;
-  grid-template-columns: repeat(8, 1fr);
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
   gap: 10px;
 }
 .brand-tile {
@@ -445,18 +453,90 @@ html.announce-dismissed .announce { display: none; }
   border-radius: var(--radius);
   display: grid;
   place-items: center;
-  font-size: 13px;
+  gap: 6px;
+  font-size: 13px;   /* what the "Soon" tag and anything unmarked falls back to */
   font-weight: 800;
-  letter-spacing: -0.04em;
-  text-transform: uppercase;
   transition: var(--transition);
   cursor: pointer;
-  padding: 12px;
+  padding: 10px 8px;
   text-align: center;
   user-select: none;
   width: 100%;       /* <button> inside a grid cell */
   font-family: inherit;
 }
+
+/* == The wordmarks ==
+   Six of these tiles used to be a grey box with the brand typed into it, which was the
+   one place on an otherwise carefully set page that read as a placeholder. A brand's
+   lockup is mostly its letterforms, so each mark is *set*, not fetched: the two
+   families the page already loads — Manrope at 800, and DM Mono for the one label here
+   that is not a brand — shaped by weight, width, slant, tracking and case. No logo file
+   is requested from anyone and there is no artwork to license, which is the point: the
+   look is a wordmark's, the file is not somebody else's.
+
+   A mark is described in two places and nowhere else: its entry in BRAND_MARKS in
+   app.js (which words it and says how the name is written) and its rule here (which
+   sets it). Each rule sets --wm-scale (how large the name is set) and --wm-skew (width
+   and lean), so the whole of a brand's mark is one line.
+
+   The text is scaled, not stretched, and the base size is one size for every tile: the
+   tiles are within a few pixels of each other at every viewport width (auto-fit holds
+   them near their 150px floor, and a phone fits two of them across), so a size that
+   changes with the viewport would only make a phone's tiles and a desktop's tiles
+   disagree about the same name. */
+.brand-tile .wm {
+  display: inline-block;
+  font-family: 'Manrope', sans-serif;
+  font-weight: 800;
+  font-size: calc(15px * var(--wm-scale, 1));
+  letter-spacing: var(--wm-track, -0.03em);
+  line-height: 1;
+  text-transform: var(--wm-case, uppercase);
+  transform: var(--wm-skew, none);
+}
+/* JORDAN — condensed caps, leaning forward, closed up */
+.brand-tile[data-mark="condensed"] .wm { --wm-scale: 1.15; --wm-skew: scaleX(0.88) skewX(-7deg); }
+/* NIKE — four letters, set as large as the tile allows and leaning hard */
+.brand-tile[data-mark="oblique"] .wm { --wm-scale: 1.5; --wm-track: -0.015em; --wm-skew: scaleX(0.86) skewX(-13deg); }
+/* adidas — lowercase, upright, closed up tight */
+.brand-tile[data-mark="bars"] .wm { --wm-scale: 1.3; --wm-case: none; --wm-track: -0.05em; }
+/* The three bars, drawn rather than lifted: three bars whose tops step up to the right.
+   The clip is cut before the skew, so the bars lean the way the mark leans, and they
+   live inside .wm so they follow the name wherever the tile centres it (and take the
+   tile's colour with them, which is what the dimmed "Soon" state needs). */
+.brand-tile[data-mark="bars"] .wm::after {
+  content: '';
+  display: block;
+  width: 21px;
+  height: 9px;
+  margin: 7px auto 0;
+  background: repeating-linear-gradient(90deg, currentColor 0 4px, transparent 4px 8.5px);
+  clip-path: polygon(0 100%, 100% 100%, 100% 30%, 66.6% 30%, 66.6% 55%, 33.3% 55%, 33.3% 78%, 0 78%);
+  transform: skewX(-14deg);
+}
+/* new balance — lowercase and slanted, the way the tag reads */
+.brand-tile[data-mark="lower"] .wm { --wm-scale: 0.95; --wm-case: none; --wm-skew: skewX(-10deg); }
+/* TRAVIS SCOTT — two words in wide-tracked caps */
+.brand-tile[data-mark="wide"] .wm { --wm-scale: 1.05; --wm-track: 0.12em; }
+/* Supreme — the box: white, oblique, title case, on the red the box is printed in.
+   Scoped to a tile that is actually stocked, so a brand that ran out goes back to the
+   reserved dashed treatment instead of wearing a red box that says nothing. */
+.brand-tile[data-mark="box"]:not(.soon) { background: #ce1126; border-color: #ce1126; }
+.brand-tile[data-mark="box"]:not(.soon) .wm { color: #fff; }
+.brand-tile[data-mark="box"] .wm { --wm-scale: 1.3; --wm-case: none; --wm-skew: skewX(-10deg); }
+/* "All Brands" is the way back to the whole catalog, not a brand, so it is set as the
+   label it is: the page's mono, spaced out, at the size the eyebrows are set in. */
+.brand-tile[data-mark="all"] .wm {
+  font-family: 'DM Mono', monospace;
+  font-weight: 500;
+  font-size: 11px;
+  letter-spacing: 0.16em;
+}
+/* A brand the catalog carries that has no mark above: the same title treatment, set
+   down as the name gets longer, so "The North Face" sits where "Huffy" sits. */
+.brand-tile[data-len="med"] .wm { --wm-scale: 0.86; }
+.brand-tile[data-len="long"] .wm { --wm-scale: 0.72; }
+
 /* The lime fill is the only cue a tile is live, so keyboard focus has to
    reproduce it — otherwise the grid is invisible to anyone not on a mouse. */
 .brand-tile:focus-visible { outline: 2px solid var(--ink); outline-offset: 3px; }
@@ -465,6 +545,14 @@ html.announce-dismissed .announce { display: none; }
   border-color: #b4db1b;
   transform: translateY(-3px);
   box-shadow: 0 6px 16px rgba(0,0,0,0.06);
+}
+/* The box keeps its own fill when it is picked — the red is the brand's, not the
+   page's — so the lime shows up as the border instead and a picked tile still reads as
+   picked. The lift and the shadow come from the rule above. */
+.brand-tile[data-mark="box"]:not(.soon):hover,
+.brand-tile[data-mark="box"]:not(.soon).selected {
+  background: #ce1126;
+  border-color: var(--lime);
 }
 /* Brands listed on the roadmap but not stocked yet: dashed and recessed, so a
    visitor can tell "not here yet" from "not a real category". They still take
@@ -482,7 +570,6 @@ html.announce-dismissed .announce { display: none; }
 }
 .brand-tile .tag {
   display: block;
-  margin-top: 6px;
   font: 8px/1 'DM Mono', monospace;
   letter-spacing: 0.14em;
   font-weight: 500;
@@ -749,15 +836,32 @@ html.announce-dismissed .announce { display: none; }
   grid-template-columns: 1fr 1fr;
   gap: 12px;
 }
-.gallery img {
+/* Each shot is a button rather than a bare <img>, so looking closer is reachable with
+   Tab and Enter the way every other action on this page is — a click-only <img> is the
+   one thing here a keyboard could not do. The tinted panel and the hairline move to
+   this wrapper; the photo itself is still drawn whole and uncropped (object-fit:
+   contain below), which is right for browsing and useless for checking a stitch line,
+   so a press opens it full-viewport instead (see .zoom). */
+.gallery-shot {
+  display: block;
+  width: 100%;
+  padding: 0;
   aspect-ratio: 1;
-  object-fit: contain; /* never crop — the whole sneaker stays visible */
+  overflow: hidden;
   background: #e7e5e0;
   border-radius: var(--radius);
   border: 1px solid var(--line);
+  cursor: zoom-in;
 }
 /* Single-photo listings: span the full gallery width */
-.gallery img:only-child { grid-column: 1 / -1; }
+.gallery-shot:only-child { grid-column: 1 / -1; }
+.gallery-shot img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain; /* never crop — the whole sneaker stays visible */
+  transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.gallery-shot:hover img { transform: scale(1.04); }
 .details {
   position: sticky;
   top: 100px;
@@ -1111,6 +1215,86 @@ html.announce-dismissed .announce { display: none; }
   margin: 14px 0 0;
 }
 
+/* Photo Zoom
+   Opened by a press on a gallery shot (.gallery-shot). The gallery draws every pair
+   whole and uncropped, which is the right way to browse and the wrong way to check the
+   thing this shop actually sells on: the stitch line, the box label, the production
+   stamp. This shows that same file at the largest size the viewport allows.
+   Two deliberate choices: the src is the URL already on the page, so it comes out of
+   the browser's cache and costs no second download; and we never scale the image up
+   ourselves, so the phone's own pinch still magnifies on top of it — which is the
+   magnifier a low-vision shopper expects to keep.
+   Sits above the search and order dialogs (60/70) and below the toast (90), which can
+   therefore still report a copy over an open photo. */
+.zoom {
+  position: fixed;
+  inset: 0;
+  z-index: 80;
+  display: grid;
+  place-items: center;
+  padding: clamp(12px, 3vw, 46px);
+  background: rgba(21, 21, 21, 0.97);
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transition: opacity 0.25s cubic-bezier(0.16, 1, 0.3, 1), visibility 0.25s;
+}
+.zoom.open {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+}
+.zoom img {
+  width: auto;
+  height: auto;
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+  background: #fff;
+  border-radius: var(--radius);
+  box-shadow: 0 30px 80px rgba(0,0,0,0.5);
+  touch-action: pinch-zoom;   /* the phone magnifies further on its own */
+}
+/* The close button and the arrows are the whole navigation here, so they are held at
+   the same 44px minimum the rest of the page's thumb targets use. */
+.zoom-close,
+.zoom-step {
+  position: absolute;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 44px;
+  min-height: 44px;
+  color: #fff;
+  font-size: 30px;
+  line-height: 1;
+  border-radius: 50%;
+  transition: background 0.2s ease;
+}
+.zoom-close { top: 10px; right: 12px; }
+.zoom-step { top: 50%; transform: translateY(-50%); }
+.zoom-step.prev { left: 8px; }
+.zoom-step.next { right: 8px; }
+/* display above outranks the user-agent [hidden] rule, so a single-photo listing has to
+   be told to hide its arrows explicitly. */
+.zoom-step[hidden] { display: none; }
+.zoom-close:hover, .zoom-step:hover { background: rgba(255,255,255,0.14); }
+/* The page-wide focus ring is ink, which is invisible against this backdrop. */
+.zoom-close:focus-visible, .zoom-step:focus-visible {
+  outline: 2px solid #fff;
+  outline-offset: 2px;
+}
+.zoom-count {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: clamp(10px, 2.5vw, 20px);
+  text-align: center;
+  font: 500 11px/1 'DM Mono', monospace;
+  letter-spacing: 0.12em;
+  color: #cfccc5;
+}
+
 /* Toast */
 .toast {
   position: fixed;
@@ -1138,7 +1322,6 @@ html.announce-dismissed .announce { display: none; }
 /* Responsive Queries */
 @media (max-width: 1024px) {
   .products { grid-template-columns: repeat(3, 1fr); }
-  .brand-grid { grid-template-columns: repeat(4, 1fr); }
 }
 @media (max-width: 600px) {
   .announce {
@@ -1159,8 +1342,9 @@ html.announce-dismissed .announce { display: none; }
   .hero-stamp { width: 90px; height: 90px; font-size: 8px; bottom: 18px; right: 18px; }
   .products { grid-template-columns: repeat(2, 1fr); gap: 12px; }
   .p-info { padding: 12px; }
-  .brand-grid { grid-template-columns: repeat(2, 1fr); }
-  .brand-tile { height: 80px; font-size: 13px; }
+  /* No column count and no second guess at a size: auto-fit already lands on two
+     across a phone, and the wordmarks are set once, with the rest of the mark. */
+  .brand-tile { height: 80px; }
   .auth-grid { grid-template-columns: 1fr; }
   .foot-grid { grid-template-columns: 1fr 1fr; }
   .foot-grid > div:first-child { grid-column: span 2; }
@@ -1263,6 +1447,60 @@ footer .logo i { color: #b5b2ac; }
   color: var(--muted);
   margin: 12px 0 0;
   line-height: 1.6;
+}
+
+/* Order bar
+   The phone's persistent way to order. Nearly all of this shop's traffic arrives on a
+   handset and every order it takes starts with a call or a text, but on a phone the
+   only calls to action sat inside a listing or at the foot of the footer — both of
+   which a thumb has to go looking for, on a page whose whole job is one tap. Below
+   820px this pins the same three actions to the bottom edge, where the thumb already
+   is. It sits above the page but under the shade (40), so the mobile drawer still
+   passes over it, and under every dialog. The links are ordinary tel:/sms:/wa.me
+   links: app.js only rewrites their hrefs to name the pair being viewed, and a click
+   from a mouse — which has no dialer behind it — still becomes the order dialog
+   exactly as the footer's links do.
+   padding-bottom is the home-indicator inset, which only resolves on a page that opts
+   into viewport-fit=cover. index.html's viewport meta does not, so it is 0 here and
+   the layout viewport is already laid out clear of the indicator. It is not inert
+   bookkeeping: it is what keeps the bar off the indicator the day the meta changes. */
+.order-bar {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 35;
+  display: none;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 1px;   /* the --line background shows through the gaps as hairlines */
+  background: var(--line);
+  padding-bottom: env(safe-area-inset-bottom);
+}
+.order-bar a {
+  background: var(--ink);
+  color: #fff;
+  min-height: 58px;   /* well over the 44px floor, and a full thumb row */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font: 800 11px/1 'Manrope', sans-serif;
+  letter-spacing: .09em;
+  text-transform: uppercase;
+}
+/* The middle third is Text, the shop's fastest path — the message names the pair and
+   the size — so it carries the lime the brand keeps for the one action that matters. */
+.order-bar a.accent {
+  background: var(--lime);
+  color: var(--ink);
+}
+@media (max-width: 820px) {
+  .order-bar { display: grid; }
+  /* The bar is 58px of fixed chrome over the foot of every view, so the page reserves
+     that height: the footer's last line would otherwise sit underneath it. */
+  body { padding-bottom: 62px; }
+  /* The toast is the one other thing that lives on the bottom edge, and it is
+     transient: 28px against a 58px bar leaves it behind the bar. Lifted clear. */
+  .toast { bottom: calc(70px + env(safe-area-inset-bottom)); }
 }
 
 /* The listing's own code: for a desk, where there is no dialer to hand an sms: link to.
