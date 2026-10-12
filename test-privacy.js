@@ -124,8 +124,8 @@ ok('P4c the live organization node still carries it, and the bake can still omit
   'organization() phone option no longer behaves');
 
 // ---- 5. the dialer links are built from the one constant --------------------
-// The order dialog, its QR payload and the bar all have to keep taking the number
-// from ORDER_PHONE; a re-typed literal in any of them is how this regresses.
+// The order dialog and its QR payload have to keep taking the number from
+// ORDER_PHONE; a re-typed literal in either is how this regresses.
 ok('P5  every dialer link in app.js is built from ORDER_PHONE',
   /'tel:' \+ ORDER_PHONE/.test(app)
   && /'sms:' \+ ORDER_PHONE/.test(app)

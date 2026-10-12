@@ -1564,18 +1564,6 @@ footer .logo i { color: #b5b2ac; }
   line-height: 1.6;
 }
 
-/* Order bar
-   The phone's persistent way to order. Nearly all of this shop's traffic arrives on a
-   handset and every order it takes starts with a call or a text, but on a phone the
-   only calls to action sat inside a listing or at the foot of the footer — both of
-   which a thumb has to go looking for, on a page whose whole job is one tap. Below
-   820px this pins the same three actions to the bottom edge, where the thumb already
-   is. It sits above the page but under the shade (40), so the mobile drawer still
-   passes over it, and under every dialog. The links are ordinary tel:/sms:/wa.me
-   links: app.js only rewrites their hrefs to name the pair being viewed, and a click
-   from a mouse — which has no dialer behind it — still becomes the order dialog
-   exactly as the footer's links do. */
-
 /* The listing's own code: for a desk, where there is no dialer to hand an sms: link to.
    Hidden wherever the pointer is a finger — there a tap on the Text button opens
    Messages directly, and a phone cannot scan its own screen. It is the same question
