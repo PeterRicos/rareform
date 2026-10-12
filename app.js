@@ -447,10 +447,17 @@ products.push(...(window.localProducts || []));
 
       if (!revealObserver) {
         revealObserver = new IntersectionObserver((entries) => {
-          entries.forEach((entry, index) => {
+          // Count the stagger over the cards landing on screen, never over the batch: a
+          // batch also carries the cards a re-render just threw away and every card still
+          // below the fold, and numbering those left a live card behind 85 dead ones — a
+          // 4.3s wait, which is a blank grid to whoever tapped Random Shit. The cap then
+          // stops a whole-grid first paint from stretching its last card's wait for good.
+          let step = 0;
+          entries.forEach((entry) => {
             if (!entry.isIntersecting) return;
-            revealObserver.unobserve(entry.target);
-            setTimeout(() => entry.target.classList.add('reveal'), index * 50);
+            const card = entry.target;
+            revealObserver.unobserve(card);
+            setTimeout(() => card.classList.add('reveal'), Math.min(step++, 6) * 50);
           });
         }, { threshold: 0.1, rootMargin: '0px 0px -50px 0px' });
 
@@ -610,7 +617,12 @@ products.push(...(window.localProducts || []));
       btn.textContent = n ? 'Filters (' + n + ')' : 'Filters';
     }
 
-    function clearFilters() {
+    // Resetting the controls and redrawing the grid are two jobs. The category tiles below
+    // want only the first: they set their own category and call renderShop() themselves, so
+    // going through clearFilters() drew the whole 85-card vault into a shop view that was
+    // still display:none, then threw those cards — and the image requests they start — away
+    // a moment later for the four the shopper had actually asked for.
+    function resetFilters() {
       ['filterSearch', 'mobileSearch', 'brandFilter', 'sizeFilter', 'conditionFilter'].forEach(id => {
         const el = $(id);
         if (el) el.value = '';
@@ -618,6 +630,10 @@ products.push(...(window.localProducts || []));
       if ($('sort')) $('sort').value = 'featured';
       shopCategoryFilter = '';
       document.querySelectorAll('.brand-tile').forEach(t => t.classList.remove('selected'));
+    }
+
+    function clearFilters() {
+      resetFilters();
       renderShop();
     }
 
@@ -743,7 +759,7 @@ products.push(...(window.localProducts || []));
     }
 
     function shopNav(brand) {
-      clearFilters();
+      resetFilters();
       if (brand && brand !== 'all') {
         $('brandFilter').value = brand;
       }
@@ -752,7 +768,7 @@ products.push(...(window.localProducts || []));
     }
 
     function shopCategory(category) {
-      clearFilters();
+      resetFilters();
       shopCategoryFilter = category;
       go('shop');
       renderShop();

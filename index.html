@@ -74,8 +74,8 @@
       </div>
 
       <div class="nav-links">
-        <a onclick="shopNav('all')" href="#shop">Sneakers</a>
-        <a onclick="shopCategory('clothing')" href="#shop">Clothing &amp; Accessories</a>
+        <a onclick="shopCategory('sneakers')" href="#shop">Shop Sneakers</a>
+        <a onclick="shopCategory('clothing')" href="#shop">Shop Clothing &amp; Accessories</a>
         <a onclick="shopCategory('random')" href="#shop">Random Shit</a>
         <a onclick="go('about')" href="#about">About</a>
       </div>
@@ -95,8 +95,8 @@
       <button class="drawer-close" onclick="menuClose()" aria-label="Close menu">×</button>
     </div>
     <nav class="mobile-links">
-      <a href="#shop" onclick="menuClose(); shopNav('all')">Sneakers <span>→</span></a>
-      <a href="#shop" onclick="menuClose(); shopCategory('clothing')">Clothing &amp; Accessories <span>→</span></a>
+      <a href="#shop" onclick="menuClose(); shopCategory('sneakers')">Shop Sneakers <span>→</span></a>
+      <a href="#shop" onclick="menuClose(); shopCategory('clothing')">Shop Clothing &amp; Accessories <span>→</span></a>
       <a href="#shop" onclick="menuClose(); shopCategory('random')">Random Shit <span>→</span></a>
       <a href="#about" onclick="menuClose(); go('about')">About Random Stock <span>→</span></a>
     </nav>
@@ -113,9 +113,9 @@
         <h1>THE PAIRS YOU'VE BEEN LOOKING FOR.</h1>
         <p>Authentic sneakers, sourced from collectors, checked by hand, and ready for your rotation. This is our friends &amp; family vault: no cart, no checkout. Claim a pair by call, text or WhatsApp and we confirm the price with you.</p>
         <div class="btn-row hero-tiles">
-          <button class="btn" onclick="shopCategory('sneakers')">BROWSE SNEAKERS</button>
-          <button class="btn" onclick="shopCategory('clothing')">BROWSE CLOTHING &amp; ACCESSORIES</button>
-          <button class="btn" onclick="shopNav('all')">EXPLORE THE VAULT</button>
+          <button class="btn" onclick="shopCategory('sneakers')">SHOP SNEAKERS</button>
+          <button class="btn" onclick="shopCategory('clothing')">SHOP CLOTHING &amp; ACCESSORIES</button>
+          <button class="btn" onclick="shopCategory('random')">RANDOM SHIT</button>
         </div>
       </div>
       <div class="hero-image">
@@ -176,7 +176,7 @@
           <span class="eyebrow">The Rotation</span>
           <h2>TRENDING NOW</h2>
         </div>
-        <a class="text-link" href="#shop" onclick="go('shop')">EXPLORE THE VAULT →</a>
+        <a class="text-link" href="#shop" onclick="shopNav('all')">EXPLORE THE VAULT →</a>
       </div>
       <div class="products" id="trending"></div>
     </section>
@@ -242,7 +242,7 @@
           <span class="eyebrow">Just Landed</span>
           <h2>RECENTLY ADDED</h2>
         </div>
-        <a class="text-link" href="#shop" onclick="go('shop')">BROWSE THE VAULT →</a>
+        <a class="text-link" href="#shop" onclick="shopNav('all')">BROWSE THE VAULT →</a>
       </div>
       <div class="products" id="recent"></div>
     </section>
@@ -328,7 +328,7 @@
       <nav class="breadcrumbs" aria-label="Breadcrumb">
         <a href="#home" onclick="event.preventDefault(); go('home')">Home</a>
         <span>/</span>
-        <a href="#shop" onclick="event.preventDefault(); go('shop')">Shop</a>
+        <a href="#shop" onclick="event.preventDefault(); shopNav('all')">Shop</a>
         <span>/</span>
         <span id="breadcrumbProduct"></span>
       </nav>
@@ -469,7 +469,7 @@
   <!-- jsonld.js turns a listing into schema.org data. app.js reads it immediately
        (the first view is rendered on load), so it has to come before app.js. -->
   <script src="jsonld.js?v=8f9d7a7f" defer></script>
-  <script src="app.js?v=23291df2" defer></script>
+  <script src="app.js?v=eeb19c84" defer></script>
   
 
   <!-- Invisible visit counter (Cloudflare Worker + KV).

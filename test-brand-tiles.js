@@ -268,8 +268,8 @@ ok('E6  a tile is still a thumb-sized target, on a desktop and on a phone',
 // first — and the shop header needs a title for the sneakers run it then shows,
 // or the tile filters to sneakers while the page still reads SHOP ALL.
 const heroTiles = find(/<div class="btn-row hero-tiles">[\s\S]*?<\/div>/, html) || '';
-ok('F1  BROWSE SNEAKERS routes through shopCategory, not a bare go()',
-  /onclick="shopCategory\('sneakers'\)">BROWSE SNEAKERS/.test(heroTiles),
+ok('F1  SHOP SNEAKERS routes through shopCategory, not a bare go()',
+  /onclick="shopCategory\('sneakers'\)">SHOP SNEAKERS/.test(heroTiles),
   heroTiles);
 ok('F2  no hero tile navigates without clearing the category first',
   !/onclick="go\('/.test(heroTiles),

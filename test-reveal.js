@@ -79,6 +79,8 @@ function makeObserver() {
   }
   Observer.enter = (el) => instances.slice().forEach((o) => o.cb(
     [{ isIntersecting: true, target: el, intersectionRatio: 1 }], o));
+  // A real delivery is a batch, not one card, so a check needs to be able to send one.
+  Observer.deliver = (entries) => instances.slice().forEach((o) => o.cb(entries, o));
   Observer.observed = () => instances.reduce((acc, o) => acc.concat(o.targets), []);
   Observer.count = () => instances.length;
   // observed() hands back a copy, so a test that wants to look at one render in isolation
@@ -264,6 +266,38 @@ function cssBlock(selector) {
   ok('B9  a card already on screen is left alone',
     c1._classes.has('reveal') && H.Observer.observed().indexOf(c1) < 0,
     JSON.stringify({ revealed: c1._classes.has('reveal'), reQueued: H.Observer.observed().indexOf(c1) >= 0 }));
+
+  // A delivery is a batch, and a batch carries more than the cards on screen: the 85 vault
+  // cards a re-render threw away ride in the same one as the four that replaced them. A
+  // stagger numbered off the batch index put the live card 4.3 seconds out, which a shopper
+  // reads as a blank grid. Only the cards that intersect take a turn in the cascade.
+  const ghosts = [];
+  for (let i = 0; i < 85; i++) ghosts.push(makeCard(2000 + i));
+  const live = makeCard(300);
+  H.Observer.reset();
+  currentCards = ghosts.concat([live]);
+  ev(H, 'observeProducts()');
+  H.Observer.deliver(
+    ghosts.map((g) => ({ isIntersecting: false, target: g, intersectionRatio: 0 }))
+      .concat([{ isIntersecting: true, target: live, intersectionRatio: 0.5 }]));
+  await sleep(150);
+  ok('B10  a card is not queued behind the cards a re-render threw away',
+    live._classes.has('reveal'), JSON.stringify([...live._classes]));
+
+  // ...and the cascade itself survives: two cards on screen still come in one after the other.
+  const c3 = makeCard(300);
+  const c4 = makeCard(400);
+  H.Observer.reset();
+  currentCards = [c3, c4];
+  ev(H, 'observeProducts()');
+  H.Observer.deliver([{ isIntersecting: true, target: c3, intersectionRatio: 0.5 },
+    { isIntersecting: true, target: c4, intersectionRatio: 0.5 }]);
+  await sleep(20);
+  const secondEarly = c4._classes.has('reveal');
+  await sleep(400);
+  ok('B11  two cards still cascade in, the second behind the first',
+    c3._classes.has('reveal') && !secondEarly && c4._classes.has('reveal'),
+    JSON.stringify({ first: c3._classes.has('reveal'), secondEarly, second: c4._classes.has('reveal') }));
 
   // A phone browser without IntersectionObserver must not throw on boot — the CSS gate
   // (C1/C2) is what keeps the cards visible there, so failing loudly would be worse.
