@@ -43,7 +43,7 @@
       }
     })();
   </script>
-  <link rel="stylesheet" href="styles.css?v=b627b634">
+  <link rel="stylesheet" href="styles.css?v=5e303859">
   <!-- Catalog structured data (schema.org). build-jsonld.js writes the block
        between these markers from products.js, so every listing a crawler can see
        here carries the same SKU, condition, image and availability the shop page
@@ -356,6 +356,24 @@
   </div>
   </main>
 
+  <!-- ORDER BAR — the phone's persistent way to claim a pair. Nearly all of this
+       shop's traffic arrives on a handset, and inside a listing the Call/Text buttons
+       scroll away behind the gallery, the box details and the size list, so below
+       820px these three actions are pinned to the bottom edge, where the thumb already
+       is (styles.css, .order-bar). A desktop never sees it.
+
+       The hrefs ship with no number in them: index.html is the one file a scraper can
+       fetch without running anything, so the digits arrive from app.js's ORDER_PHONE
+       at boot (updateOrderBar) exactly as the listing's own links do. No onclick
+       either — a click from a mouse has no dialer behind it, and the delegated
+       handler in app.js turns it into the order dialog the way it does for every
+       other tel:/sms: link on the site. -->
+  <nav class="order-bar" aria-label="Claim a pair">
+    <a id="barCall" href="tel:" aria-label="Call Random Stock about this pair">CALL</a>
+    <a id="barText" href="sms:" aria-label="Text Random Stock about this pair">TEXT</a>
+    <a id="barWa" class="accent" href="https://wa.me/" target="_blank" rel="noopener" aria-label="Message Random Stock on WhatsApp about this pair">WHATSAPP</a>
+  </nav>
+
   <!-- FOOTER -->
   <footer class="footer">
     <div class="foot-grid">
@@ -469,7 +487,7 @@
   <!-- jsonld.js turns a listing into schema.org data. app.js reads it immediately
        (the first view is rendered on load), so it has to come before app.js. -->
   <script src="jsonld.js?v=8f9d7a7f" defer></script>
-  <script src="app.js?v=23291df2" defer></script>
+  <script src="app.js?v=8d5ac0b7" defer></script>
   
 
   <!-- Invisible visit counter (Cloudflare Worker + KV).

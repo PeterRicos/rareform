@@ -1575,6 +1575,45 @@ footer .logo i { color: #b5b2ac; }
    links: app.js only rewrites their hrefs to name the pair being viewed, and a click
    from a mouse — which has no dialer behind it — still becomes the order dialog
    exactly as the footer's links do. */
+.order-bar {
+  display: none;
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  /* Over the page, over the sticky nav (30), under the shade (40) so the mobile
+     drawer still passes across it, and under every dialog above that. */
+  z-index: 35;
+  /* The hairline between the thirds is the bar's own background showing through a
+     1px gap: each link paints its own cell, so the dividers cost no borders and
+     cannot land on a half pixel. */
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 1px;
+  background: var(--line);
+  /* A phone with a home indicator gets that strip back as padding, so the three
+     labels never sit behind the gesture area. */
+  padding-bottom: env(safe-area-inset-bottom);
+}
+/* 50px is the floor a thumb needs and the height the page reserves (see the
+   max-width: 820px block); the boxes are wider than that, so the whole cell is
+   tappable and not only the word. */
+.order-bar a {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 50px;
+  padding: 0 4px;
+  background: var(--white);
+  color: var(--ink);
+  font: 11px/1.2 'DM Mono', monospace;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  text-decoration: none;
+}
+.order-bar a:active { opacity: 0.72; }
+/* One third carries the accent, the same lime the shop uses for "this filter is on":
+   the bar reads as three actions with a lead, not as three equal greys. */
+.order-bar a.accent { background: var(--lime); }
 
 /* The listing's own code: for a desk, where there is no dialer to hand an sms: link to.
    Hidden wherever the pointer is a finger — there a tap on the Text button opens
@@ -1683,4 +1722,21 @@ footer .logo i { color: #b5b2ac; }
 .hero-video.is-ready { opacity: 1; }
 @media (prefers-reduced-motion: reduce) {
   .hero-video { display: none !important; }
+}
+
+/* The order bar's phone switch, AFTER the bar's own rules above.
+   This has to live below them, not up with the other 820px rules: a media query
+   earlier in the sheet loses to a plain rule later in it, whatever the viewport
+   width, so with the switch sitting above `.order-bar { display: none }` the bar
+   parsed, passed every static check, and never once appeared on a phone. Reading the
+   CSS as text cannot see that — only rendering it can. */
+@media (max-width: 820px) {
+  /* The bar covers the bottom 50px of the viewport for good, so the page reserves it:
+     otherwise the footer's last line, and whatever a reader scrolls to last, sits
+     underneath a bar that never moves. 50px is the link height it is built from. */
+  body { padding-bottom: 50px; }
+  .order-bar { display: grid; }
+  /* The copy-confirmation toast is pinned to the bottom too, and on a phone it has to
+     clear the bar (50px) plus the home indicator behind it. A desktop keeps 28px. */
+  .toast { bottom: calc(78px + env(safe-area-inset-bottom)); }
 }
