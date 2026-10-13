@@ -194,7 +194,7 @@ products.push(...(window.localProducts || []));
       return `
         <article class="product">
           <button class="product-image" type="button" aria-label="View ${p.name}" onclick="openProduct(${p.id})">
-            <img src="${p.img}" alt="${p.name}" loading="lazy">
+            <img src="${p.img}" alt="${p.name}" loading="lazy" decoding="async" width="400" height="400">
           </button>
           <div class="p-info">
             <div class="brand">${p.brand}</div>
