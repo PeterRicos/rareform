@@ -289,11 +289,17 @@ ok('F4  nothing in the page even names a cart, a checkout or a buy-now path',
     && !/add[\s-]*to[\s-]*cart|>\s*(checkout|buy now)/i.test(app),
   ((html + app).match(/[^>\n]{0,40}add[\s-]*to[\s-]*cart[^<\n]{0,40}/gi) || []).join(' | '));
 ok('F5  the page says a pair is claimed by message, and the price comes on asking',
-  /no cart,? no checkout/i.test(html) && /claim a pair by call, text or whatsapp/i.test(html)
+  /no cart,? no checkout/i.test(html) && /call or text/i.test(html)
     && /we will confirm the price/.test(app),
   'no-cart: ' + /no cart,? no checkout/i.test(html)
-    + '  claim: ' + /claim a pair by call, text or whatsapp/i.test(html)
+    + '  claim: ' + /call or text/i.test(html)
     + '  price: ' + /we will confirm the price/.test(app));
+// ...and the bar that says it names the shop's number, filled from the constant at
+// boot so the markup a crawler fetches still names no number (test-privacy.js P1/P7).
+ok('F5b the claim line in the bar carries a number slot, not a typed number',
+  /id="announcePhone"/.test(html) && /announcePhone[\s\S]{0,200}ORDER_PHONE_DISPLAY/.test(app)
+    && !/\(\d{3}\) \d{3}-\d{4}/.test(html),
+  'slot: ' + /id="announcePhone"/.test(html) + '  fill: ' + /announcePhone[\s\S]{0,200}ORDER_PHONE_DISPLAY/.test(app));
 ok('F6  the unfiltered shop is named the vault in both the markup and the render path',
   /<h1 id="shopTitle">THE VAULT<\/h1>/.test(html) && /\|\| 'THE VAULT'/.test(app),
   find(/\|\|[^;]*THE VAULT[^;]*/, app) || 'no vault fallback title');

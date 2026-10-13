@@ -23,9 +23,9 @@
      - the listing page stops pinning its details column and stops sizing the hero
        against 100vh, both of which are wrong once a URL bar is in the way.
      - the controls a thumb has to hit stay at their documented minimum sizes.
-     - the order bar gives a phone the persistent call/text/WhatsApp path it never
+     - the order bar gave a phone a persistent call/text path it never
        had: off on a desktop, on below 820px, clear of the page it covers, and built
-       from the same tel:/sms:/wa.me links everything else hands to the phone.
+       from the same tel:/sms: links everything else hands to the phone.
 
    Everything here is read out of the shipped files, so it runs anywhere Node runs. */
 
@@ -239,7 +239,7 @@ ok('I2  and app.js writes the same key',
   /ANNOUNCE_KEY\s*=\s*'randomstock\.announceDismissed'/.test(app));
 
 // ---- J. there is no fixed bottom bar -----------------------------------------
-// A sticky CALL / TEXT / WHATSAPP bar lived here for one commit and came back out on
+// A sticky CALL / TEXT bar lived here for one commit and came back out on
 // the owner's call: over the bottom of a phone it crowded the listing's own Call and
 // Text buttons and the footer links, which already do the same job from inside the
 // page instead of on top of it. So what has to hold now is that it cannot creep back

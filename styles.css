@@ -58,22 +58,17 @@ img { width: 100%; display: block; object-fit: cover; }
   white-space: nowrap;
 }
 .announce-copy { display: inline; }
-.announce-actions { display: inline-flex; align-items: center; gap: 4px; }
-.announce-link {
-  width: 28px;
-  height: 28px;
-  display: inline-grid;
-  place-items: center;
-  color: #fff;
-  border-radius: 50%;
-  transition: background var(--transition), color var(--transition);
+/* The number in the claim line is the one thing in this bar a thumb wants to press:
+   underlined and solid, so it reads as the action rather than as part of the sentence.
+   app.js fills it from the constant, so index.html still names no number. */
+.announce-phone {
+  color: inherit;
+  font-weight: 700;
+  text-decoration: underline;
+  text-underline-offset: 2px;
 }
-.announce-link:hover,
-.announce-link:focus-visible {
-  background: #333;
-  color: var(--lime);
-}
-.announce-link svg { width: 17px; height: 17px; }
+.announce-phone:hover,
+.announce-phone:focus-visible { color: var(--lime); }
 .announce button {
   position: absolute;
   right: 18px;
@@ -466,6 +461,9 @@ html.announce-dismissed .announce { display: none; }
   text-overflow: ellipsis;
 }
 .p-info .sizes { margin-bottom: 12px; }
+/* When a size search is what drew this card, the size line is the answer, not the
+   pair's run: ink rather than grey, so "US 11" reads as what was found. */
+.p-info .sizes-match { color: var(--ink); font-weight: 700; }
 /* Cards carry no price by design. Saying so on the card beats leaving a gap where a
    price tag would sit, which is what read as "sold out" or "broken". */
 .p-info .price-note {
@@ -1008,6 +1006,15 @@ html.announce-dismissed .announce { display: none; }
   text-align: center;
 }
 .size-btn:hover { border-color: var(--ink); }
+/* A listing reached through a size search marks the sizes that answered it, so the run
+   it is held in and the size that was asked for cannot be confused. */
+.size-btn.is-match { box-shadow: inset 0 0 0 2px var(--ink); }
+.size-match-note {
+  margin: 12px 0 0;
+  font-size: 12px;
+  line-height: 1.5;
+  color: var(--muted);
+}
 .size-btn.selected {
   background: var(--ink);
   color: #fff;

@@ -3,12 +3,12 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="Random Stock is a small, hand-checked sneaker vault: Yeezy, Jordan, Nike, New Balance and more. No cart and no checkout — every pair is inspected by hand and claimed directly by call, text or WhatsApp.">
+  <meta name="description" content="Random Stock is a small, hand-checked sneaker vault: Yeezy, Jordan, Nike, New Balance and more. No cart and no checkout — every pair is inspected by hand and claimed directly by call or text.">
   <meta name="theme-color" content="#151515">
   <link rel="icon" href="favicon.ico" sizes="any">
   <link rel="icon" href="favicon.svg" type="image/svg+xml">
   <link rel="apple-touch-icon" href="apple-touch-icon.png">
-  <!-- Absolute URLs only: when this page is shared into WhatsApp/Instagram/iMessage the
+  <!-- Absolute URLs only: when this page is shared into Instagram/iMessage/a group chat the
        unfurler reads og:url and og:image, and it rejects relative paths, so the preview
        card loses its image and some apps tap through to the wrong target. -->
   <link rel="canonical" href="https://randomstock.shop/">
@@ -16,13 +16,13 @@
   <meta property="og:url" content="https://randomstock.shop/">
   <meta property="og:site_name" content="Random Stock">
   <meta property="og:title" content="Random Stock - Verified Sneakers">
-  <meta property="og:description" content="A small, hand-checked vault of authentic sneakers. No cart, no checkout — claim a pair by call, text or WhatsApp and we confirm the price with you.">
+  <meta property="og:description" content="A small, hand-checked vault of authentic sneakers. No cart, no checkout — claim a pair by call or text and we confirm the price with you.">
   <meta property="og:image" content="https://randomstock.shop/og-image.jpg">
   <meta property="og:image:width" content="1200">
   <meta property="og:image:height" content="630">
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="Random Stock - Verified Sneakers">
-  <meta name="twitter:description" content="A small, hand-checked vault of authentic sneakers. No cart — claim a pair by call, text or WhatsApp.">
+  <meta name="twitter:description" content="A small, hand-checked vault of authentic sneakers. No cart — claim a pair by call or text.">
   <meta name="twitter:image" content="https://randomstock.shop/og-image.jpg">
   <title>Random Stock — Verified Sneakers</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -43,7 +43,7 @@
       }
     })();
   </script>
-  <link rel="stylesheet" href="styles.css?v=7305cb23">
+  <link rel="stylesheet" href="styles.css?v=90048f56">
   <!-- Catalog structured data (schema.org). build-jsonld.js writes the block
        between these markers from products.js, so every listing a crawler can see
        here carries the same SKU, condition, image and availability the shop page
@@ -60,7 +60,7 @@
   <!-- Announcement Bar -->
   <aside class="announce" id="announce" role="region" aria-label="Announcement">
     <div class="announce-content">
-      <span class="announce-copy"><span class="announce-claim">NO CART — CLAIM A PAIR BY CALL, TEXT OR WHATSAPP</span><span class="announce-shipping"> · ORDERS SHIP WITHIN 1-2 BUSINESS DAYS</span></span>
+      <span class="announce-copy"><span class="announce-claim">NO CART — CALL OR TEXT <a class="announce-phone" id="announcePhone" href="#"></a> TO CLAIM A PAIR</span><span class="announce-shipping"> · ORDERS SHIP WITHIN 1-2 BUSINESS DAYS</span></span>
     </div>
     <button onclick="announceDismiss()" aria-label="Dismiss announcement">×</button>
   </aside>
@@ -111,7 +111,7 @@
       <div class="hero-copy">
         <span class="eyebrow">The friends &amp; family vault / since 2021</span>
         <h1>THE PAIRS YOU'VE BEEN LOOKING FOR.</h1>
-        <p>Authentic sneakers, sourced from collectors, checked by hand, and ready for your rotation. This is our friends &amp; family vault: no cart, no checkout. Claim a pair by call, text or WhatsApp and we confirm the price with you.</p>
+        <p>Authentic sneakers, sourced from collectors, checked by hand, and ready for your rotation. This is our friends &amp; family vault: no cart, no checkout. Claim a pair by call or text and we confirm the price with you.</p>
         <div class="btn-row hero-tiles">
           <button class="btn" onclick="shopCategory('sneakers')">SHOP SNEAKERS</button>
           <button class="btn" onclick="shopCategory('clothing')">SHOP CLOTHING &amp; ACCESSORIES</button>
@@ -163,7 +163,7 @@
         </div>
         <div class="steps">
           <div class="step"><b>01</b><span>Browse the vault</span></div>
-          <div class="step"><b>02</b><span>Call, text or WhatsApp the pair</span></div>
+          <div class="step"><b>02</b><span>Call or text the pair</span></div>
           <div class="step"><b>03</b><span>We confirm the price &amp; shipping</span></div>
         </div>
       </div>
@@ -282,7 +282,7 @@
       </div>
       <span class="eyebrow" id="productTotal" aria-live="polite"></span>
     </div>
-    <p class="shop-note">No cart, no checkout — call, text or WhatsApp the pair and your size and we confirm the price, the condition and the shipping. Everything listed is in hand.</p>
+    <p class="shop-note">No cart, no checkout — call or text the pair and your size and we confirm the price, the condition and the shipping. Everything listed is in hand.</p>
     <section class="section" style="padding-top:15px">
       <div class="shop-layout">
         <!-- Desktop Filters Sidebar -->
@@ -344,7 +344,7 @@
     <section class="about">
       <span class="eyebrow">The Random Stock Story</span>
       <h1>BUILT AROUND THE PAIR.</h1>
-      <p>This is a vault, not a cart. Every pair is in hand, priced on request, and claimed directly by call, text or WhatsApp — no checkout, no queue, no cart to fill and no price tag to hunt for.</p>
+      <p>This is a vault, not a cart. Every pair is in hand, priced on request, and claimed directly by call or text — no checkout, no queue, no cart to fill and no price tag to hunt for.</p>
       <p>Random Stock began with the belief that the right pair can mark a moment in time. We are collectors, wearers, and relentless students of the details—and we built the shop we always wanted to buy from: considered inventory, a price confirmed with you before anything is paid for, and zero doubt about authenticity.</p>
       <div class="about-hero">
         <img src="images/about.jpg" alt="Sneaker collection and community" width="1600" height="1068" loading="lazy" decoding="async">
@@ -469,7 +469,7 @@
   <!-- jsonld.js turns a listing into schema.org data. app.js reads it immediately
        (the first view is rendered on load), so it has to come before app.js. -->
   <script src="jsonld.js?v=8f9d7a7f" defer></script>
-  <script src="app.js?v=eeb19c84" defer></script>
+  <script src="app.js?v=58620fa7" defer></script>
   
 
   <!-- Invisible visit counter (Cloudflare Worker + KV).

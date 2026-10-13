@@ -204,7 +204,7 @@ function cssBlock(selector) {
   // The bug: globalSearch() wrote its shortlist into #searchResults and never called
   // observeProducts(), so the panel was blank on every search. Any future renderer
   // that forgets is caught here instead of by a shopper on a phone.
-  const renderers = functionBodies(APP).filter((f) => f.body.indexOf('map(productCard)') >= 0);
+  const renderers = functionBodies(APP).filter((f) => /productCard\(p[,)]/.test(f.body));
   ok('A1  the scan finds the card renderers', renderers.length >= 4,
     renderers.map((f) => f.name).join(', '));
   const silent = renderers.filter((f) => f.body.indexOf('observeProducts()') < 0).map((f) => f.name);

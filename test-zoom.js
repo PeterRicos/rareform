@@ -228,8 +228,12 @@ function boot(initialHash) {
   const a = gallery();
   ok('A1  each photo is drawn as its own button',
     /^\s*<button class="gallery-shot" type="button" onclick="zoomOpen\(0\)"/.test(a), a.slice(0, 160));
-  ok('A2  the photo inside it is still the listing image, still lazy',
-    a.indexOf('<img src="' + jordan.img + '" alt="' + jordan.name + '" loading="lazy">') >= 0, a.slice(0, 240));
+  // A lone photo is the listing's main image and sits above the fold, so it is drawn
+  // eager and at high priority; the rest of a gallery stays lazy. Either way the src
+  // is the listing's own image.
+  ok('A2  the photo inside it is still the listing image',
+    a.indexOf('<img src="' + jordan.img + '" alt="' + jordan.name + '"') >= 0
+      && /<img [^>]*loading="(lazy|eager)"[^>]*decoding="async"[^>]*>/.test(a), a.slice(0, 300));
   ok('A3  and the button announces what pressing it does',
     a.indexOf('aria-label="Zoom in on ' + jordan.name + '"') >= 0, a.slice(0, 240));
   ok('A4  one photo is still one photo', !/gallery-shot[\s\S]*gallery-shot/.test(a), a);

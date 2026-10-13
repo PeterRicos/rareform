@@ -202,20 +202,34 @@ products.push(...(window.localProducts || []));
     let shopCategoryFilter = '';
 
     // Product Card Template
-    function productCard(p) {
+    //
+    // `sizeQuery` is the size search this grid is answering, when there is one. A card
+    // normally prints the pair's run — "US 7 · 8 · 9 · 11" on a Jordan 11 — which reads
+    // as a broken search the moment somebody types 11 and the first thing under the
+    // photo is a 7. Under a size query the line lists only the sizes that answered it,
+    // so "11" shows "US 11 · 11.5", exactly as asked for. Callers hand it over
+    // explicitly: a bare `.map(productCard)` would pass the array index in its place.
+    function productCard(p, sizeQuery) {
       const isSneaker = productCategory(p) === 'sneakers';
       const buttonText = isSneaker ? 'VIEW PAIR' : 'VIEW ITEM';
-      const sizeText = isSneaker && p.sizes.length ? `US ${p.sizes.slice(0, 4).join(' · ')}${p.sizes.length > 4 ? ' · +' : ''}` : '';
+      const held = sizeQuery ? matchingSizes(p, sizeQuery) : (p.sizes || []).slice();
+      const shown = sizeQuery ? held : held.slice(0, 4);
+      const sizeLine = shown.length
+        ? shown.map(s => sizeDisplay(s, p.sizeGroup)).join(' · ') + (held.length > shown.length ? ' · +' : '')
+        : '';
+      // Sneakers are the ones whose run is worth printing unasked; a size query prints
+      // whatever answered it, clothing included ("M" is the answer to typing m).
+      const sizeText = (isSneaker || sizeQuery) ? sizeLine : '';
       return `
         <article class="product">
           <button class="product-image" type="button" aria-label="View ${p.name}" onclick="openProduct(${p.id})">
-            <img src="${p.img}" alt="${p.name}" loading="lazy">
+            <img src="${p.img}" alt="${p.name}" loading="lazy" decoding="async" width="400" height="400">
           </button>
           <div class="p-info">
             <div class="brand">${p.brand}</div>
             <button class="name" type="button" onclick="openProduct(${p.id})">${p.name}</button>
             <div class="color">${p.color}</div>
-            ${sizeText ? `<div class="sizes">${sizeText}</div>` : ''}
+            ${sizeText ? `<div class="sizes${sizeQuery ? ' sizes-match' : ''}">${sizeText}</div>` : ''}
             <div class="price-note">Price on request</div>
             <button class="quick" onclick="event.stopPropagation(); openProduct(${p.id})">
               ${buttonText}
@@ -481,10 +495,10 @@ products.push(...(window.localProducts || []));
 
     // Render Home Sections
     function renderHome() {
-      $('trending').innerHTML = products.filter(p => p.brand.toLowerCase() === 'jordan').slice(0, 4).map(productCard).join('');
-      $('recent').innerHTML = products.slice(-4).map(productCard).join('');
-      $('clothing-accessories').innerHTML = products.filter(p => productCategory(p) === 'clothing').map(productCard).join('');
-      $('random-shit').innerHTML = products.filter(p => productCategory(p) === 'random').map(productCard).join('');
+      $('trending').innerHTML = products.filter(p => p.brand.toLowerCase() === 'jordan').slice(0, 4).map(p => productCard(p)).join('');
+      $('recent').innerHTML = products.slice(-4).map(p => productCard(p)).join('');
+      $('clothing-accessories').innerHTML = products.filter(p => productCategory(p) === 'clothing').map(p => productCard(p)).join('');
+      $('random-shit').innerHTML = products.filter(p => productCategory(p) === 'random').map(p => productCard(p)).join('');
       observeProducts();
     }
 
@@ -549,6 +563,23 @@ products.push(...(window.localProducts || []));
       });
     }
 
+    // The sizes a card should show for the search it is answering: the whole run when
+    // nothing was asked, only the sizes that matched when a size query is live.
+    function matchingSizes(product, sizeQuery) {
+      const all = (product && product.sizes) ? product.sizes.slice() : [];
+      if (!sizeQuery) return all;
+      return all.filter(s => matchesSize({ sizes: [s] }, sizeQuery));
+    }
+
+    // The size search the shop is running right now, read off the shop's own boxes. The
+    // header modal has a box of its own and a query of its own, so it never lands here.
+    function shopSizeQuery() {
+      const raw = ($('filterSearch') && $('filterSearch').value) ||
+        ($('mobileSearch') && $('mobileSearch').value) || '';
+      const q = String(raw).trim().toLowerCase();
+      return q ? parseSizeQuery(q) : null;
+    }
+
     // Render Shop with Active Filters & Sorter
     function renderShop() {
       let list = [...products];
@@ -591,11 +622,20 @@ products.push(...(window.localProducts || []));
           ? `Nothing in ${sizeQuery.display} right now — try another size.`
           : (brand === 'Supreme' ? 'No clothing found matching those filters.' : 'No sneakers found matching those filters.'));
 
+      // The size dropdown asks the same question as a typed size, so the cards answer
+      // it the same way: the run it was set to is the run printed on them.
+      const filterSizeQuery = size ? parseSizeQuery(String(size).trim().toLowerCase()) : null;
+      const shownQuery = sizeQuery || filterSizeQuery;
+
       $('shopProducts').innerHTML = list.length
-        ? list.map(productCard).join('')
+        ? list.map(p => productCard(p, shownQuery)).join('')
         : `<div class="empty-state"><p>${emptyCopy}</p><button class="btn light" onclick="clearFilters()">Reset All Filters</button></div>`;
 
-      $('productTotal').textContent = list.length + ' ITEMS AVAILABLE';
+      // And the count says which sizes are on screen, so a shopper who typed 11 and sees
+      // "US 11 · 11.5" on every card knows the grid answered them.
+      $('productTotal').textContent = shownQuery
+        ? list.length + ' ITEMS IN ' + shownQuery.display.toUpperCase()
+        : list.length + ' ITEMS AVAILABLE';
       if ($('shopTitle')) $('shopTitle').textContent = CATEGORY_TITLES[shopCategoryFilter] || 'THE VAULT';
       updateFilterCount();
       observeProducts();
@@ -783,7 +823,12 @@ products.push(...(window.localProducts || []));
 
     function renderProduct(id) {
       current = products.find(p => p.id === id) || products[0];
-      selectedSize = current.sizes[0]; // initialize default selected size
+      // A pair opened from a size search starts on the size that was searched: the order
+      // sentence should name the 11 the shopper asked for, not the first size of the run.
+      // Everywhere else it is the first size, exactly as it was.
+      const sizeQuery = shopSizeQuery();
+      const matchedSizes = matchingSizes(current, sizeQuery);
+      selectedSize = matchedSizes[0] || current.sizes[0]; // initialize default selected size
 
       // Update breadcrumb
       if ($('breadcrumbProduct')) $('breadcrumbProduct').textContent = current.name;
@@ -814,7 +859,7 @@ products.push(...(window.localProducts || []));
       $('gallery').innerHTML = galleryList.map((shot, i) => `
         <button class="gallery-shot" type="button" onclick="zoomOpen(${i})"
                 aria-label="Zoom in on ${esc(shot.alt)}">
-          <img src="${shot.src}" alt="${esc(shot.alt)}" loading="lazy">
+          <img src="${shot.src}" alt="${esc(shot.alt)}" ${i === 0 ? 'loading="eager" fetchpriority="high"' : 'loading="lazy"'} decoding="async">
         </button>
       `).join('');
 
@@ -841,14 +886,15 @@ products.push(...(window.localProducts || []));
             <span class="eyebrow">${sizeCategoryLabel(current)}</span>
           </div>
           <div class="size-grid">
-            ${current.sizes.map((s, idx) => `
-              <button class="size-btn ${idx === 0 ? 'selected' : ''}"
+            ${current.sizes.map(s => `
+              <button class="size-btn${s === selectedSize ? ' selected' : ''}${sizeQuery && matchedSizes.indexOf(s) >= 0 ? ' is-match' : ''}"
                       onclick="selectSize('${s}', this)"
                       aria-label="${sizeAriaLabel} ${s}">
                 ${s}
               </button>
             `).join('')}
           </div>
+          ${sizeQuery && matchedSizes.length ? `<p class="size-match-note">This ${itemLabel} is held in the sizes your search asked for: ${matchedSizes.map(s => sizeDisplay(s, current.sizeGroup)).join(' · ')}.</p>` : ''}
         </div>` : ''}
         <div class="order-cta">
           <a class="btn" id="orderCall" href="tel:${ORDER_PHONE}">Call to claim</a>
@@ -960,7 +1006,7 @@ products.push(...(window.localProducts || []));
           ? '<p style="grid-column: 1/-1; color: var(--muted); padding: 20px 0;">Nothing in ' + sizeQuery.display + ' right now — try another size.</p>'
           : '<p style="grid-column: 1/-1; color: var(--muted); padding: 20px 0;">No matching sneakers found.</p>';
       } else {
-        $('searchResults').innerHTML = matches.map(productCard).join('');
+        $('searchResults').innerHTML = matches.map(p => productCard(p, sizeQuery)).join('');
         observeProducts();   // fresh nodes: the reveal observer has never seen them
       }
     }
@@ -1449,7 +1495,7 @@ products.push(...(window.localProducts || []));
           }
         }
 
-        $('recentlyViewed').innerHTML = recentProducts.map(productCard).join('');
+        $('recentlyViewed').innerHTML = recentProducts.map(p => productCard(p)).join('');
         observeProducts();
       } catch (err) {
         // localStorage blocked
@@ -1478,6 +1524,15 @@ products.push(...(window.localProducts || []));
     (function initOrderLede() {
       const slot = $('orderPhone');
       if (slot) slot.textContent = ORDER_PHONE_DISPLAY;
+      // The announcement bar is the first thing on the page that says how to claim a
+      // pair, so it names the number too — filled here rather than written into
+      // index.html for the same reason as the lede above: the markup is the one file
+      // anything can fetch without running this script.
+      const bar = $('announcePhone');
+      if (bar) {
+        bar.textContent = ORDER_PHONE_DISPLAY;
+        if (String(bar.tagName || '').toUpperCase() === 'A') bar.href = 'tel:' + ORDER_PHONE;
+      }
     })();
     renderFilterUI();
     renderHome();
