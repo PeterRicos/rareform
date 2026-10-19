@@ -540,7 +540,7 @@ const localProducts = [
     color: "Original Colorway",
     condition: "New",
     box: "Original Box",
-    sizes: ["7.5", "8", "9", "11", "12", "13"],
+    sizes: ["7.5", "8", "9", "13"],
     year: 0,
     img: "sneaker_images/square/Sheet2_Jordan_11_Retro_Jubilee_25th_Anniversary_CT8012_011.jpg",
     gallery: ["sneaker_images/square/Sheet2_Jordan_11_Retro_Jubilee_25th_Anniversary_CT8012_011.jpg"],
