@@ -1,5 +1,5 @@
 /* Static phone-contract harness for index.html + styles.css + app.js (same folder)
-   Run: node test-mobile.js     (or: node rareform/test-mobile.js)
+   Run: node test-mobile.js     (or: node randomstock/test-mobile.js)
 
    Most shoppers arrive here on a phone, and a phone is the one browser we cannot
    open from the build. So this suite pins the handful of rules that, if a later

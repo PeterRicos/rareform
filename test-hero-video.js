@@ -1,5 +1,5 @@
 /* Hero video slot harness (index.html + video/reel.mp4)
-   Run: node test-hero-video.js            (or: node rareform/test-hero-video.js)
+   Run: node test-hero-video.js            (or: node randomstock/test-hero-video.js)
 
    The hero clip is the only asset here that is not hand-written: it is a binary file
    the owner replaces by overwriting it in place, and the page is only allowed to

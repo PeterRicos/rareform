@@ -1,5 +1,5 @@
 /* Headless listing-QR harness for app.js (same folder)
-   Run: node test-listing-qr.js   (or: node rareform/test-listing-qr.js)
+   Run: node test-listing-qr.js   (or: node randomstock/test-listing-qr.js)
 
    Every listing carries a QR code for the shopper who is on a computer: a desktop has
    nowhere to hand an sms: link to, so the code is what puts the item into the phone in
@@ -136,7 +136,7 @@ function boot(initialHash, withQr) {
       idx = stack.length - 1;
       queueFire('window', 'hashchange', {});
     },
-    get href() { return 'file:///app/rareform/index.html' + stack[idx].hash; }
+    get href() { return 'file:///app/randomstock/index.html' + stack[idx].hash; }
   };
   const history = {
     scrollRestoration: 'auto',
@@ -170,7 +170,7 @@ function boot(initialHash, withQr) {
   const Observer = makeObserver();
 
   const ctx = vm.createContext({ window: win, document: doc, history, location, setTimeout, clearTimeout, console, IntersectionObserver: Observer });
-  new vm.Script(bootCode(withQr), { filename: 'rareform-inline.js' }).runInContext(ctx);
+  new vm.Script(bootCode(withQr), { filename: 'randomstock-inline.js' }).runInContext(ctx);
 
   return { win, doc, history, location, pages, getEl, listeners, ctx, Observer };
 }

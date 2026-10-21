@@ -1,5 +1,5 @@
 /* Headless photo-zoom harness for index.html + styles.css + app.js (same folder)
-   Run: node test-zoom.js   (or: node rareform/test-zoom.js)
+   Run: node test-zoom.js   (or: node randomstock/test-zoom.js)
 
    Every listing draws its photos whole (object-fit: contain), which is the right way to
    browse — no silhouette is ever cut off — and useless for the thing this shop is
@@ -166,7 +166,7 @@ function boot(initialHash) {
       idx = stack.length - 1;
       queueFire('window', 'hashchange', {});
     },
-    get href() { return 'file:///app/rareform/index.html' + stack[idx].hash; }
+    get href() { return 'file:///app/randomstock/index.html' + stack[idx].hash; }
   };
   const history = {
     scrollRestoration: 'auto',
@@ -200,7 +200,7 @@ function boot(initialHash) {
   const Observer = makeObserver();
 
   const ctx = vm.createContext({ window: win, document: doc, history, location, setTimeout, clearTimeout, console, IntersectionObserver: Observer });
-  new vm.Script(CODE, { filename: 'rareform-inline.js' }).runInContext(ctx);
+  new vm.Script(CODE, { filename: 'randomstock-inline.js' }).runInContext(ctx);
 
   return { win, doc, history, location, pages, getEl, listeners, ctx, Observer };
 }
@@ -227,7 +227,7 @@ function boot(initialHash) {
   render(jordan.id);
   const a = gallery();
   ok('A1  each photo is drawn as its own button',
-    /^\s*<button class="gallery-shot" type="button" onclick="zoomOpen\(0\)"/.test(a), a.slice(0, 160));
+    /^\s*<button class="gallery-shot" type="button" data-act="zoomOpen" data-arg="0"/.test(a), a.slice(0, 160));
   // A lone photo is the listing's main image and sits above the fold, so it is drawn
   // eager and at high priority; the rest of a gallery stays lazy. Either way the src
   // is the listing's own image.
@@ -273,7 +273,7 @@ function boot(initialHash) {
   pair.gallery = [pair.img, 'sneaker_images/square/Jubilee-angle-2.jpg'];
   render(pair.id);
   const e = gallery();
-  ok('E1  a two-angle listing draws two buttons', /zoomOpen\(0\)[\s\S]*zoomOpen\(1\)/.test(e));
+  ok('E1  a two-angle listing draws two buttons', /data-act="zoomOpen" data-arg="0"[\s\S]*data-act="zoomOpen" data-arg="1"/.test(e));
   ok('E2  and names the second one as an angle',
     e.indexOf('alt="' + pair.name + ' angle 2"') >= 0, e.slice(0, 240));
   ev(H, 'zoomOpen(1)');
@@ -321,10 +321,10 @@ function boot(initialHash) {
   ok('G2  its image asks for no file until a photo is picked',
     /<img id="zoomImg" alt="">/.test(html));
   ok('G3  the close button is labelled for a screen reader',
-    /class="zoom-close" type="button" onclick="zoomClose\(\)" aria-label="Close photo viewer"/.test(html));
+    /class="zoom-close" type="button" data-act="zoomClose" aria-label="Close photo viewer"/.test(html));
   ok('G4  the arrows ship hidden',
-    html.indexOf('id="zoomPrev" onclick="zoomStep(-1)" aria-label="Previous photo" hidden') >= 0 &&
-    html.indexOf('id="zoomNext" onclick="zoomStep(1)" aria-label="Next photo" hidden') >= 0);
+    html.indexOf('id="zoomPrev" data-act="zoomStep" data-arg="-1" aria-label="Previous photo" hidden') >= 0 &&
+    html.indexOf('id="zoomNext" data-act="zoomStep" data-arg="1" aria-label="Next photo" hidden') >= 0);
   ok('G5  the counter is decoration, not content', /class="zoom-count" id="zoomCount" aria-hidden="true"/.test(html));
 
   // ---- H. what the sheet promises the browser -----------------------------------

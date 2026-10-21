@@ -62,26 +62,26 @@
     <div class="announce-content">
       <span class="announce-copy"><span class="announce-claim">NO CART — CALL OR TEXT <a class="announce-phone" id="announcePhone" href="#"></a> TO CLAIM A PAIR</span><span class="announce-shipping"> · ORDERS SHIP WITHIN 1-2 BUSINESS DAYS</span></span>
     </div>
-    <button onclick="announceDismiss()" aria-label="Dismiss announcement">×</button>
+    <button data-act="announceDismiss" aria-label="Dismiss announcement">×</button>
   </aside>
 
   <!-- Navigation Header -->
   <header>
     <nav class="nav" aria-label="Main Navigation">
       <div style="display: flex; align-items: center;">
-        <button class="hamb" onclick="menuOpen()" aria-label="Open mobile menu" aria-expanded="false" id="hambBtn">☰</button>
-        <a class="logo" href="#home" onclick="event.preventDefault(); go('home');">RANDOM&nbsp;<i>STOCK</i></a>
+        <button class="hamb" data-act="menuOpen" aria-label="Open mobile menu" aria-expanded="false" id="hambBtn">☰</button>
+        <a class="logo" href="#home" data-act="go" data-arg="home" data-pd="1">RANDOM&nbsp;<i>STOCK</i></a>
       </div>
 
       <div class="nav-links">
-        <a onclick="shopCategory('sneakers')" href="#shop">Shop Sneakers</a>
-        <a onclick="shopCategory('clothing')" href="#shop">Shop Clothing &amp; Accessories</a>
-        <a onclick="shopCategory('random')" href="#shop">Random Shit</a>
-        <a onclick="go('about')" href="#about">About</a>
+        <a data-act="shopCategory" data-arg="sneakers" href="#shop">Shop Sneakers</a>
+        <a data-act="shopCategory" data-arg="clothing" href="#shop">Shop Clothing &amp; Accessories</a>
+        <a data-act="shopCategory" data-arg="random" href="#shop">Random Shit</a>
+        <a data-act="go" data-arg="about" href="#about">About</a>
       </div>
 
       <div class="actions">
-        <button class="icon-btn" id="searchBtn" onclick="searchOpen()" aria-label="Open search" aria-expanded="false" aria-controls="searchModal">
+        <button class="icon-btn" id="searchBtn" data-act="searchOpen" aria-label="Open search" aria-expanded="false" aria-controls="searchModal">
           <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
         </button>
       </div>
@@ -92,13 +92,13 @@
   <div class="mobile-drawer" id="mobileDrawer" role="dialog" aria-modal="true" aria-label="Navigation Menu">
     <div class="mobile-drawer-head">
       <span class="logo">RANDOM&nbsp;<i>STOCK</i></span>
-      <button class="drawer-close" onclick="menuClose()" aria-label="Close menu">×</button>
+      <button class="drawer-close" data-act="menuClose" aria-label="Close menu">×</button>
     </div>
     <nav class="mobile-links">
-      <a href="#shop" onclick="menuClose(); shopCategory('sneakers')">Shop Sneakers <span>→</span></a>
-      <a href="#shop" onclick="menuClose(); shopCategory('clothing')">Shop Clothing &amp; Accessories <span>→</span></a>
-      <a href="#shop" onclick="menuClose(); shopCategory('random')">Random Shit <span>→</span></a>
-      <a href="#about" onclick="menuClose(); go('about')">About Random Stock <span>→</span></a>
+      <a href="#shop" data-act="menuClose" data-then="shopCategory" data-arg="sneakers">Shop Sneakers <span>→</span></a>
+      <a href="#shop" data-act="menuClose" data-then="shopCategory" data-arg="clothing">Shop Clothing &amp; Accessories <span>→</span></a>
+      <a href="#shop" data-act="menuClose" data-then="shopCategory" data-arg="random">Random Shit <span>→</span></a>
+      <a href="#about" data-act="menuClose" data-then="go" data-arg="about">About Random Stock <span>→</span></a>
     </nav>
   </div>
 
@@ -113,9 +113,9 @@
         <h1>THE PAIRS YOU'VE BEEN LOOKING FOR.</h1>
         <p>Authentic sneakers, sourced from collectors, checked by hand, and ready for your rotation. This is our friends &amp; family vault: no cart, no checkout. Claim a pair by call or text and we confirm the price with you.</p>
         <div class="btn-row hero-tiles">
-          <button class="btn" onclick="shopCategory('sneakers')">SHOP SNEAKERS</button>
-          <button class="btn" onclick="shopCategory('clothing')">SHOP CLOTHING &amp; ACCESSORIES</button>
-          <button class="btn" onclick="shopCategory('random')">RANDOM SHIT</button>
+          <button class="btn" data-act="shopCategory" data-arg="sneakers">SHOP SNEAKERS</button>
+          <button class="btn" data-act="shopCategory" data-arg="clothing">SHOP CLOTHING &amp; ACCESSORIES</button>
+          <button class="btn" data-act="shopCategory" data-arg="random">RANDOM SHIT</button>
         </div>
       </div>
       <div class="hero-image">
@@ -176,7 +176,7 @@
           <span class="eyebrow">The Rotation</span>
           <h2>TRENDING NOW</h2>
         </div>
-        <a class="text-link" href="#shop" onclick="shopNav('all')">EXPLORE THE VAULT →</a>
+        <a class="text-link" href="#shop" data-act="shopNav" data-arg="all">EXPLORE THE VAULT →</a>
       </div>
       <div class="products" id="trending"></div>
     </section>
@@ -200,7 +200,7 @@
           <h2>BEYOND THE PAIRS</h2>
         </div>
       </div>
-      <a class="category-tile" href="#shop" onclick="event.preventDefault(); shopCategory('clothing')" aria-label="Shop Clothing &amp; Accessories">
+      <a class="category-tile" href="#shop" data-act="shopCategory" data-arg="clothing" data-pd="1" aria-label="Shop Clothing &amp; Accessories">
         <img src="images/clothing-crew.jpg" alt="Five people wearing Supreme hoodies and tees in the shop, with a wall of box-logo skateboard decks, folded tees, boxing gloves and a Supreme arcade cabinet behind them" width="1376" height="768" loading="lazy" decoding="async" style="object-position: 40% 30%">
         <div class="category-tile-copy">
           <span class="eyebrow">Street Wear</span>
@@ -209,7 +209,7 @@
         </div>
       </a>
 
-      <a class="category-tile" href="#shop" onclick="event.preventDefault(); shopCategory('random')" aria-label="Shop Random Shit">
+      <a class="category-tile" href="#shop" data-act="shopCategory" data-arg="random" data-pd="1" aria-label="Shop Random Shit">
         <img src="images/randomshit-room.jpg" alt="Collector room with Supreme shelving, Bearbrick and KAWS figures, a Supreme arcade cabinet and framed posters" width="1376" height="768" loading="lazy" decoding="async" style="object-position: center 55%">
         <div class="category-tile-copy">
           <span class="eyebrow">Other Goods</span>
@@ -242,7 +242,7 @@
           <span class="eyebrow">Just Landed</span>
           <h2>RECENTLY ADDED</h2>
         </div>
-        <a class="text-link" href="#shop" onclick="shopNav('all')">BROWSE THE VAULT →</a>
+        <a class="text-link" href="#shop" data-act="shopNav" data-arg="all">BROWSE THE VAULT →</a>
       </div>
       <div class="products" id="recent"></div>
     </section>
@@ -254,7 +254,7 @@
           <span class="eyebrow">Street Wear</span>
           <h2>CLOTHING & ACCESSORIES</h2>
         </div>
-        <a class="text-link" href="#shop" onclick="shopCategory('clothing')">BROWSE THE COLLECTION →</a>
+        <a class="text-link" href="#shop" data-act="shopCategory" data-arg="clothing">BROWSE THE COLLECTION →</a>
       </div>
       <div class="products" id="clothing-accessories"></div>
     </section>
@@ -266,7 +266,7 @@
           <span class="eyebrow">Other Goods</span>
           <h2>RANDOM SHIT</h2>
         </div>
-        <a class="text-link" href="#shop" onclick="event.preventDefault(); shopCategory('random')">BROWSE ALL →</a>
+        <a class="text-link" href="#shop" data-act="shopCategory" data-arg="random" data-pd="1">BROWSE ALL →</a>
       </div>
       <div class="products" id="random-shit"></div>
     </section>
@@ -289,29 +289,29 @@
         <aside class="filters" id="filtersPanel" aria-label="Product Filters">
           <div class="filter">
             <label for="filterSearch">SEARCH</label>
-            <input id="filterSearch" placeholder="Search brand, SKU or size..." oninput="handleSearchSync('desktop')">
+            <input id="filterSearch" placeholder="Search brand, SKU or size..." data-input="handleSearchSync" data-arg="desktop">
           </div>
           <div class="filter">
             <label for="brandFilter">BRAND</label>
-            <select id="brandFilter" onchange="renderShop()"></select>
+            <select id="brandFilter" data-change="renderShop"></select>
           </div>
           <div class="filter">
             <label for="sizeFilter">SIZE</label>
-            <select id="sizeFilter" onchange="renderShop()"></select>
+            <select id="sizeFilter" data-change="renderShop"></select>
           </div>
           <div class="filter">
             <label for="conditionFilter">CONDITION</label>
-            <select id="conditionFilter" onchange="renderShop()"></select>
+            <select id="conditionFilter" data-change="renderShop"></select>
           </div>
-          <button class="clear-filters-btn" onclick="clearFilters()">Reset All Filters</button>
+          <button class="clear-filters-btn" data-act="clearFilters">Reset All Filters</button>
         </aside>
 
         <!-- Shop Content Area -->
         <div>
           <div class="shop-actions">
-            <input id="mobileSearch" aria-label="Search sneakers" placeholder="Search sneakers, SKU, color or size..." oninput="handleSearchSync('mobile')">
-            <button class="filter-toggle" id="filterToggle" type="button" onclick="toggleFilters()" aria-expanded="false" aria-controls="filtersPanel">Filters</button>
-            <select id="sort" onchange="renderShop()" aria-label="Sort products">
+            <input id="mobileSearch" aria-label="Search sneakers" placeholder="Search sneakers, SKU, color or size..." data-input="handleSearchSync" data-arg="mobile">
+            <button class="filter-toggle" id="filterToggle" type="button" data-act="toggleFilters" aria-expanded="false" aria-controls="filtersPanel">Filters</button>
+            <select id="sort" data-change="renderShop" aria-label="Sort products">
               <option value="featured">Sort: Featured</option>
               <option value="new">Sort: Newest First</option>
             </select>
@@ -326,9 +326,9 @@
   <div id="view-product" data-view="product" class="page">
     <section class="product-page">
       <nav class="breadcrumbs" aria-label="Breadcrumb">
-        <a href="#home" onclick="event.preventDefault(); go('home')">Home</a>
+        <a href="#home" data-act="go" data-arg="home" data-pd="1">Home</a>
         <span>/</span>
-        <a href="#shop" onclick="event.preventDefault(); shopNav('all')">Shop</a>
+        <a href="#shop" data-act="shopNav" data-arg="all" data-pd="1">Shop</a>
         <span>/</span>
         <span id="breadcrumbProduct"></span>
       </nav>
@@ -360,16 +360,16 @@
   <footer class="footer">
     <div class="foot-grid">
       <div>
-        <a class="logo" href="#home" onclick="event.preventDefault(); go('home');">RANDOM&nbsp;<i>STOCK</i></a>
+        <a class="logo" href="#home" data-act="go" data-arg="home" data-pd="1">RANDOM&nbsp;<i>STOCK</i></a>
         <p class="foot-tag">Verified sneakers for the permanent rotation. Sourced from collectors, inspected in hand before anything ships. There is no cart here: message us and we confirm the price and send it out.</p>
       </div>
       <div>
         <h2 class="foot-head">The Vault</h2>
         <nav class="foot-links" aria-label="Footer">
-          <a href="#shop" onclick="event.preventDefault(); shopNav('all')">The whole vault</a>
-          <a href="#shop" onclick="event.preventDefault(); shopCategory('clothing')">Clothing &amp; Accessories</a>
-          <a href="#shop" onclick="event.preventDefault(); shopCategory('random')">Random Shit</a>
-          <a href="#about" onclick="event.preventDefault(); go('about')">About</a>
+          <a href="#shop" data-act="shopNav" data-arg="all" data-pd="1">The whole vault</a>
+          <a href="#shop" data-act="shopCategory" data-arg="clothing" data-pd="1">Clothing &amp; Accessories</a>
+          <a href="#shop" data-act="shopCategory" data-arg="random" data-pd="1">Random Shit</a>
+          <a href="#about" data-act="go" data-arg="about" data-pd="1">About</a>
         </nav>
       </div>
       <div>
@@ -384,13 +384,13 @@
   </footer>
 
   <!-- MODAL SHADE / OVERLAY -->
-  <div class="overlay" id="shade" onclick="closeAllDrawers()"></div>
+  <div class="overlay" id="shade" data-act="closeAllDrawers"></div>
 
   <!-- SEARCH MODAL -->
   <section class="search-modal" id="searchModal" role="dialog" aria-modal="true" aria-label="Global Search">
-    <button class="search-modal-close" onclick="searchClose()" aria-label="Close search">×</button>
+    <button class="search-modal-close" data-act="searchClose" aria-label="Close search">×</button>
     <div class="search-bar">
-      <input id="globalSearch" aria-label="Search sneakers" placeholder="Search sneakers, SKU, brand..." oninput="globalSearch()" autocomplete="off">
+      <input id="globalSearch" aria-label="Search sneakers" placeholder="Search sneakers, SKU, brand..." data-input="globalSearch" autocomplete="off">
     </div>
     <div class="suggestions">
       <span class="eyebrow">Popular Searches</span>
@@ -409,7 +409,7 @@
        intercepts the click when the pointer is a mouse, so a tap still opens the
        dialer or Messages directly. app.js fills in the code and the links. -->
   <section class="order-modal" id="orderModal" role="dialog" aria-modal="true" aria-labelledby="orderModalTitle">
-    <button class="order-modal-close" onclick="orderModalClose()" aria-label="Close">×</button>
+    <button class="order-modal-close" data-act="orderModalClose" aria-label="Close">×</button>
     <div class="order-modal-grid">
       <div class="order-modal-copy">
         <span class="eyebrow" id="orderModalEyebrow">Orders &amp; questions</span>
@@ -417,18 +417,18 @@
         <p class="order-modal-lede">Write what you are after, then scan the code — your phone opens a message to <b id="orderPhone"></b> with your words already in it.</p>
         <div class="order-field">
           <label for="orderMessage">Your message</label>
-          <textarea id="orderMessage" maxlength="300" rows="4" oninput="orderModalSync()"
+          <textarea id="orderMessage" maxlength="300" rows="4" data-input="orderModalSync"
                     placeholder="Hi Random Stock, I'm looking for..."></textarea>
         </div>
         <div class="order-actions">
-          <button class="btn" type="button" onclick="orderCopy()">Copy message</button>
+          <button class="btn" type="button" data-act="orderCopy">Copy message</button>
         </div>
         <p class="order-hint" id="orderHint">Copying the message is the fallback when you would rather type it on your phone yourself.</p>
       </div>
       <div class="order-qr">
         <div class="order-qr-tabs" role="group" aria-label="What the code should open">
-          <button type="button" id="orderTabText" aria-pressed="true" onclick="orderModalMode('text')">Text us</button>
-          <button type="button" id="orderTabCall" aria-pressed="false" onclick="orderModalMode('call')">Call us</button>
+          <button type="button" id="orderTabText" aria-pressed="true" data-act="orderModalMode" data-arg="text">Text us</button>
+          <button type="button" id="orderTabCall" aria-pressed="false" data-act="orderModalMode" data-arg="call">Call us</button>
         </div>
         <div class="order-qr-code" id="orderQr"></div>
         <p class="order-qr-note" id="orderQrNote">Point your camera at the code</p>
@@ -444,10 +444,10 @@
        the "n / m" counter; the file it points at is the one already in the gallery, so
        opening this costs no second download. -->
   <section class="zoom" id="zoom" role="dialog" aria-modal="true" aria-label="Photo viewer">
-    <button class="zoom-close" type="button" onclick="zoomClose()" aria-label="Close photo viewer">&times;</button>
-    <button class="zoom-step prev" type="button" id="zoomPrev" onclick="zoomStep(-1)" aria-label="Previous photo" hidden>&lsaquo;</button>
+    <button class="zoom-close" type="button" data-act="zoomClose" aria-label="Close photo viewer">&times;</button>
+    <button class="zoom-step prev" type="button" id="zoomPrev" data-act="zoomStep" data-arg="-1" aria-label="Previous photo" hidden>&lsaquo;</button>
     <img id="zoomImg" alt="">
-    <button class="zoom-step next" type="button" id="zoomNext" onclick="zoomStep(1)" aria-label="Next photo" hidden>&rsaquo;</button>
+    <button class="zoom-step next" type="button" id="zoomNext" data-act="zoomStep" data-arg="1" aria-label="Next photo" hidden>&rsaquo;</button>
     <span class="zoom-count" id="zoomCount" aria-hidden="true"></span>
   </section>
 
@@ -465,72 +465,20 @@
        app.js draws the "order from your phone" codes with it. Replacing the file
        with a newer release means updating this note and the hash, not editing it. -->
   <script src="qrcode.js?v=4c79be16" defer></script>
-  <script src="products.js?v=4e418717" defer></script>
+  <script src="products.js?v=2a1a54b6" defer></script>
   <!-- jsonld.js turns a listing into schema.org data. app.js reads it immediately
        (the first view is rendered on load), so it has to come before app.js. -->
   <script src="jsonld.js?v=8f9d7a7f" defer></script>
-  <script src="app.js?v=58620fa7" defer></script>
+  <script src="app.js?v=8e2d118f" defer></script>
+  <script src="boot.js?v=14c54372" defer></script>
   
 
-  <!-- Invisible visit counter (Cloudflare Worker + KV).
-       Fire-and-forget at the very end of <body>, so it never blocks render and
-       never touches layout. Records the page path only — no IP, no user agent, no
-       cookie — which is why the site needs no consent banner. Delete this block to
-       switch counting off entirely. -->
-  <script>
-    (function countVisit() {
-      // Worker URL from the Cloudflare dashboard:
-      // https://visit-counters.marra-pete.workers.dev
-      var VISIT_ENDPOINT = "https://visit-counters.marra-pete.workers.dev";
 
-      if (!VISIT_ENDPOINT) return; // not configured yet, so do nothing at all
 
-      try {
-        var endpoint =
-          VISIT_ENDPOINT + "/hit?u=" + encodeURIComponent(location.pathname) +
-          "&t=" + Date.now(); // cache-buster: Pages is served with max-age=600,
-        //                             so a stable URL gets collapsed by the CDN
-        //                             and whole days of visits go uncounted.
-        if (navigator.sendBeacon) {
-          navigator.sendBeacon(endpoint); // survives navigating away instantly
-        } else {
-          fetch(endpoint, { mode: "no-cors", cache: "no-store", keepalive: true });
-        }
-      } catch (err) {
-        /* A counter must never be able to break the page. */
-      }
-    })();
-  </script>
 
-  <!-- FRESH-HTML WORKER
-       GitHub Pages sends "Cache-Control: max-age=600", and nothing this page can
-       send changes that, so for ten minutes after a deploy a returning shopper's
-       browser is allowed to run the previous index.html — old markup, old inline
-       behaviour, pointing at assets that have already been replaced. sw.js exists
-       for one reason: it makes navigations go to the network instead of that
-       ten-minute cache, so the HTML a shopper runs is always the current deploy.
-       It caches nothing, so a broken deploy cannot be trapped behind it.
-       Registered after load so it never competes with the first paint, and only
-       over https/localhost because a service worker needs a secure context.
-       Deleting this block and sw.js returns the site to the plain Pages cache. -->
-  <script>
-    (function freshHtmlWorker() {
-      if (!("serviceWorker" in navigator)) return;
-
-      var secure = location.protocol === "https:" ||
-        location.hostname === "localhost" || location.hostname === "127.0.0.1";
-      if (!secure) return;
-
-      window.addEventListener("load", function () {
-        // updateViaCache:"none" keeps the worker script itself out of the HTTP
-        // cache too, so a fix to sw.js lands on the visit after it is deployed.
-        navigator.serviceWorker.register("sw.js", { updateViaCache: "none" })
-          .catch(function () {
-            /* Registration is a nicety: the site works exactly as before without it. */
-          });
-      });
-    })();
-  </script>
+  <!-- Visit counter + fresh-HTML service worker registration live in boot.js
+       (moved out of the page so no inline scripts remain besides the
+       announcement-bar memory in the head). -->
 </body>
 </html>
 

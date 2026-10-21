@@ -222,16 +222,16 @@ products.push(...(window.localProducts || []));
       const sizeText = (isSneaker || sizeQuery) ? sizeLine : '';
       return `
         <article class="product">
-          <button class="product-image" type="button" aria-label="View ${p.name}" onclick="openProduct(${p.id})">
+          <button class="product-image" type="button" aria-label="View ${p.name}" data-act="openProduct" data-arg="${p.id}">
             <img src="${p.img}" alt="${p.name}" loading="lazy" decoding="async" width="400" height="400">
           </button>
           <div class="p-info">
             <div class="brand">${p.brand}</div>
-            <button class="name" type="button" onclick="openProduct(${p.id})">${p.name}</button>
+            <button class="name" type="button" data-act="openProduct" data-arg="${p.id}">${p.name}</button>
             <div class="color">${p.color}</div>
             ${sizeText ? `<div class="sizes${sizeQuery ? ' sizes-match' : ''}">${sizeText}</div>` : ''}
             <div class="price-note">Price on request</div>
-            <button class="quick" onclick="event.stopPropagation(); openProduct(${p.id})">
+            <button class="quick" data-act="openProduct" data-arg="${p.id}" data-stop="1">
               ${buttonText}
             </button>
           </div>
@@ -375,13 +375,13 @@ products.push(...(window.localProducts || []));
       // "adidas" keeps its lowercase and "Supreme" its capital, while the tile still
       // filters by the catalog's own spelling — TILE_BRANDS is what a click looks up.
       $('brandGrid').innerHTML =
-        `<button type="button" class="brand-tile" data-mark="all" onclick="filterByBrand('', this)">` +
+        `<button type="button" class="brand-tile" data-mark="all" data-act="filterByBrand" data-arg="">` +
           `<span class="wm">All Brands</span></button>` +
         tiles.map((b, i) => {
           const has = inStock.some(s => s.toLowerCase() === b.toLowerCase());
           const m = brandMark(b);
           return `<button type="button" class="brand-tile${has ? '' : ' soon'}" data-mark="${m.mark}"` +
-            `${m.len ? ` data-len="${m.len}"` : ''} onclick="filterByBrandAt(${i}, this)"` +
+            `${m.len ? ` data-len="${m.len}"` : ''} data-act="filterByBrandAt" data-arg="${i}"` +
             `${has ? '' : ` aria-label="${esc(b)} — no pairs in stock yet"`}` +
             `><span class="wm">${m.wm}</span>${has ? '' : '<span class="tag">Soon</span>'}</button>`;
         }).join('');
@@ -389,7 +389,7 @@ products.push(...(window.localProducts || []));
       // Chips follow the stricter rule — only brands that can actually return a
       // result. A suggestion chip that finds nothing is the worst kind of dead end.
       $('searchChips').innerHTML = CATALOG_BRANDS.slice(0, 5).map((b, i) =>
-        `<button type="button" onclick="setSearchBrand(${i})">${b}</button>`).join('');
+        `<button type="button" data-act="setSearchBrand" data-arg="${i}">${b}</button>`).join('');
     }
 
     // Tiles and chips pass an index instead of a quoted brand string, so a brand
@@ -629,7 +629,7 @@ products.push(...(window.localProducts || []));
 
       $('shopProducts').innerHTML = list.length
         ? list.map(p => productCard(p, shownQuery)).join('')
-        : `<div class="empty-state"><p>${emptyCopy}</p><button class="btn light" onclick="clearFilters()">Reset All Filters</button></div>`;
+        : `<div class="empty-state"><p>${emptyCopy}</p><button class="btn light" data-act="clearFilters">Reset All Filters</button></div>`;
 
       // And the count says which sizes are on screen, so a shopper who typed 11 and sees
       // "US 11 · 11.5" on every card knows the grid answered them.
@@ -857,7 +857,7 @@ products.push(...(window.localProducts || []));
       // buyer does here, and a bare <img> could only be clicked, never tabbed to or
       // opened from the keyboard.
       $('gallery').innerHTML = galleryList.map((shot, i) => `
-        <button class="gallery-shot" type="button" onclick="zoomOpen(${i})"
+        <button class="gallery-shot" type="button" data-act="zoomOpen" data-arg="${i}"
                 aria-label="Zoom in on ${esc(shot.alt)}">
           <img src="${shot.src}" alt="${esc(shot.alt)}" ${i === 0 ? 'loading="eager" fetchpriority="high"' : 'loading="lazy"'} decoding="async">
         </button>
@@ -888,7 +888,7 @@ products.push(...(window.localProducts || []));
           <div class="size-grid">
             ${current.sizes.map(s => `
               <button class="size-btn${s === selectedSize ? ' selected' : ''}${sizeQuery && matchedSizes.indexOf(s) >= 0 ? ' is-match' : ''}"
-                      onclick="selectSize('${s}', this)"
+                      data-act="selectSize" data-arg="${s}"
                       aria-label="${sizeAriaLabel} ${s}">
                 ${s}
               </button>
@@ -1406,7 +1406,7 @@ products.push(...(window.localProducts || []));
     // through to the hashchange listener above.
     document.addEventListener('click', e => {
       const a = e.target && e.target.closest ? e.target.closest('a[href^="#"]') : null;
-      if (!a || !a.hasAttribute('onclick')) return;
+      if (!a || !a.hasAttribute('data-act')) return;
       e.preventDefault();
     });
 
@@ -1541,3 +1541,77 @@ products.push(...(window.localProducts || []));
 
     // Then restore whatever the URL asked for (refresh, shared link, bookmark)
     hydrateFromURL();
+
+    // ---- Delegated UI actions -------------------------------------------------
+    //
+    // Markup names what a control does — data-act for clicks, data-input for
+    // typing, data-change for selects — instead of inline on* attributes, so
+    // no inline handlers remain and a Content-Security-Policy without
+    // 'unsafe-inline' can govern scripts. One listener per event type walks
+    // up from the event target to the named control and calls the same
+    // function the inline attribute used to call:
+    //   data-arg   the argument the inline call passed (parsed back to a
+    //              number for product ids, gallery/brand indexes, zoom steps)
+    //   data-pd    the inline call began with event.preventDefault()
+    //   data-stop  the inline call began with event.stopPropagation()
+    //   data-then  a second action to run right after the first (the old
+    //              "menuClose(); shopCategory(...)" pairs in the drawer)
+    // Actions that spent their life as `this` handlers (brand tiles, size
+    // buttons) receive the control itself as the extra argument.
+    const CLICK_ACTIONS = {
+      announceDismiss: () => announceDismiss(),
+      clearFilters: () => clearFilters(),
+      closeAllDrawers: () => closeAllDrawers(),
+      go: (el, arg) => go(arg),
+      menuClose: () => menuClose(),
+      menuOpen: () => menuOpen(),
+      orderCopy: () => orderCopy(),
+      orderModalClose: () => orderModalClose(),
+      orderModalMode: (el, arg) => orderModalMode(arg),
+      searchClose: () => searchClose(),
+      searchOpen: () => searchOpen(),
+      shopCategory: (el, arg) => shopCategory(arg),
+      shopNav: (el, arg) => shopNav(arg),
+      toggleFilters: () => toggleFilters(),
+      zoomClose: () => zoomClose(),
+      zoomStep: (el, arg) => zoomStep(parseInt(arg, 10)),
+      openProduct: (el, arg) => openProduct(parseInt(arg, 10)),
+      zoomOpen: (el, arg) => zoomOpen(parseInt(arg, 10)),
+      setSearchBrand: (el, arg) => setSearchBrand(parseInt(arg, 10)),
+      filterByBrand: (el, arg) => filterByBrand(arg, el),
+      filterByBrandAt: (el, arg) => filterByBrandAt(parseInt(arg, 10), el),
+      selectSize: (el, arg) => selectSize(arg, el)
+    };
+    function runAction(name, el) {
+      const fn = CLICK_ACTIONS[name];
+      if (fn) fn(el, el.getAttribute('data-arg'));
+    }
+    document.addEventListener('click', e => {
+      const el = e.target && e.target.closest ? e.target.closest('[data-act]') : null;
+      if (!el) return;
+      if (el.hasAttribute('data-pd')) e.preventDefault();
+      if (el.hasAttribute('data-stop')) e.stopPropagation();
+      runAction(el.getAttribute('data-act'), el);
+      const then = el.getAttribute('data-then');
+      if (then) runAction(then, el);
+    });
+    const INPUT_ACTIONS = {
+      globalSearch: () => globalSearch(),
+      handleSearchSync: (el, arg) => handleSearchSync(arg),
+      orderModalSync: () => orderModalSync()
+    };
+    document.addEventListener('input', e => {
+      const el = e.target && e.target.closest ? e.target.closest('[data-input]') : null;
+      if (!el) return;
+      const fn = INPUT_ACTIONS[el.getAttribute('data-input')];
+      if (fn) fn(el, el.getAttribute('data-arg'));
+    });
+    const CHANGE_ACTIONS = {
+      renderShop: () => renderShop()
+    };
+    document.addEventListener('change', e => {
+      const el = e.target && e.target.closest ? e.target.closest('[data-change]') : null;
+      if (!el) return;
+      const fn = CHANGE_ACTIONS[el.getAttribute('data-change')];
+      if (fn) fn(el, el.getAttribute('data-arg'));
+    });
