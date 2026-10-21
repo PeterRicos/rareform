@@ -273,7 +273,7 @@ function boot(initialHash) {
   pair.gallery = [pair.img, 'sneaker_images/square/Jubilee-angle-2.jpg'];
   render(pair.id);
   const e = gallery();
-  ok('E1  a two-angle listing draws two buttons', /zoomOpen\(0\)[\s\S]*zoomOpen\(1\)/.test(e));
+  ok('E1  a two-angle listing draws two buttons', /data-act="zoomOpen" data-arg="0"[\s\S]*data-act="zoomOpen" data-arg="1"/.test(e));
   ok('E2  and names the second one as an angle',
     e.indexOf('alt="' + pair.name + ' angle 2"') >= 0, e.slice(0, 240));
   ev(H, 'zoomOpen(1)');
