@@ -1,5 +1,5 @@
 /* Headless size-search harness for app.js (same folder)
-   Run: node test-size-search.js   (or: node rareform/test-size-search.js)
+   Run: node test-size-search.js   (or: node randomstock/test-size-search.js)
    Boots products.js + app.js inside the same stub DOM as test-route.js and
    validates the size-search contract:
      - "11" shows products held in 11 AND 11.5 (same men's run, never 11W/11K)
@@ -115,7 +115,7 @@ function boot(initialHash) {
       idx = stack.length - 1;
       queueFire('window', 'hashchange', {});
     },
-    get href() { return 'file:///app/rareform/index.html' + stack[idx].hash; }
+    get href() { return 'file:///app/randomstock/index.html' + stack[idx].hash; }
   };
   const history = {
     scrollRestoration: 'auto',
@@ -149,15 +149,15 @@ function boot(initialHash) {
   const Observer = makeObserver();
 
   const ctx = vm.createContext({ window: win, document: doc, history, location, setTimeout, clearTimeout, console, IntersectionObserver: Observer });
-  new vm.Script(CODE, { filename: 'rareform-inline.js' }).runInContext(ctx);
+  new vm.Script(CODE, { filename: 'randomstock-inline.js' }).runInContext(ctx);
 
   return { win, doc, history, location, pages, getEl, listeners, ctx, Observer };
 }
 
-// Card ids in render order — every card button carries openProduct(<id>).
+// Card ids in render order — every card button carries data-act="openProduct" data-arg="<id>".
 const cardIds = (html) => {
   const out = [];
-  String(html).replace(/openProduct\((\d+)\)/g, (_, id) => { if (out.indexOf(Number(id)) < 0) out.push(Number(id)); return _; });
+  String(html).replace(/data-arg=\"(\d+)\"/g, (_, id) => { if (out.indexOf(Number(id)) < 0) out.push(Number(id)); return _; });
   return out;
 };
 
@@ -294,7 +294,7 @@ const cardIds = (html) => {
   const sizeLinesIn = (html) => String(html).match(/<div class="sizes[^"]*">([^<]*)<\/div>/g) || [];
   const numbersIn = (text) => String(text).match(/\d+(?:\.\d+)?/g) || [];
   const cardBlock = (html, id) => {
-    const i = String(html).indexOf('openProduct(' + id + ')');
+    const i = String(html).indexOf('data-arg="' + id + '"');
     if (i < 0) return '';
     const j = String(html).indexOf('<div class="price-note"', i);
     return String(html).slice(i, j < 0 ? i + 1600 : j);

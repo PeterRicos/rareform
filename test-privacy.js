@@ -1,6 +1,6 @@
 /* Privacy harness: the shop's phone number must not be readable out of the repo or
    the raw HTML (same folder).
-   Run: node test-privacy.js     (or: node rareform/test-privacy.js)
+   Run: node test-privacy.js     (or: node randomstock/test-privacy.js)
 
    The storefront answers orders by phone and text, so a real number has to reach a
    shopper's dialer. It does not follow that the number has to sit in the shipped

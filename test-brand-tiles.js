@@ -1,5 +1,5 @@
 /* Static brand-tile harness for index.html + styles.css + app.js (same folder)
-   Run: node test-brand-tiles.js    (or: node rareform/test-brand-tiles.js)
+   Run: node test-brand-tiles.js    (or: node randomstock/test-brand-tiles.js)
 
    The homepage's brand grid is the shop's roadmap: the six brands it wants to be known
    for, plus "All Brands", plus every other brand the catalog actually carries. Two
@@ -161,7 +161,7 @@ ok('B3  every tile is a button carrying the mark that styles it',
   /class="brand-tile" data-mark="all"/.test(grid) && /class="brand-tile\$\{has \? '' : ' soon'\}" data-mark="\$\{m\.mark\}"/.test(grid),
   find(/class="brand-tile[^"]*"[^>]{0,40}/, grid));
 ok('B4  a tile still passes an index, so a brand with an apostrophe cannot break out',
-  /onclick="filterByBrandAt\(\$\{i\}, this\)"/.test(grid));
+  /data-act="filterByBrandAt" data-arg="\$\{i\}"/.test(grid));
 ok('B5  a name that comes from the catalog is escaped on the way into the markup',
   /wm:\s*esc\(plain\)/.test(app));
 ok('B6  the grid is still the roadmap plus the catalog, not a hardcoded six',
@@ -269,7 +269,7 @@ ok('E6  a tile is still a thumb-sized target, on a desktop and on a phone',
 // or the tile filters to sneakers while the page still reads SHOP ALL.
 const heroTiles = find(/<div class="btn-row hero-tiles">[\s\S]*?<\/div>/, html) || '';
 ok('F1  SHOP SNEAKERS routes through shopCategory, not a bare go()',
-  /onclick="shopCategory\('sneakers'\)">SHOP SNEAKERS/.test(heroTiles),
+  /data-act="shopCategory" data-arg="sneakers">SHOP SNEAKERS/.test(heroTiles),
   heroTiles);
 ok('F2  no hero tile navigates without clearing the category first',
   !/onclick="go\('/.test(heroTiles),

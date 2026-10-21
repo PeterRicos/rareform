@@ -1,5 +1,5 @@
 /* Headless reveal harness for app.js + styles.css (same folder)
-   Run: node test-reveal.js   (or: node rareform/test-reveal.js)
+   Run: node test-reveal.js   (or: node randomstock/test-reveal.js)
 
    Product cards are hidden until a scroll-reveal observer shows them, which makes
    "the grid is empty" and "no results" look identical to a shopper. That is exactly
@@ -132,7 +132,7 @@ function boot(initialHash) {
       idx = stack.length - 1;
       queueFire('window', 'hashchange', {});
     },
-    get href() { return 'file:///app/rareform/index.html' + stack[idx].hash; }
+    get href() { return 'file:///app/randomstock/index.html' + stack[idx].hash; }
   };
   const history = {
     scrollRestoration: 'auto',
@@ -164,7 +164,7 @@ function boot(initialHash) {
 
   const Observer = makeObserver();
   const ctx = vm.createContext({ window: win, document: doc, history, location, setTimeout, clearTimeout, console, IntersectionObserver: Observer });
-  new vm.Script(CODE, { filename: 'rareform-inline.js' }).runInContext(ctx);
+  new vm.Script(CODE, { filename: 'randomstock-inline.js' }).runInContext(ctx);
 
   return { win, doc, history, location, pages, getEl, listeners, ctx, Observer };
 }
@@ -330,7 +330,7 @@ function cssBlock(selector) {
   // ---- D. The two paths the phone user actually took --------------------------
   const cardIds = (html) => {
     const out = [];
-    String(html).replace(/openProduct\((\d+)\)/g, (_, id) => { if (out.indexOf(Number(id)) < 0) out.push(Number(id)); return _; });
+    String(html).replace(/data-arg=\"(\d+)\"/g, (_, id) => { if (out.indexOf(Number(id)) < 0) out.push(Number(id)); return _; });
     return out;
   };
 

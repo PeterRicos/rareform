@@ -1,5 +1,5 @@
 /* Headless router harness for index.html (same folder)
-   Run: node test-route.js        (or: node rareform/test-route.js)
+   Run: node test-route.js        (or: node randomstock/test-route.js)
    Boots the page script inside a stub DOM and validates the hash router:
    canonical URLs, refresh/deep-link hydration, back/forward, section anchors,
    URL canonicalisation and anchor click interception.                        */
@@ -125,7 +125,7 @@ function boot(initialHash, cfg) {
       idx = stack.length - 1;
       queueFire('window', 'hashchange', {});
     },
-    get href() { return 'file:///app/rareform/index.html' + stack[idx].hash; }
+    get href() { return 'file:///app/randomstock/index.html' + stack[idx].hash; }
   };
   const history = {
     scrollRestoration: 'auto',
@@ -168,7 +168,7 @@ function boot(initialHash, cfg) {
   const Observer = makeObserver();
 
   const ctx = vm.createContext({ window: win, document: doc, history, location, setTimeout, clearTimeout, console, IntersectionObserver: Observer });
-  new vm.Script(CODE, { filename: 'rareform-inline.js' }).runInContext(ctx);
+  new vm.Script(CODE, { filename: 'randomstock-inline.js' }).runInContext(ctx);
 
   // Report the view key (data-view), not the DOM id — assertions compare against
   // 'home' / 'shop' / 'product' / 'about'.
@@ -299,7 +299,7 @@ function boot(initialHash, cfg) {
   await sleep(320);
   let prevented = 0;
   const evt = (anchor) => ({ target: { closest: () => anchor }, preventDefault: () => { prevented += 1; } });
-  L.fire('document', 'click', evt({ hasAttribute: (n) => n === 'onclick', getAttribute: () => '#shop' }));
+  L.fire('document', 'click', evt({ hasAttribute: (n) => n === 'data-act', getAttribute: () => '#shop' }));
   ok('L1  handler-wired anchor prevented', prevented === 1, prevented);
   L.fire('document', 'click', evt({ hasAttribute: () => false, getAttribute: () => '#shop' }));
   ok('L2  plain anchor left to hashchange', prevented === 1, prevented);
