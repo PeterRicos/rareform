@@ -34,7 +34,7 @@ products.push(...(window.localProducts || []));
       if (/^\d+\s+\d+\/\d+/.test(s)) return 'Headwear';
       if (/^[A-Z]+$/.test(s)) return 'Apparel';
       if (/W$/.test(s)) return 'Women';
-      if (/[YK]$/.test(s)) return 'Youth';
+      if (/[YKC]$/.test(s)) return 'Youth';
       return 'Men';
     }
 

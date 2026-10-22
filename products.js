@@ -1,14 +1,27 @@
+// PRODUCT CATALOG — the file to edit for any listing change.
+// index.html loads this first, then app.js renders window.localProducts.
+// Keep each product as one JSON-shaped object; app.js derives the store
+// (brands, sizes, conditions, tiles) from whatever array is here.
+//
+// `category` is optional — a listing without one is a sneaker unless its brand
+// reads Supreme — and picks the homepage section it lands in: "clothing" is
+// Clothing & Accessories, "random" is Random Shit.
+//
+// `sizeGroup` is optional too, and only needed when the size strings alone
+// cannot say which run a listing belongs to: a bare "7" is a men's shoe size
+// here, so a fitted cap that holds 7 next to 7 1/8 declares sizeGroup:
+// "Headwear" (the runs are Men, Women, Youth, Apparel and Headwear).
+
 /* == local-products:begin == */
 const localProducts = [
   {
     id: 1,
     brand: "adidas",
-    name: "Yeezy Boost 360 V2 Cinder",
-    color: "Original Colorway",
+    name: "adidas Yeezy Boost 350 V2 Cinder",
+    color: "Cinder",
     condition: "New",
     box: "Original Box",
     sizes: ["9.5"],
-    year: 0,
     img: "sneaker_images/square/Yeezys_360_Cinder_FY2903.jpg",
     gallery: ["sneaker_images/square/Yeezys_360_Cinder_FY2903.jpg"],
     sku: "FY2903"
@@ -16,12 +29,11 @@ const localProducts = [
   {
     id: 2,
     brand: "adidas",
-    name: "Yeezy Boost 350 V2 Dazzling Blue",
-    color: "Original Colorway",
+    name: "adidas Yeezy Boost 350 V2 Dazzling Blue",
+    color: "Dazzling Blue",
     condition: "New",
     box: "Original Box",
     sizes: ["8"],
-    year: 0,
     img: "sneaker_images/square/Yeezys_350_Dazzling_Blue_GY7164.jpg",
     gallery: ["sneaker_images/square/Yeezys_350_Dazzling_Blue_GY7164.jpg"],
     sku: "GY7164"
@@ -29,12 +41,11 @@ const localProducts = [
   {
     id: 3,
     brand: "adidas",
-    name: "Yeezy Boost 350 V2 Beluga Reflective",
-    color: "Original Colorway",
+    name: "adidas Yeezy Boost 350 V2 Beluga Reflective",
+    color: "Beluga Reflective",
     condition: "New",
     box: "Original Box",
     sizes: ["5.5", "6", "8"],
-    year: 0,
     img: "sneaker_images/square/Yeezys_350_Beluga_Reflective_GW1229.jpg",
     gallery: ["sneaker_images/square/Yeezys_350_Beluga_Reflective_GW1229.jpg"],
     sku: "GW1229"
@@ -47,7 +58,6 @@ const localProducts = [
     condition: "New",
     box: "Original Box",
     sizes: ["5.5", "7", "8", "13"],
-    year: 0,
     img: "sneaker_images/square/Yeezys_350_Asriel_FZ5000.jpg",
     gallery: ["sneaker_images/square/Yeezys_350_Asriel_FZ5000.jpg"],
     sku: "FZ5000"
@@ -55,12 +65,11 @@ const localProducts = [
   {
     id: 5,
     brand: "adidas",
-    name: "Yeezy Boost 350 V2 Onyx",
-    color: "Original Colorway",
+    name: "adidas Yeezy Boost 350 V2 Onyx",
+    color: "Onyx",
     condition: "New",
     box: "Original Box",
     sizes: ["6"],
-    year: 0,
     img: "sneaker_images/square/Yeezys_350_Onyx_HQ4540.jpg",
     gallery: ["sneaker_images/square/Yeezys_350_Onyx_HQ4540.jpg"],
     sku: "HQ4540"
@@ -68,12 +77,11 @@ const localProducts = [
   {
     id: 6,
     brand: "adidas",
-    name: "Yeezy Boost 350 V2 Light",
-    color: "Original Colorway",
+    name: "adidas Yeezy Boost 350 V2 Light",
+    color: "Light",
     condition: "New",
     box: "Original Box",
     sizes: ["6.5", "12.5"],
-    year: 0,
     img: "sneaker_images/square/Yeezys_350_Light_GY3438.jpg",
     gallery: ["sneaker_images/square/Yeezys_350_Light_GY3438.jpg"],
     sku: "GY3438"
@@ -81,12 +89,11 @@ const localProducts = [
   {
     id: 7,
     brand: "adidas",
-    name: "Yeezy Boost 350 V2 Carbon Beluga",
-    color: "Original Colorway",
+    name: "adidas Yeezy Boost 350 V2 Carbon Beluga",
+    color: "Carbon Beluga",
     condition: "New",
     box: "Original Box",
     sizes: ["8"],
-    year: 0,
     img: "sneaker_images/square/Yeezys_350_Carbon_Beluga_HQ7045.jpg",
     gallery: ["sneaker_images/square/Yeezys_350_Carbon_Beluga_HQ7045.jpg"],
     sku: "HQ7045"
@@ -94,12 +101,11 @@ const localProducts = [
   {
     id: 8,
     brand: "adidas",
-    name: "Yeezy Boost 350 V2 Natural",
-    color: "Original Colorway",
+    name: "adidas Yeezy Boost 350 V2 Natural",
+    color: "Natural",
     condition: "New",
     box: "Original Box",
     sizes: ["7.5"],
-    year: 0,
     img: "sneaker_images/square/Yeezys_350_Natural_FZ5246.jpg",
     gallery: ["sneaker_images/square/Yeezys_350_Natural_FZ5246.jpg"],
     sku: "FZ5246"
@@ -107,12 +113,11 @@ const localProducts = [
   {
     id: 9,
     brand: "adidas",
-    name: "adidas Yeezy Boost 360 V2 Zyon",
+    name: "adidas Yeezy Boost 350 V2 Zyon",
     color: "Zyon",
     condition: "New",
     box: "Original Box",
     sizes: ["8"],
-    year: 0,
     img: "sneaker_images/square/Yeezys_360_Zyon_FZ1267.jpg",
     gallery: ["sneaker_images/square/Yeezys_360_Zyon_FZ1267.jpg"],
     sku: "FZ1267"
@@ -120,12 +125,11 @@ const localProducts = [
   {
     id: 10,
     brand: "adidas",
-    name: "Yeezy Boost 350 V2 Infant Black",
-    color: "Original Colorway",
+    name: "adidas Yeezy Boost 350 V2 Black Red (Infants)",
+    color: "Black Red (Infants)",
     condition: "New",
     box: "Original Box",
     sizes: ["6K"],
-    year: 0,
     img: "sneaker_images/square/Yeezys_350_Infant_Black_BB6372.jpg",
     gallery: ["sneaker_images/square/Yeezys_350_Infant_Black_BB6372.jpg"],
     sku: "BB6372"
@@ -133,12 +137,11 @@ const localProducts = [
   {
     id: 11,
     brand: "adidas",
-    name: "Yeezy Boost 450 Dark Slate",
-    color: "Original Colorway",
+    name: "adidas Yeezy 450 Dark Slate",
+    color: "Dark Slate",
     condition: "New",
     box: "Original Box",
     sizes: ["11.5"],
-    year: 0,
     img: "sneaker_images/square/Yeezys_450_Dark_Slate_GY5368.jpg",
     gallery: ["sneaker_images/square/Yeezys_450_Dark_Slate_GY5368.jpg"],
     sku: "GY5368"
@@ -147,11 +150,10 @@ const localProducts = [
     id: 12,
     brand: "adidas",
     name: "Yeezy Slide Onyx",
-    color: "Original Colorway",
+    color: "Onyx",
     condition: "New",
     box: "Original Box",
     sizes: ["6"],
-    year: 0,
     img: "sneaker_images/square/Yeezys_Slide_Onyx_HQ6448.jpg",
     gallery: ["sneaker_images/square/Yeezys_Slide_Onyx_HQ6448.jpg"],
     sku: "HQ6448"
@@ -159,837 +161,725 @@ const localProducts = [
   {
     id: 13,
     brand: "adidas",
-    name: "Yeezy Slide Resin",
-    color: "Original Colorway",
-    condition: "New",
-    box: "Original Box",
-    sizes: ["10"],
-    year: 0,
-    img: "sneaker_images/square/Yeezys_Slide_Resin_GZ5551.jpg",
-    gallery: ["sneaker_images/square/Yeezys_Slide_Resin_GZ5551.jpg"],
-    sku: "GZ5551"
-  },
-  {
-    id: 14,
-    brand: "adidas",
-    name: "Yeezy Slide Core",
-    color: "Original Colorway",
-    condition: "New",
-    box: "Original Box",
-    sizes: ["4", "10"],
-    year: 0,
-    img: "sneaker_images/square/Yeezys_Slide_Core_GW5350.jpg",
-    gallery: ["sneaker_images/square/Yeezys_Slide_Core_GW5350.jpg"],
-    sku: "GW5350"
-  },
-  {
-    id: 15,
-    brand: "adidas",
     name: "Yeezy Slide Pure",
-    color: "Original Colorway",
+    color: "Pure (Restock Pair)",
     condition: "New",
     box: "Original Box",
     sizes: ["12", "14"],
-    year: 0,
     img: "sneaker_images/square/Yeezys_Slide_Pure_GW1934.jpg",
     gallery: ["sneaker_images/square/Yeezys_Slide_Pure_GW1934.jpg"],
     sku: "GW1934"
   },
   {
-    id: 16,
+    id: 14,
     brand: "adidas",
     name: "Yeezy Slide Ochre",
-    color: "Original Colorway",
+    color: "Ochre",
     condition: "New",
     box: "Original Box",
     sizes: ["13", "14"],
-    year: 0,
     img: "sneaker_images/square/Yeezys_Slide_Ochre_GW1931.jpg",
     gallery: ["sneaker_images/square/Yeezys_Slide_Ochre_GW1931.jpg"],
     sku: "GW1931"
   },
   {
-    id: 17,
+    id: 15,
     brand: "adidas",
-    name: "Yeezy Boost 700 Alvah",
-    color: "Original Colorway",
+    name: "adidas Yeezy 700 V3 Alvah",
+    color: "Alvah",
     condition: "New",
     box: "Original Box",
     sizes: ["6", "6.5"],
-    year: 0,
     img: "sneaker_images/square/Yeezys_700_Alvah_H67799.jpg",
     gallery: ["sneaker_images/square/Yeezys_700_Alvah_H67799.jpg"],
     sku: "H67799"
   },
   {
-    id: 18,
+    id: 16,
     brand: "adidas",
-    name: "Yeezy Boost 700 Clay Brown",
-    color: "Original Colorway",
+    name: "adidas Yeezy 700 V3 Clay Brown",
+    color: "Clay Brown",
     condition: "New",
     box: "Original Box",
     sizes: ["10", "10.5"],
-    year: 0,
     img: "sneaker_images/square/Yeezys_700_Clay_Brown_GY0189.jpg",
     gallery: ["sneaker_images/square/Yeezys_700_Clay_Brown_GY0189.jpg"],
     sku: "GY0189"
   },
   {
-    id: 19,
+    id: 17,
     brand: "adidas",
-    name: "Yeezy Boost 700 Wave Runner",
-    color: "Original Colorway",
+    name: "adidas Yeezy Boost 700 Wave Runner",
+    color: "Wave Runner",
     condition: "New",
     box: "Original Box",
     sizes: ["7", "11"],
-    year: 0,
     img: "sneaker_images/square/Yeezys_700_Wave_Runner_B75571.jpg",
     gallery: ["sneaker_images/square/Yeezys_700_Wave_Runner_B75571.jpg"],
     sku: "B75571"
   },
   {
-    id: 20,
+    id: 18,
     brand: "adidas",
-    name: "Yeezy Boost 700 MNVN Bone",
-    color: "Original Colorway",
+    name: "adidas Yeezy Boost 700 MNVN Bone",
+    color: "Bone",
     condition: "New",
     box: "Original Box",
     sizes: ["4.5", "7.5"],
-    year: 0,
     img: "sneaker_images/square/Yeezys_700_MNVN_Bone_FY3729.jpg",
     gallery: ["sneaker_images/square/Yeezys_700_MNVN_Bone_FY3729.jpg"],
     sku: "FY3729"
   },
   {
-    id: 21,
+    id: 19,
     brand: "adidas",
-    name: "Yeezy Boost 700 Tephra",
-    color: "Original Colorway",
+    name: "adidas Yeezy Boost 700 V2 Tephra",
+    color: "Tephra",
     condition: "New",
     box: "Original Box",
     sizes: ["6"],
-    year: 0,
     img: "sneaker_images/square/Yeezys_700_Tephra_FU7914.jpg",
     gallery: ["sneaker_images/square/Yeezys_700_Tephra_FU7914.jpg"],
     sku: "FU7914"
   },
   {
-    id: 22,
+    id: 20,
     brand: "adidas",
-    name: "Yeezy Boost 700 Dark Glow",
-    color: "Original Colorway",
+    name: "adidas Yeezy 700 V3 Dark Glow",
+    color: "Dark Glow",
     condition: "New",
     box: "Original Box",
     sizes: ["11"],
-    year: 0,
     img: "sneaker_images/square/Yeezys_700_Dark_Glow_GX6144.jpg",
     gallery: ["sneaker_images/square/Yeezys_700_Dark_Glow_GX6144.jpg"],
     sku: "GX6144"
   },
   {
-    id: 23,
+    id: 21,
     brand: "adidas",
-    name: "Yeezy Boost 700 Arzareth",
-    color: "Original Colorway",
+    name: "adidas Yeezy 700 V3 Arzareth",
+    color: "Arzareth",
     condition: "New",
     box: "Original Box",
     sizes: ["6"],
-    year: 0,
     img: "sneaker_images/square/Yeezys_700_Arzareth_G54850.jpg",
     gallery: ["sneaker_images/square/Yeezys_700_Arzareth_G54850.jpg"],
     sku: "G54850"
   },
   {
-    id: 24,
+    id: 22,
     brand: "adidas",
     name: "Yeezy Foam MX Cinder",
-    color: "Original Colorway",
+    color: "MX Cinder",
     condition: "New",
     box: "Original Box",
     sizes: ["7"],
-    year: 0,
     img: "sneaker_images/square/Yeezys_Foam_MX_Cinder_ID4126.jpg",
     gallery: ["sneaker_images/square/Yeezys_Foam_MX_Cinder_ID4126.jpg"],
     sku: "ID4126"
   },
   {
-    id: 25,
+    id: 23,
     brand: "adidas",
     name: "Yeezy Foam MTX Moon Grey",
-    color: "Original Colorway",
+    color: "MTX Moon Grey",
     condition: "New",
     box: "Original Box",
     sizes: ["5"],
-    year: 0,
     img: "sneaker_images/square/Yeezys_Foam_MTX_Moon_Grey_GV7904.jpg",
     gallery: ["sneaker_images/square/Yeezys_Foam_MTX_Moon_Grey_GV7904.jpg"],
     sku: "GV7904"
   },
   {
-    id: 26,
+    id: 24,
     brand: "adidas",
     name: "Yeezy Foam Kids MX Sand Grey",
-    color: "Original Colorway",
+    color: "MX Sand Grey (Kids)",
     condition: "New",
     box: "Original Box",
     sizes: ["13K"],
-    year: 0,
     img: "sneaker_images/square/Yeezys_Foam_Kids_MX_Sand_Grey_GY3970.jpg",
     gallery: ["sneaker_images/square/Yeezys_Foam_Kids_MX_Sand_Grey_GY3970.jpg"],
     sku: "GY3970"
   },
   {
-    id: 27,
+    id: 25,
     brand: "adidas",
     name: "Yeezy Foam Onyx",
-    color: "Original Colorway",
+    color: "Onyx",
     condition: "New",
     box: "Original Box",
     sizes: ["8"],
-    year: 0,
     img: "sneaker_images/square/Yeezys_Foam_Onyx_HP8739.jpg",
     gallery: ["sneaker_images/square/Yeezys_Foam_Onyx_HP8739.jpg"],
     sku: "HP8739"
   },
   {
-    id: 28,
+    id: 26,
     brand: "adidas",
     name: "Yeezy Desert Boot Taupe Blue",
-    color: "Original Colorway",
+    color: "Taupe Blue",
     condition: "New",
     box: "Original Box",
     sizes: ["5.5"],
-    year: 0,
     img: "sneaker_images/square/Yeezys_Desert_Boot_Taupe_Blue_GY0374.jpg",
     gallery: ["sneaker_images/square/Yeezys_Desert_Boot_Taupe_Blue_GY0374.jpg"],
     sku: "GY0374"
   },
   {
-    id: 29,
+    id: 27,
     brand: "adidas",
-    name: "Yeezy Boost 500 High Slate",
-    color: "Original Colorway",
+    name: "adidas Yeezy 500 High Slate",
+    color: "Slate",
     condition: "New",
     box: "Original Box",
     sizes: ["6"],
-    year: 0,
     img: "sneaker_images/square/Yeezys_500_High_Slate_FW4968.jpg",
     gallery: ["sneaker_images/square/Yeezys_500_High_Slate_FW4968.jpg"],
     sku: "FW4968"
   },
   {
-    id: 30,
+    id: 28,
     brand: "adidas",
-    name: "Yeezy Boost 450 Cloud White",
-    color: "Original Colorway",
+    name: "adidas Yeezy 450 Cloud White",
+    color: "Cloud White",
     condition: "New",
     box: "Original Box",
     sizes: ["12"],
-    year: 0,
     img: "sneaker_images/square/Yeezys_450_Cloud_White_H68038.jpg",
     gallery: ["sneaker_images/square/Yeezys_450_Cloud_White_H68038.jpg"],
     sku: "H68038"
   },
   {
-    id: 31,
+    id: 29,
     brand: "adidas",
-    name: "Yeezy Boost 350 V2 Mono Ice",
-    color: "Original Colorway",
+    name: "adidas Yeezy Boost 350 V2 Mono Ice",
+    color: "Mono Ice",
     condition: "New",
     box: "Original Box",
     sizes: ["6", "8"],
-    year: 0,
     img: "sneaker_images/square/Yeezys_350_Mono_Ice_GW2869.jpg",
     gallery: ["sneaker_images/square/Yeezys_350_Mono_Ice_GW2869.jpg"],
     sku: "GW2869"
   },
   {
-    id: 32,
+    id: 30,
     brand: "adidas",
-    name: "Yeezy Boost 350 V2 Israfil",
-    color: "Original Colorway",
+    name: "adidas Yeezy Boost 350 V2 Israfil",
+    color: "Israfil",
     condition: "New",
     box: "Original Box",
     sizes: ["6"],
-    year: 0,
     img: "sneaker_images/square/Yeezys_350_Israfil_FZ5421.jpg",
     gallery: ["sneaker_images/square/Yeezys_350_Israfil_FZ5421.jpg"],
     sku: "FZ5421"
   },
   {
-    id: 33,
+    id: 31,
     brand: "adidas",
-    name: "Yeezy Boost 350 V2 Bone",
-    color: "Original Colorway",
+    name: "adidas Yeezy Boost 350 V2 Bone",
+    color: "Bone",
     condition: "New",
     box: "Original Box",
     sizes: ["6"],
-    year: 0,
     img: "sneaker_images/square/Yeezys_350_Bone_HQ6316.jpg",
     gallery: ["sneaker_images/square/Yeezys_350_Bone_HQ6316.jpg"],
     sku: "HQ6316"
   },
   {
-    id: 34,
+    id: 32,
     brand: "Jordan",
     name: "WMNS Air Jordan 1 Low",
-    color: "Original Colorway",
+    color: "Marina Blue (Women's)",
     condition: "New",
     box: "Original Box",
     sizes: ["6"],
-    year: 0,
     img: "sneaker_images/square/Sheet2_WMNS_Air_Jordan_1_Low_DC0774_114.jpg",
     gallery: ["sneaker_images/square/Sheet2_WMNS_Air_Jordan_1_Low_DC0774_114.jpg"],
     sku: "DC0774-114"
   },
   {
-    id: 35,
+    id: 33,
     brand: "Jordan",
     name: "Jordan 5 RetroRaging Bull Red (2021) (GS)",
-    color: "Original Colorway",
+    color: "Raging Bull Red (2021) (GS)",
     condition: "New",
     box: "Original Box",
     sizes: ["3.5", "4", "4.5", "6.5"],
-    year: 0,
     img: "sneaker_images/square/Sheet2_Jordan_5_RetroRaging_Bull_Red_2021_GS_440888_600.jpg",
     gallery: ["sneaker_images/square/Sheet2_Jordan_5_RetroRaging_Bull_Red_2021_GS_440888_600.jpg"],
     sku: "440888-600"
   },
   {
-    id: 36,
+    id: 34,
     brand: "Jordan",
     name: "Air Jordan 1 Retro High OG",
-    color: "Original Colorway",
+    color: "Dark Marina Blue",
     condition: "New",
     box: "Original Box",
     sizes: ["8"],
-    year: 0,
     img: "sneaker_images/square/Sheet2_Air_Jordan_1_Retro_High_OG_555088_404.jpg",
     gallery: ["sneaker_images/square/Sheet2_Air_Jordan_1_Retro_High_OG_555088_404.jpg"],
     sku: "555088-404"
   },
   {
-    id: 37,
-    brand: "Other",
+    id: 35,
+    brand: "Jordan",
     name: "Hyper Royal/Light Smoke Grey-White",
-    color: "Original Colorway",
+    color: "Hyper Royal Smoke Grey (GS)",
     condition: "New",
     box: "Original Box",
     sizes: ["4.5"],
-    year: 0,
     img: "sneaker_images/square/Sheet2_Hyper_Royal_Light_Smoke_Grey_White_575441_402.jpg",
     gallery: ["sneaker_images/square/Sheet2_Hyper_Royal_Light_Smoke_Grey_White_575441_402.jpg"],
     sku: "575441-402"
   },
   {
-    id: 38,
+    id: 36,
     brand: "Jordan",
     name: "Jordan 6 UNC University Blue White",
-    color: "Original Colorway",
+    color: "UNC White",
     condition: "New",
     box: "Original Box",
     sizes: ["8"],
-    year: 0,
     img: "sneaker_images/square/Sheet2_Jordan_6_UNC_University_Blue_White_CT8529_410.jpg",
     gallery: ["sneaker_images/square/Sheet2_Jordan_6_UNC_University_Blue_White_CT8529_410.jpg"],
     sku: "CT8529-410"
   },
   {
-    id: 39,
+    id: 37,
     brand: "Jordan",
     name: "Jordan 1 Lucky Green/White-Sail-Black",
-    color: "Original Colorway",
+    color: "Lucky Green (Women's)",
     condition: "New",
     box: "Original Box",
     sizes: ["7", "12"],
-    year: 0,
     img: "sneaker_images/square/Sheet2_Jordan_1_Lucky_Green_White_Sail_Black_DB4612_300.jpg",
     gallery: ["sneaker_images/square/Sheet2_Jordan_1_Lucky_Green_White_Sail_Black_DB4612_300.jpg"],
     sku: "DB4612-300"
   },
   {
-    id: 40,
+    id: 38,
     brand: "Jordan",
     name: "Jordan 1 Mid Black/Medium Grey-White",
-    color: "Original Colorway",
+    color: "White Shadow (GS)",
     condition: "New",
     box: "Original Box",
     sizes: ["7Y"],
-    year: 0,
     img: "sneaker_images/square/Sheet2_Jordan_1_Mid_Black_Medium_Grey_White_554725_073.jpg",
     gallery: ["sneaker_images/square/Sheet2_Jordan_1_Mid_Black_Medium_Grey_White_554725_073.jpg"],
     sku: "554725-073"
   },
   {
-    id: 41,
-    brand: "Nike",
-    name: "WMNS Travis Scott Air Force 1 White/White",
-    color: "Original Colorway",
-    condition: "New",
-    box: "Original Box",
-    sizes: ["9", "9.5", "W"],
-    year: 0,
-    img: "sneaker_images/square/Sheet2_WMNS_Travis_Scott_Air_Force_1_White_White_DD8959_100.jpg",
-    gallery: ["sneaker_images/square/Sheet2_WMNS_Travis_Scott_Air_Force_1_White_White_DD8959_100.jpg"],
-    sku: "DD8959-100"
-  },
-  {
-    id: 42,
+    id: 39,
     brand: "Jordan",
     name: "Jordan 11 Retro Jubilee 25th Anniversary",
-    color: "Original Colorway",
+    color: "Jubilee 25th Anniversary",
     condition: "New",
     box: "Original Box",
-    sizes: ["7.5", "8", "9", "13"],
-    year: 0,
+    sizes: ["7.5", "8", "9", "11", "12", "13"],
     img: "sneaker_images/square/Sheet2_Jordan_11_Retro_Jubilee_25th_Anniversary_CT8012_011.jpg",
     gallery: ["sneaker_images/square/Sheet2_Jordan_11_Retro_Jubilee_25th_Anniversary_CT8012_011.jpg"],
     sku: "CT8012-011"
   },
   {
-    id: 43,
+    id: 40,
     brand: "Nike",
     name: "Air Max 97 Undefeated Militia Green/Orange Blaze/White/Black",
-    color: "Original Colorway",
+    color: "Undefeated Militia Green (2020)",
     condition: "New",
     box: "Original Box",
     sizes: ["9.5"],
-    year: 0,
     img: "sneaker_images/square/Sheet2_Air_Max_97_Undefeated_Militia_Green_Orange_Blaze_White_Black_DC4830_300.jpg",
     gallery: ["sneaker_images/square/Sheet2_Air_Max_97_Undefeated_Militia_Green_Orange_Blaze_White_Black_DC4830_300.jpg"],
     sku: "DC4830-300"
   },
   {
-    id: 44,
+    id: 41,
     brand: "Nike",
     name: "Air Max 97 Undefeated Black/Volt/Militia Green",
-    color: "Original Colorway",
+    color: "Undefeated Black Volt",
     condition: "New",
     box: "Original Box",
     sizes: ["9.5"],
-    year: 0,
     img: "sneaker_images/square/Sheet2_Air_Max_97_Undefeated_Black_Volt_Militia_Green_DC4830_001.jpg",
     gallery: ["sneaker_images/square/Sheet2_Air_Max_97_Undefeated_Black_Volt_Militia_Green_DC4830_001.jpg"],
     sku: "DC4830-001"
   },
   {
-    id: 45,
+    id: 42,
     brand: "Jordan",
     name: "WMNS Jordan 1 High OG Black/Metalic",
-    color: "Original Colorway",
+    color: "Silver Toe (Women's)",
     condition: "New",
     box: "Original Box",
     sizes: ["5W"],
-    year: 0,
     img: "sneaker_images/square/Sheet2_WMNS_Jordan_1_High_OG_Black_Metalic_CD0461_001.jpg",
     gallery: ["sneaker_images/square/Sheet2_WMNS_Jordan_1_High_OG_Black_Metalic_CD0461_001.jpg"],
     sku: "CD0461-001"
   },
   {
-    id: 46,
+    id: 43,
     brand: "Jordan",
     name: "WMNS Jordan 3 Retro SP A Ma Maniere",
-    color: "Original Colorway",
+    color: "A Ma Maniére (Women's)",
     condition: "New",
     box: "Original Box",
     sizes: ["5.5W"],
-    year: 0,
     img: "sneaker_images/square/Sheet2_WMNS_Jordan_3_Retro_SP_A_Ma_Maniere_DH3434_110.jpg",
     gallery: ["sneaker_images/square/Sheet2_WMNS_Jordan_3_Retro_SP_A_Ma_Maniere_DH3434_110.jpg"],
     sku: "DH3434-110"
   },
   {
-    id: 47,
+    id: 44,
     brand: "Jordan",
     name: "Jordan 5 Retro A Ma Maniére Dusk",
-    color: "Original Colorway",
+    color: "A Ma Maniére Dusk",
     condition: "New",
     box: "Original Box",
     sizes: ["8"],
-    year: 0,
     img: "sneaker_images/square/Sheet2_Jordan_5_Retro_A_Ma_Mani_re_Dusk_FD1330_001.jpg",
     gallery: ["sneaker_images/square/Sheet2_Jordan_5_Retro_A_Ma_Mani_re_Dusk_FD1330_001.jpg"],
     sku: "FD1330-001"
   },
   {
-    id: 48,
-    brand: "Jordan",
-    name: "Jordan 6 Retro Hare",
-    color: "Original Colorway",
-    condition: "New",
-    box: "Original Box",
-    sizes: ["8", "10"],
-    year: 0,
-    img: "sneaker_images/square/Sheet2_Jordan_6_Retro_Hare_CT8529_062.jpg",
-    gallery: ["sneaker_images/square/Sheet2_Jordan_6_Retro_Hare_CT8529_062.jpg"],
-    sku: "CT8529-062"
-  },
-  {
-    id: 49,
+    id: 45,
     brand: "Nike",
     name: "Air Max 90 St Patrick's Day (2021)",
-    color: "Original Colorway",
+    color: "St Patrick's Day (2021)",
     condition: "New",
     box: "Original Box",
     sizes: ["11.5"],
-    year: 0,
     img: "sneaker_images/square/Sheet2_Air_Max_90_St_Patrick_s_Day_2021_DD8555_300.jpg",
     gallery: ["sneaker_images/square/Sheet2_Air_Max_90_St_Patrick_s_Day_2021_DD8555_300.jpg"],
     sku: "DD8555-300"
   },
   {
-    id: 50,
+    id: 46,
     brand: "Jordan",
     name: "Jordan 5 Bel-Air White/Court Purple-Racer Pink-Ghost Green",
-    color: "Original Colorway",
+    color: "Alternate Bel-Air",
     condition: "New",
     box: "Original Box",
     sizes: ["7.5"],
-    year: 0,
     img: "sneaker_images/square/Sheet2_Jordan_5_Bel_Air_White_Court_Purple_Racer_Pink_Ghost_Green_DB3335_100.jpg",
     gallery: ["sneaker_images/square/Sheet2_Jordan_5_Bel_Air_White_Court_Purple_Racer_Pink_Ghost_Green_DB3335_100.jpg"],
     sku: "DB3335-100"
   },
   {
-    id: 51,
+    id: 47,
     brand: "adidas",
     name: "Adidas Forum Buckle Low Bad Bunny Last Forum",
-    color: "Original Colorway",
+    color: "Bad Bunny Last Forum",
     condition: "New",
     box: "Original Box",
     sizes: ["11"],
-    year: 0,
     img: "sneaker_images/square/Sheet2_Adidas_Forum_Buckle_Low_Bad_Bunny_Last_Forum_HQ2153.jpg",
     gallery: ["sneaker_images/square/Sheet2_Adidas_Forum_Buckle_Low_Bad_Bunny_Last_Forum_HQ2153.jpg"],
     sku: "HQ2153"
   },
   {
-    id: 52,
+    id: 48,
     brand: "adidas",
     name: "Adidas Forum 84 Bape Low Green Camo",
-    color: "Original Colorway",
+    color: "Bape 30th Anniversary Green Camo",
     condition: "New",
     box: "Original Box",
     sizes: ["7"],
-    year: 0,
     img: "sneaker_images/square/Sheet2_Adidas_Forum_84_Bape_Low_Green_Camo_ID4771.jpg",
     gallery: ["sneaker_images/square/Sheet2_Adidas_Forum_84_Bape_Low_Green_Camo_ID4771.jpg"],
     sku: "ID4771"
   },
   {
-    id: 53,
+    id: 49,
     brand: "Jordan",
     name: "Jordan 5 Retro (PS) Travis Scott British Khaki",
-    color: "Original Colorway",
+    color: "Travis Scott British Khaki (PS)",
     condition: "New",
     box: "Original Box",
     sizes: ["2.5Y"],
-    year: 0,
     img: "sneaker_images/square/Sheet2_Jordan_5_Retro_PS_Travis_Scott_British_Khaki_DH0693_200.jpg",
     gallery: ["sneaker_images/square/Sheet2_Jordan_5_Retro_PS_Travis_Scott_British_Khaki_DH0693_200.jpg"],
     sku: "DH0693-200"
   },
   {
-    id: 54,
+    id: 50,
     brand: "Jordan",
     name: "Air Jordan 6 Retro Travis Scott British Khaki",
-    color: "Original Colorway",
+    color: "Travis Scott British Khaki",
     condition: "New",
     box: "Original Box",
     sizes: ["8", "13"],
-    year: 0,
     img: "sneaker_images/square/Sheet2_Air_Jordan_6_Retro_Travis_Scott_British_Khaki_DH0690_200.jpg",
     gallery: ["sneaker_images/square/Sheet2_Air_Jordan_6_Retro_Travis_Scott_British_Khaki_DH0690_200.jpg"],
     sku: "DH0690-200"
   },
   {
-    id: 55,
+    id: 51,
     brand: "Jordan",
     name: "Air Jordan 1 Mid SE Red Black Toe",
-    color: "Original Colorway",
+    color: "Red Black Toe",
     condition: "New",
     box: "Original Box",
     sizes: ["10"],
-    year: 0,
     img: "sneaker_images/square/Sheet2_Air_Jordan_1_Mid_SE_Red_Black_Toe_852542_100.jpg",
     gallery: ["sneaker_images/square/Sheet2_Air_Jordan_1_Mid_SE_Red_Black_Toe_852542_100.jpg"],
     sku: "852542-100"
   },
   {
-    id: 56,
+    id: 52,
     brand: "Jordan",
     name: "Jordan 1 Retro High OG Patent Bred",
-    color: "Original Colorway",
+    color: "Patent Bred",
     condition: "New",
     box: "Original Box",
     sizes: ["8"],
-    year: 0,
     img: "sneaker_images/square/Sheet2_Jordan_1_Retro_High_OG_Patent_Bred_555088_063.jpg",
     gallery: ["sneaker_images/square/Sheet2_Jordan_1_Retro_High_OG_Patent_Bred_555088_063.jpg"],
     sku: "555088-063"
   },
   {
-    id: 57,
+    id: 53,
     brand: "Nike",
     name: "Nike Air Trainer 3 Viotech",
-    color: "Original Colorway",
+    color: "Viotech (2020)",
     condition: "New",
     box: "Original Box",
     sizes: ["7.5"],
-    year: 0,
     img: "sneaker_images/square/Sheet2_Nike_Air_Trainer_3_Viotech_CZ6393_500.jpg",
     gallery: ["sneaker_images/square/Sheet2_Nike_Air_Trainer_3_Viotech_CZ6393_500.jpg"],
     sku: "CZ6393-500"
   },
   {
-    id: 58,
+    id: 54,
     brand: "Jordan",
     name: "Jordan 1 Retro High Light Smoke Grey",
-    color: "Original Colorway",
+    color: "Light Smoke Grey",
     condition: "New",
     box: "Original Box",
     sizes: ["10.5"],
-    year: 0,
     img: "sneaker_images/square/Sheet2_Jordan_1_Retro_High_Light_Smoke_Grey_555088_126.jpg",
     gallery: ["sneaker_images/square/Sheet2_Jordan_1_Retro_High_Light_Smoke_Grey_555088_126.jpg"],
     sku: "555088-126"
   },
   {
-    id: 59,
+    id: 55,
     brand: "Jordan",
     name: "Jordan 4 Retro (GS) White Cement",
-    color: "Original Colorway",
+    color: "White Oreo (2021) (GS)",
     condition: "New",
     box: "Original Box",
     sizes: ["6.5"],
-    year: 0,
     img: "sneaker_images/square/Sheet2_Jordan_4_Retro_GS_White_Cement_DJ4699_100.jpg",
     gallery: ["sneaker_images/square/Sheet2_Jordan_4_Retro_GS_White_Cement_DJ4699_100.jpg"],
     sku: "DJ4699-100"
   },
   {
-    id: 60,
+    id: 56,
     brand: "Jordan",
     name: "Jordan 4 White Cement",
-    color: "Original Colorway",
+    color: "White Oreo (2021)",
     condition: "New",
     box: "Original Box",
     sizes: ["8"],
-    year: 0,
     img: "sneaker_images/square/Sheet2_Jordan_4_White_Cement_CT8527_100.jpg",
     gallery: ["sneaker_images/square/Sheet2_Jordan_4_White_Cement_CT8527_100.jpg"],
     sku: "CT8527-100"
   },
   {
-    id: 61,
+    id: 57,
     brand: "Jordan",
     name: "Jordan 6 Carmine",
-    color: "Original Colorway",
+    color: "Carmine (2021)",
     condition: "New",
     box: "Original Box",
     sizes: ["10", "10.5"],
-    year: 0,
     img: "sneaker_images/square/Sheet2_Jordan_6_Carmine_CT8529_106.jpg",
     gallery: ["sneaker_images/square/Sheet2_Jordan_6_Carmine_CT8529_106.jpg"],
     sku: "CT8529-106"
   },
   {
-    id: 62,
+    id: 58,
     brand: "Nike",
     name: "Nike Dunk Low University Blue",
-    color: "Original Colorway",
+    color: "UNC (2021)",
     condition: "New",
     box: "Original Box",
     sizes: ["10"],
-    year: 0,
     img: "sneaker_images/square/Sheet2_Nike_Dunk_Low_University_Blue_DD1391_102.jpg",
     gallery: ["sneaker_images/square/Sheet2_Nike_Dunk_Low_University_Blue_DD1391_102.jpg"],
     sku: "DD1391-102"
   },
   {
-    id: 63,
+    id: 59,
     brand: "Jordan",
     name: "Jordan 4 University Blue",
-    color: "Original Colorway",
+    color: "University Blue",
     condition: "New",
     box: "Original Box",
     sizes: ["8", "10.5"],
-    year: 0,
     img: "sneaker_images/square/Sheet2_Jordan_4_University_Blue_CT8527_400.jpg",
     gallery: ["sneaker_images/square/Sheet2_Jordan_4_University_Blue_CT8527_400.jpg"],
     sku: "CT8527-400"
   },
   {
-    id: 64,
+    id: 60,
     brand: "Nike",
     name: "Nike Blazer Low / Sacai",
-    color: "Original Colorway",
+    color: "sacai Iron Grey",
     condition: "New",
     box: "Original Box",
     sizes: ["8"],
-    year: 0,
     img: "sneaker_images/square/Sheet2_Nike_Blazer_Low_Sacai_DD1877_002.jpg",
     gallery: ["sneaker_images/square/Sheet2_Nike_Blazer_Low_Sacai_DD1877_002.jpg"],
     sku: "DD1877-002"
   },
   {
-    id: 65,
+    id: 61,
     brand: "Jordan",
     name: "Jordan 4 Tour Yellow",
-    color: "Original Colorway",
+    color: "Lightning (2021)",
     condition: "New",
     box: "Original Box",
     sizes: ["8"],
-    year: 0,
     img: "sneaker_images/square/Sheet2_Jordan_4_Tour_Yellow_CT8527_700.jpg",
     gallery: ["sneaker_images/square/Sheet2_Jordan_4_Tour_Yellow_CT8527_700.jpg"],
     sku: "CT8527-700"
   },
   {
-    id: 66,
+    id: 62,
     brand: "Jordan",
     name: "Jordan 14 Low CLOT Terra Blush",
-    color: "Original Colorway",
+    color: "Low CLOT Terra Blush",
     condition: "New",
     box: "Original Box",
     sizes: ["6.5", "10.5"],
-    year: 0,
     img: "sneaker_images/square/Sheet2_Jordan_14_Low_CLOT_Terra_Blush_DC9857_200.jpg",
     gallery: ["sneaker_images/square/Sheet2_Jordan_14_Low_CLOT_Terra_Blush_DC9857_200.jpg"],
     sku: "DC9857-200"
   },
   {
-    id: 67,
+    id: 63,
     brand: "Nike",
     name: "Nike Lebron VII Media Day",
-    color: "Original Colorway",
+    color: "Media Day",
     condition: "New",
     box: "Original Box",
     sizes: ["9"],
-    year: 0,
     img: "sneaker_images/square/Sheet2_Nike_Lebron_VII_Media_Day_CW2300_500.jpg",
     gallery: ["sneaker_images/square/Sheet2_Nike_Lebron_VII_Media_Day_CW2300_500.jpg"],
     sku: "CW2300-500"
   },
   {
-    id: 68,
+    id: 64,
     brand: "Nike",
     name: "Air Max 90",
-    color: "Original Colorway",
+    color: "Supernova (2020)",
     condition: "New",
     box: "Original Box",
     sizes: ["11"],
-    year: 0,
     img: "sneaker_images/square/Sheet2_Air_Max_90_CW6018_001.jpg",
     gallery: ["sneaker_images/square/Sheet2_Air_Max_90_CW6018_001.jpg"],
     sku: "CW6018-001"
   },
   {
-    id: 69,
+    id: 65,
     brand: "Jordan",
     name: "Jordan 1 Mid Black/Red/White",
-    color: "Original Colorway",
+    color: "Bred Toe",
     condition: "New",
     box: "Original Box",
     sizes: ["12"],
-    year: 0,
     img: "sneaker_images/square/Sheet2_Jordan_1_Mid_Black_Red_White_554724_066.jpg",
     gallery: ["sneaker_images/square/Sheet2_Jordan_1_Mid_Black_Red_White_554724_066.jpg"],
     sku: "554724-066"
   },
   {
-    id: 70,
+    id: 66,
     brand: "Nike",
     name: "Nike Dunk High (PS) Black/Yellow",
-    color: "Original Colorway",
+    color: "Iowa (2020) (PS)",
     condition: "New",
     box: "Original Box",
     sizes: ["2Y"],
-    year: 0,
     img: "sneaker_images/square/Sheet2_Nike_Dunk_High_PS_Black_Yellow_DC9053_002.jpg",
     gallery: ["sneaker_images/square/Sheet2_Nike_Dunk_High_PS_Black_Yellow_DC9053_002.jpg"],
     sku: "DC9053-002"
   },
   {
-    id: 71,
+    id: 67,
     brand: "adidas",
     name: "Adidas Forum Powerphase Bad Bunny Benito",
-    color: "Original Colorway",
+    color: "Bad Bunny Benito",
     condition: "New",
     box: "Original Box",
     sizes: ["8"],
-    year: 0,
     img: "sneaker_images/square/Sheet2_Adidas_Forum_Powerphase_Bad_Bunny_Benito_GZ2009.jpg",
     gallery: ["sneaker_images/square/Sheet2_Adidas_Forum_Powerphase_Bad_Bunny_Benito_GZ2009.jpg"],
     sku: "GZ2009"
   },
   {
-    id: 72,
+    id: 68,
     brand: "Jordan",
     name: "Jordan 5 Sail Off White",
-    color: "Original Colorway",
+    color: "Off-White Sail (PS)",
     condition: "New",
     box: "Original Box",
     sizes: ["2Y"],
-    year: 0,
     img: "sneaker_images/square/Sheet2_Jordan_5_Sail_Off_White_CV4827_100.jpg",
     gallery: ["sneaker_images/square/Sheet2_Jordan_5_Sail_Off_White_CV4827_100.jpg"],
     sku: "CV4827-100"
   },
   {
-    id: 73,
+    id: 69,
     brand: "Jordan",
     name: "Jordan 4 White/Black/Grey Army",
-    color: "Original Colorway",
+    color: "Military Black",
     condition: "New",
     box: "Original Box",
     sizes: ["8"],
-    year: 0,
     img: "sneaker_images/square/Sheet2_Jordan_4_White_Black_Grey_Army_DH6927_111.jpg",
     gallery: ["sneaker_images/square/Sheet2_Jordan_4_White_Black_Grey_Army_DH6927_111.jpg"],
     sku: "DH6927-111"
   },
   {
-    id: 74,
+    id: 70,
     brand: "Jordan",
     name: "Jordan 1 Spider Man",
-    color: "Original Colorway",
+    color: "Spider-Man Across the Spider-Verse",
     condition: "New",
     box: "Original Box",
     sizes: ["12"],
-    year: 0,
     img: "sneaker_images/square/Sheet2_Jordan_1_Spider_Man_DV1748_601.jpg",
     gallery: ["sneaker_images/square/Sheet2_Jordan_1_Spider_Man_DV1748_601.jpg"],
     sku: "DV1748-601"
   },
   {
-    id: 75,
+    id: 71,
     brand: "Jordan",
     name: "Jordan 4 Craft Photon Dust / Patch Works",
-    color: "Original Colorway",
+    color: "Craft Photon Dust",
     condition: "New",
     box: "Original Box",
     sizes: ["10", "12.5"],
-    year: 0,
     img: "sneaker_images/square/Sheet2_Jordan_4_Craft_Photon_Dust_Patch_Works_DV3742_021.jpg",
     gallery: ["sneaker_images/square/Sheet2_Jordan_4_Craft_Photon_Dust_Patch_Works_DV3742_021.jpg"],
     sku: "DV3742-021"
   },
   {
-    id: 76,
+    id: 72,
     brand: "Nike",
     name: "Nike Air Max 1 Clot",
-    color: "Original Colorway",
+    color: "CLOT Kiss of Death (2021)",
     condition: "New",
     box: "Original Box",
     sizes: ["4.5"],
-    year: 0,
     img: "sneaker_images/square/Sheet2_Nike_Air_Max_1_Clot_DD1870_100.jpg",
     gallery: ["sneaker_images/square/Sheet2_Nike_Air_Max_1_Clot_DD1870_100.jpg"],
     sku: "DD1870-100"
   },
-{
-    id: 77,
+  {
+    id: 73,
     brand: "Supreme",
     name: "Supreme Cross Box Logo Tee Natural",
     color: "Natural",
@@ -1000,8 +890,8 @@ const localProducts = [
     gallery: ["images/supreme/supreme-cross-box-logo-tee-natural.webp"],
     sku: "SUPREME-CBLT-NATURAL"
   },
-{
-    id: 78,
+  {
+    id: 74,
     brand: "Supreme",
     name: "Supreme Cross Box Logo Tee Navy",
     color: "Navy",
@@ -1012,8 +902,8 @@ const localProducts = [
     gallery: ["images/supreme/supreme-cross-box-logo-tee-navy.webp"],
     sku: "SUPREME-CBLT-NAVY"
   },
-{
-    id: 79,
+  {
+    id: 75,
     brand: "Supreme",
     name: "Supreme Motion Logo Tee Heather Grey (SS23)",
     color: "Heather Grey",
@@ -1024,8 +914,8 @@ const localProducts = [
     gallery: ["images/supreme/supreme-motion-logo-tee-ss23-heather-grey.webp"],
     sku: "SUPREME-MLTHG-SS23"
   },
-{
-    id: 80,
+  {
+    id: 76,
     brand: "Supreme",
     name: "Supreme Rick Rubin Tee Heather Grey",
     color: "Heather Grey",
@@ -1036,8 +926,8 @@ const localProducts = [
     gallery: ["images/supreme/supreme-rick-rubin-tee-heather-grey.webp"],
     sku: "SUPREME-RRT-HG"
   },
-{
-    id: 81,
+  {
+    id: 77,
     brand: "Supreme",
     name: "Supreme Tonal Box Logo Tee Navy",
     color: "Navy",
@@ -1048,8 +938,8 @@ const localProducts = [
     gallery: ["images/supreme/supreme-tonal-box-logo-tee-navy.webp"],
     sku: "SUPREME-TBLT-NAVY"
   },
-{
-    id: 82,
+  {
+    id: 78,
     brand: "Bearbrick",
     category: "random",
     name: "Bearbrick Andy Warhol Double Mona Lisa 100% & 400% Set Multicolor",
@@ -1069,8 +959,8 @@ const localProducts = [
       "Colorway: Multicolor"
     ]
   },
-{
-    id: 83,
+  {
+    id: 79,
     brand: "Supreme",
     name: "Supreme World Famous Box Logo New Era Black",
     color: "Black",
@@ -1089,8 +979,8 @@ const localProducts = [
       "Colorway: Black"
     ]
   },
-{
-    id: 84,
+  {
+    id: 80,
     brand: "Supreme",
     name: "Supreme World Famous Box Logo New Era Navy",
     color: "Navy",
@@ -1109,8 +999,8 @@ const localProducts = [
       "Colorway: Navy"
     ]
   },
-{
-    id: 85,
+  {
+    id: 81,
     brand: "The North Face",
     category: "clothing",
     name: "KAWS x The North Face Popover Hoodie Pamplona Purple",
@@ -1130,8 +1020,8 @@ const localProducts = [
       "Colorway: Pamplona Purple"
     ]
   },
-{
-    id: 86,
+  {
+    id: 82,
     brand: "Supreme",
     category: "random",
     name: "Supreme Skull Pile Skateboard Deck Green",
@@ -1151,8 +1041,8 @@ const localProducts = [
       "Colorway: Green/Black"
     ]
   },
-{
-    id: 87,
+  {
+    id: 83,
     brand: "MadCan",
     category: "random",
     name: "MadCan Spray Can Art Figure Green Camo",
@@ -1175,8 +1065,8 @@ const localProducts = [
       "Black legs set on chunky pink block boots, glossy finish all over"
     ]
   },
-{
-    id: 88,
+  {
+    id: 84,
     brand: "Huffy",
     category: "random",
     name: "Huffy Nel Lusso Girls Cruiser Bike 24-Inch Mint Green",
@@ -1199,8 +1089,8 @@ const localProducts = [
       "Cream tires on chrome rims; colorway: Mint Green"
     ]
   },
-{
-    id: 89,
+  {
+    id: 85,
     brand: "New Era",
     category: "clothing",
     sizeGroup: "Headwear",
@@ -1227,8 +1117,8 @@ const localProducts = [
       "Colorway: Navy"
     ]
   },
-{
-    id: 90,
+  {
+    id: 86,
     brand: "Jordan",
     name: "Air Jordan 12 Retro Grade School",
     color: "Grade School",
@@ -1239,8 +1129,8 @@ const localProducts = [
     gallery: ["sneaker_images/square/Sheet2_Air_Jordan_12_Retro_Grade_School_153265_070.jpg"],
     sku: "153265-070"
   },
-{
-    id: 91,
+  {
+    id: 87,
     brand: "Jordan",
     name: "Air Jordan 12 Retro Grade School",
     color: "Grade School",
@@ -1251,8 +1141,8 @@ const localProducts = [
     gallery: ["sneaker_images/square/Sheet2_Air_Jordan_12_Retro_Grade_School_DH0905_005.jpg"],
     sku: "DH0905-005"
   },
-{
-    id: 92,
+  {
+    id: 88,
     brand: "Jordan",
     name: "Air Jordan 1 Low Grade School",
     color: "Grade School",
@@ -1263,8 +1153,8 @@ const localProducts = [
     gallery: ["sneaker_images/square/Sheet2_Air_Jordan_1_Low_Grade_School_553560_606.jpg"],
     sku: "553560-606"
   },
-{
-    id: 93,
+  {
+    id: 89,
     brand: "Jordan",
     name: "Air Jordan 1 Retro High OG",
     color: "Lost and Found",
@@ -1275,8 +1165,8 @@ const localProducts = [
     gallery: ["sneaker_images/square/Sheet2_Air_Jordan_1_Retro_High_OG_555088_032.jpg"],
     sku: "555088-032"
   },
-{
-    id: 94,
+  {
+    id: 90,
     brand: "Jordan",
     name: "Air Jordan 1 Retro High OG",
     color: "Chicago Lost and Found",
@@ -1287,8 +1177,8 @@ const localProducts = [
     gallery: ["sneaker_images/square/Sheet2_Air_Jordan_1_Retro_High_OG_555088_033.jpg"],
     sku: "555088-033"
   },
-{
-    id: 95,
+  {
+    id: 91,
     brand: "Jordan",
     name: "Air Jordan 5 Retro Grade School",
     color: "Grade School",
@@ -1299,8 +1189,8 @@ const localProducts = [
     gallery: ["sneaker_images/square/Sheet2_Air_Jordan_5_Retro_GradeSchool_CZ2989_001.jpg"],
     sku: "CZ2989-001"
   },
-{
-    id: 96,
+  {
+    id: 92,
     brand: "Jordan",
     name: "Air Jordan 5 Retro Grade School White Ghost",
     color: "White Ghost (Grade School)",
@@ -1311,8 +1201,8 @@ const localProducts = [
     gallery: ["sneaker_images/square/Sheet2_Air_Jordan_5_Retro_GradeSchool_Whiteghost_DB3024_100.jpg"],
     sku: "DB3024-100"
   },
-{
-    id: 97,
+  {
+    id: 93,
     brand: "Jordan",
     name: "Jordan 1 High OG PreSchool",
     color: "PreSchool",
@@ -1323,8 +1213,8 @@ const localProducts = [
     gallery: ["sneaker_images/square/Sheet2_Jordan_1_High_OG_PreSchool_CU0449_300.jpg"],
     sku: "CU0449-300"
   },
-{
-    id: 98,
+  {
+    id: 94,
     brand: "Jordan",
     name: "Jordan 1 High OG Toddler",
     color: "Toddler",
@@ -1335,8 +1225,8 @@ const localProducts = [
     gallery: ["sneaker_images/square/Sheet2_Jordan_1_High_OG_Toddler_CU0450_300.jpg"],
     sku: "CU0450-300"
   },
-{
-    id: 99,
+  {
+    id: 95,
     brand: "Jordan",
     name: "Jordan 1 Retro High OG Toddler",
     color: "Bred (Toddler)",
@@ -1347,8 +1237,20 @@ const localProducts = [
     gallery: ["sneaker_images/square/Sheet2_Jordan_1_Retro_High_OG_Toddler_AQ2665_063.jpg"],
     sku: "AQ2665-063"
   },
-{
-    id: 100,
+  {
+    id: 96,
+    brand: "Jordan",
+    name: "Jordan 6 Retro Hare",
+    color: "Hare",
+    condition: "New",
+    box: "Original Box",
+    sizes: ["8", "10"],
+    img: "sneaker_images/square/Sheet2_Jordan_6_Retro_Hare_CT8529_062.jpg",
+    gallery: ["sneaker_images/square/Sheet2_Jordan_6_Retro_Hare_CT8529_062.jpg"],
+    sku: "CT8529-062"
+  },
+  {
+    id: 97,
     brand: "New Balance",
     name: "New Balance 990v3 Bodega",
     color: "Bodega",
@@ -1359,8 +1261,20 @@ const localProducts = [
     gallery: ["sneaker_images/square/Sheet2_New_Balance_Bodega_M990BD3.jpg"],
     sku: "M990BD3"
   },
-{
-    id: 101,
+  {
+    id: 98,
+    brand: "Nike",
+    name: "WMNS Travis Scott Air Force 1 White/White",
+    color: "White/White (Women's)",
+    condition: "New",
+    box: "Original Box",
+    sizes: ["9W", "9.5W"],
+    img: "sneaker_images/square/Sheet2_WMNS_Travis_Scott_Air_Force_1_White_White_DD8959_100.jpg",
+    gallery: ["sneaker_images/square/Sheet2_WMNS_Travis_Scott_Air_Force_1_White_White_DD8959_100.jpg"],
+    sku: "DD8959-100"
+  },
+  {
+    id: 99,
     brand: "Nike",
     name: "Womans Nike Dunk Low OG Yellow Strike",
     color: "Yellow Strike (Women's)",
@@ -1371,8 +1285,8 @@ const localProducts = [
     gallery: ["sneaker_images/square/Sheet2_Womans_Nike_Dunk_Low_OG_Yellow_Strike_DM9467_700.jpg"],
     sku: "DM9467-700"
   },
-{
-    id: 102,
+  {
+    id: 100,
     brand: "Nike",
     name: "Womans Nike Dunk Low White Rose Whisper",
     color: "White Rose Whisper (Women's)",
@@ -1382,7 +1296,32 @@ const localProducts = [
     img: "sneaker_images/square/Sheet2_Womans_Nike_Dunk_Low_White_Rose_Whisper_DD1503_118.jpg",
     gallery: ["sneaker_images/square/Sheet2_Womans_Nike_Dunk_Low_White_Rose_Whisper_DD1503_118.jpg"],
     sku: "DD1503-118"
+  },
+  {
+    id: 101,
+    brand: "adidas",
+    name: "Yeezy Slide Core",
+    color: "Core",
+    condition: "New",
+    box: "Original Box",
+    sizes: ["4", "10"],
+    img: "sneaker_images/square/Yeezys_Slide_Core_GW5350.jpg",
+    gallery: ["sneaker_images/square/Yeezys_Slide_Core_GW5350.jpg"],
+    sku: "GW5350"
+  },
+  {
+    id: 102,
+    brand: "adidas",
+    name: "Yeezy Slide Resin",
+    color: "Resin",
+    condition: "New",
+    box: "Original Box",
+    sizes: ["10"],
+    img: "sneaker_images/square/Yeezys_Slide_Resin_GZ5551.jpg",
+    gallery: ["sneaker_images/square/Yeezys_Slide_Resin_GZ5551.jpg"],
+    sku: "GZ5551"
   }
 ];
 /* == local-products:end == */
+
 window.localProducts = localProducts;
