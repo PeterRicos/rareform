@@ -88,6 +88,11 @@ seconds; at the `--wait 24` ceiling that is at most four calls per invocation. E
 `GITHUB_TOKEN` if a loop is going to run long. Do not push `--wait` further — the cap
 applies to the whole command, network time included.
 
+The verdict is per workflow, taken from its newest run, because one push can start two: the
+Pages build, then the stamp commit's own Pages build, and `concurrency: cancel-in-progress`
+kills the first one on purpose. Those show up marked `superseded` and do not turn exit `0`
+into a failure. A failed *newest* run still exits `1` and names the workflow and conclusion.
+
 ## Do not "improve" these — each was decided on purpose
 
 - **No prices.** No `price` in a listing, no `Offer.price` in the structured data, no price

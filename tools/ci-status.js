@@ -12,9 +12,14 @@
 // polls inside the chunk and says, in its exit code, whether to come back:
 //
 //   0  everything it looked at is finished, and nothing failed
-//   1  a run failed (or was cancelled / timed out / needs action)
+//   1  the newest run of a workflow failed (timed out, needs action, or was cancelled and
+//      nothing replaced it)
 //   3  still running when the wait ran out — call it again
 //   2  the API could not be read (bad --repo, or the hourly rate limit)
+//
+// "Newest run of each workflow" is the whole trick: one push can start two runs, and
+// `concurrency: cancel-in-progress` kills the earlier one on purpose. Judging every row
+// made a healthy deploy report itself as failed because its own predecessor was cancelled.
 //
 // Unauthenticated GitHub allows 60 requests an hour per IP, so the interval is eight
 // seconds rather than one and a single call is at most four requests. Export GITHUB_TOKEN
@@ -81,13 +86,14 @@ async function getRuns(repo, limit) {
 
 const pad = (s, n) => String(s == null ? '' : s).padEnd(n).slice(0, n);
 
-function report(runs) {
+function report(runs, superseded) {
   if (!runs.length) return console.log('  (no runs)');
   console.log('  ' + pad('workflow', 30) + pad('status', 12) + pad('conclusion', 14) + pad('sha', 9) + 'age');
   for (const r of runs) {
     const age = Math.max(0, Math.round((Date.now() - Date.parse(r.created_at)) / 60000));
+    const mark = superseded.indexOf(r) >= 0 ? ' · superseded' : '';
     console.log('  ' + pad(r.name, 30) + pad(r.status, 12) + pad(r.conclusion || '-', 14) +
-      pad(String(r.head_sha || '').slice(0, 7), 9) + age + 'm ago');
+      pad(String(r.head_sha || '').slice(0, 7), 9) + age + 'm ago' + mark);
   }
 }
 
@@ -114,8 +120,23 @@ function report(runs) {
     await new Promise((ok) => setTimeout(ok, INTERVAL_MS));
   }
 
+  // Newest first, whatever order the API handed them over in — "the state of the site" is
+  // read off the top of this list, so it has to be the top.
+  runs = runs.slice().sort((a, b) => Date.parse(b.created_at) - Date.parse(a.created_at));
+
+  // One push can start two runs of the same workflow, and `concurrency: cancel-in-progress`
+  // cancels the older one deliberately. So the verdict is per workflow, from its newest run:
+  // everything below that is history, and a cancelled history entry is not a failure.
+  const newest = new Map();
+  runs.forEach((r) => {
+    const held = newest.get(r.name);
+    if (!held || Date.parse(r.created_at) > Date.parse(held.created_at)) newest.set(r.name, r);
+  });
+  const live = Array.from(newest.values());
+  const superseded = runs.filter((r) => live.indexOf(r) < 0 && r.conclusion === 'cancelled');
+
   console.log(repo + (opts.sha ? ' @ ' + opts.sha : '') + ':');
-  report(runs);
+  report(runs, superseded);
 
   if (!runs.length) {
     // A commit with no run is normal twice over: the first thirty seconds after a push,
@@ -125,16 +146,21 @@ function report(runs) {
     process.exitCode = 3;
     return;
   }
-  if (runs.some((r) => FAILED.has(r.conclusion))) {
-    console.log('  FAILED — open the run for the log');
+  if (live.some((r) => FAILED.has(r.conclusion))) {
+    const broken = live.filter((r) => FAILED.has(r.conclusion)).map((r) => r.name + '=' + r.conclusion);
+    console.log('  FAILED (' + broken.join(', ') + ') — open the run for the log');
     process.exitCode = 1;
     return;
   }
-  if (runs.some((r) => r.status !== 'completed')) {
-    const pending = runs.filter((r) => r.status !== 'completed').map((r) => r.name);
+  if (live.some((r) => r.status !== 'completed')) {
+    const pending = live.filter((r) => r.status !== 'completed').map((r) => r.name);
     console.log('  still running: ' + pending.join(', ') + ' — call again');
     process.exitCode = 3;
     return;
+  }
+  if (superseded.length) {
+    console.log('  ' + superseded.length + ' cancelled run(s) above were replaced by a newer build of the ' +
+      'same workflow, which passed — not a failure');
   }
   console.log('  all green');
   process.exitCode = 0;
