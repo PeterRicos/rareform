@@ -58,7 +58,11 @@
   <a class="skip-link" href="#main">Skip to main content</a>
 
   <!-- Announcement Bar -->
-  <aside class="announce" id="announce" role="region" aria-label="Announcement">
+  <!-- <aside> is already the complementary landmark. The generic "region" role that used to
+       sit here replaced that with a landmark promising this line of shipping copy is a
+       section of the page worth jumping to from a screen reader's landmark list. It is not,
+       so the role is gone; the aria-label keeps the bar named without the promotion. -->
+  <aside class="announce" id="announce" aria-label="Announcement">
     <div class="announce-content">
       <span class="announce-copy"><span class="announce-claim">NO CART — CALL OR TEXT <a class="announce-phone" id="announcePhone" href="#"></a> TO CLAIM A PAIR</span><span class="announce-shipping"> · ORDERS SHIP WITHIN 1-2 BUSINESS DAYS</span></span>
     </div>
