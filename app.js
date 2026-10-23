@@ -7,6 +7,65 @@ const moreProducts = [];
 products.push(...moreProducts);
 products.push(...(window.localProducts || []));
 
+// ---- Product addresses ------------------------------------------------------
+//
+// A pair is reachable at /product/<slug>/ — a real page, prerendered from this catalog
+// by prerender-products.js. slugs.js owns the slug rule; it is read defensively because
+// app.js must still run where it was not loaded (a harness booting products.js + app.js
+// alone, or a page whose slug file failed), and there the hash routes below are the
+// only addresses that exist.
+const slugger = (typeof window !== 'undefined' && window.RandomStockSlugs) || null;
+
+// The catalog stores every photo as a path from the site root ("sneaker_images/…").
+// That is the right thing to store, but it only resolves on a page served from the
+// root: from /product/<slug>/ the browser would ask for
+// /product/<slug>/sneaker_images/… and get a 404 — which is what a card grid or a
+// gallery drawn on a listing page would do. The generator stamps the depth it wrote on
+// <html data-asset-base>, and every catalog path goes through assetURL().
+const ASSET_BASE = (document.documentElement &&
+  document.documentElement.getAttribute('data-asset-base')) || '';
+
+function assetURL(src) {
+  const s = String(src == null ? '' : src);
+  if (!s) return s;
+  if (s.charAt(0) === '/' || /^[a-z][a-z0-9+.-]*:/i.test(s) || s.indexOf('//') === 0) return s;
+  return ASSET_BASE + s;
+}
+
+function productSlugOf(p) {
+  return (slugger && p) ? slugger.productSlug(p) : '';
+}
+
+// The href a card points at. Without the slugger there is no page to point at, so the
+// hash route is named instead — the same URL this site used before, which still works.
+function productHref(p) {
+  if (p && slugger) return '/product/' + productSlugOf(p) + '/';
+  return '#product/' + (p ? p.id : '');
+}
+
+// Is this document itself a prerendered listing page? Used to decide whether a link to
+// another view has to reset the path to "/" (see urlFor).
+function onProductPath() {
+  return typeof location !== 'undefined' &&
+    /^\/product\/[^/]+\/?$/.test(location.pathname || '');
+}
+
+// The listing this document was served for, or null on the homepage.
+function pathProduct() {
+  if (!onProductPath() || !slugger) return null;
+  const slug = decodeURIComponent((location.pathname || '').replace(/^\/product\//, '').replace(/\/.*$/, ''));
+  return products.find(p => productSlugOf(p) === slug) || null;
+}
+
+// The identity of the current history entry. A listing lives at a path and every other
+// view in the hash, so the two together are what "already on that URL" means here.
+// (Comparing location.hash alone would read every listing page as "#home".)
+function urlKey() {
+  const path = (typeof location !== 'undefined' && location.pathname) || '';
+  const hash = (typeof location !== 'undefined' && location.hash) || '';
+  return path + hash;
+}
+
 // State Management
     let current = products[0];
     let selectedSize = null;
@@ -220,20 +279,26 @@ products.push(...(window.localProducts || []));
       // Sneakers are the ones whose run is worth printing unasked; a size query prints
       // whatever answered it, clothing included ("M" is the answer to typing m).
       const sizeText = (isSneaker || sizeQuery) ? sizeLine : '';
+      // Every way into a pair is a real link to that pair's own page. The href is what
+      // a crawler follows, what a "copy link" gives, and what ctrl/cmd-click opens in a
+      // new tab; `data-act` is what keeps a plain click in this document, so the shop
+      // stays instant. (A <button> could do neither: it has no address to copy, and all
+      // 102 listings shared the homepage URL.)
+      const href = productHref(p);
       return `
         <article class="product">
-          <button class="product-image" type="button" aria-label="View ${p.name}" data-act="openProduct" data-arg="${p.id}">
-            <img src="${p.img}" alt="${p.name}" loading="lazy" decoding="async" width="400" height="400">
-          </button>
+          <a class="product-image" href="${href}" aria-label="View ${p.name}" data-product-link data-act="openProduct" data-arg="${p.id}">
+            <img src="${assetURL(p.img)}" alt="${p.name}" loading="lazy" decoding="async" width="400" height="400">
+          </a>
           <div class="p-info">
             <div class="brand">${p.brand}</div>
-            <button class="name" type="button" data-act="openProduct" data-arg="${p.id}">${p.name}</button>
+            <a class="name" href="${href}" data-product-link data-act="openProduct" data-arg="${p.id}">${p.name}</a>
             <div class="color">${p.color}</div>
             ${sizeText ? `<div class="sizes${sizeQuery ? ' sizes-match' : ''}">${sizeText}</div>` : ''}
             <div class="price-note">Price on request</div>
-            <button class="quick" data-act="openProduct" data-arg="${p.id}" data-stop="1">
+            <a class="quick" href="${href}" data-product-link data-act="openProduct" data-arg="${p.id}" data-stop="1">
               ${buttonText}
-            </button>
+            </a>
           </div>
         </article>
       `;
@@ -746,7 +811,19 @@ products.push(...(window.localProducts || []));
       };
     }
 
-    function urlFor(s) { return hashURL(s.page, s.pid, s.section); }
+    // The URL an entry is written as. A listing is a path (/product/<slug>/) because it
+    // is a page of its own; every other view is a hash on the root document. Coming from
+    // a listing page the hash has to ride on "/" — pushState('#shop') would leave the
+    // browser on /product/<slug>/#shop, where a reload would reopen the pair instead of
+    // the view the shopper moved to.
+    function urlFor(s) {
+      if (s.page === 'product' && s.pid != null) {
+        const p = products.find(x => x.id === s.pid);
+        if (p && slugger) return productHref(p);
+      }
+      const hash = hashURL(s.page, s.pid, s.section);
+      return onProductPath() ? '/' + hash : hash;
+    }
 
     // Write history with a real URL. Opaque origins (file://) reject pushState
     // URLs, so fall back to assigning location.hash — the router already ran.
@@ -755,7 +832,7 @@ products.push(...(window.localProducts || []));
       try {
         if (mode === 'push') history.pushState(s, '', target);
         else history.replaceState(s, '', target);
-        lastHash = location.hash;
+        lastHash = urlKey();
       } catch (e) {
         lastHash = target;
         if (location.hash !== target) location.hash = target;
@@ -849,7 +926,7 @@ products.push(...(window.localProducts || []));
       // The zoom viewer is handed this list rather than re-deriving it: the grid and the
       // full-viewport view are then incapable of disagreeing about which photo is which.
       galleryList = galleryImages.map((src, i) => ({
-        src,
+        src: assetURL(src),
         alt: singlePhoto ? current.name : current.name + ' angle ' + (i + 1)
       }));
 
@@ -1332,9 +1409,9 @@ products.push(...(window.localProducts || []));
 
     // Apply a route that came from the URL (refresh, deep link, back/forward, manual edit)
     function applyRoute(route, force) {
-      const hash = location.hash || '#home';
-      if (!force && hash === lastHash) return;    // already applied (popstate + hashchange)
-      lastHash = hash;
+      const key = urlKey();
+      if (!force && key === lastHash) return;     // already applied (popstate + hashchange)
+      lastHash = key;
       isRestoring = true;
       activeSection = route.section || null;
       showPage(route.page, route.pid, true);
@@ -1359,7 +1436,14 @@ products.push(...(window.localProducts || []));
 
     // Restore the view described by the current URL on first paint
     function hydrateFromURL() {
-      const route = parseHash(location.hash);
+      // A listing page was served for one pair and names it in the path, so that is the
+      // route it restores. Its hash is empty, which parseHash would read as "#home" —
+      // the reason this check comes first, and the reason a shared /product/<slug>/ link
+      // no longer lands on the hero.
+      const listed = pathProduct();
+      const route = listed
+        ? { page: 'product', pid: listed.id, section: null }
+        : parseHash(location.hash);
       if (route.page === 'home' && !route.section) {
         // Plain home view: refresh the nav/title and normalise the URL
         hreplace(hstate(window.scrollY, null), '#home');
@@ -1407,6 +1491,19 @@ products.push(...(window.localProducts || []));
     document.addEventListener('click', e => {
       const a = e.target && e.target.closest ? e.target.closest('a[href^="#"]') : null;
       if (!a || !a.hasAttribute('data-act')) return;
+      e.preventDefault();
+    });
+
+    // A product card is a real link to the pair's own page, and a plain click is taken
+    // over here so the shop stays instant: the data-act on the same anchor renders the
+    // pair without a reload. A modified click is deliberately left alone — ctrl/cmd-click,
+    // shift-click and a middle click keep the browser's own behaviour, so "open in new
+    // tab", "open in new window" and "copy link address" all reach the prerendered page
+    // with its own title, photo and structured data.
+    document.addEventListener('click', e => {
+      const a = e.target && e.target.closest ? e.target.closest('a[data-product-link]') : null;
+      if (!a) return;
+      if (e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
       e.preventDefault();
     });
 

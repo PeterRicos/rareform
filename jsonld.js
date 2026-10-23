@@ -36,8 +36,31 @@
     }
   }
 
-  // The catalog's canonical product URL, matching hashURL() in app.js.
+  // The catalog's canonical product URL. It is the /product/<slug>/ page
+  // prerender-products.js writes, not the "#product/3" hash this used to name: the hash
+  // was not an address, so every product advertised the homepage as its own URL and none
+  // of them could be indexed separately. slugs.js holds the rule both this file and the
+  // generator follow.
+  //
+  // The slugger is optional — without it (a harness that loads app.js alone, or a page
+  // whose slugs.js failed) the old hash URL is still a working address on the live site,
+  // so a missing file degrades instead of emitting "undefined" into the structured data.
+  let slugger = null;
+  function slugs() {
+    if (slugger !== null) return slugger;
+    try {
+      slugger = (typeof module !== 'undefined' && module.exports)
+        ? require('./slugs.js')
+        : (root.RandomStockSlugs || false);
+    } catch (err) {
+      slugger = false;
+    }
+    return slugger;
+  }
+
   function productUrl(listing) {
+    const s = slugs();
+    if (s && typeof s.productUrl === 'function') return s.productUrl(listing);
     return SITE_URL + '#product/' + listing.id;
   }
 
@@ -72,7 +95,9 @@
       availability: 'https://schema.org/InStock',
       itemCondition: conditionUrl(listing.condition),
       // A reference, not a repeat of the store details on every one of 83 items.
-      seller: brief
+      // `brief` and `phone: false` both reach the same reference: the first because the
+      // catalog block repeats it 102 times, the second because the file is shipped.
+      seller: (brief || (options && options.phone === false))
         ? { '@type': 'Organization', '@id': SITE_URL + '#store' }
         : { '@type': 'Organization', '@id': SITE_URL + '#store', name: STORE_NAME, telephone: PHONE }
     };
@@ -100,6 +125,11 @@
   //                 page every visitor downloads, so it carries no more than that.
   //   variants:true one node per size, for a single product view where the sizes are
   //                 the answer to "do you have my size".
+  //   phone: false  leave the telephone off the offer. For the blocks a build script
+  //                 writes into the repo (the catalog in index.html, the product node in
+  //                 each prerendered listing page): those files are what a scraper reads
+  //                 without running anything, so they name no number — the live page
+  //                 still builds its node with it, exactly as organization() does.
   function product(listing, options) {
     const opts = options || {};
     const sizes = listing.sizes || [];

@@ -1,0 +1,29 @@
+{
+  "generatedBy": "build-images.js",
+  "sources": {
+    "images/clothing-crew.jpg": {
+      "sha1": "6529389e8a4fe447e02af6aa6c1db450cd42d126",
+      "widths": [
+        640,
+        960,
+        1376
+      ]
+    },
+    "images/hero.jpg": {
+      "sha1": "82d09272765ec18e913eca8c05f23c89d7a944f9",
+      "widths": [
+        800,
+        1200,
+        1600
+      ]
+    },
+    "images/randomshit-room.jpg": {
+      "sha1": "69dcc125dbc1e7a9664fc953a65ea1bf98da3a2b",
+      "widths": [
+        640,
+        960,
+        1376
+      ]
+    }
+  }
+}

@@ -23,7 +23,7 @@ const crypto = require('crypto');
 // the same, so it is stamped like the rest.)
 // (Images and icons are left alone: they are replaced by adding a new file rather
 // than by editing one in place.)
-const ASSETS = ['styles.css', 'products.js', 'jsonld.js', 'app.js', 'qrcode.js'];
+const ASSETS = ['styles.css', 'slugs.js', 'products.js', 'jsonld.js', 'app.js', 'qrcode.js', 'boot.js'];
 
 // The hero clip is the one asset the owner swaps by overwriting a file in place, which
 // is the case a bare URL handles worst: the name never changes, so for the ten minutes

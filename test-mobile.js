@@ -140,8 +140,13 @@ ok('A3  hero clip is muted + playsinline + autoplay (the only combination iOS pl
   ['muted', 'playsinline', 'autoplay'].every((a) => new RegExp('\\b' + a + '\\b').test(vid)), vid);
 ok('A4  hero clip preloads metadata only, not 1.7MB of video on a phone plan',
   /preload="metadata"/.test(vid), vid);
+// The still is the layer the clip fades in over, and the fallback when the clip cannot
+// play. It is a <picture> with srcset now, so this asks for the <img> inside the hero
+// block and for the clip to come after it — not for one exact file name, because which
+// derivative a visitor gets depends on their screen and on AVIF/WebP support.
 ok('A5  the still image is still the hero layer behind the clip',
-  /class="hero-image"[\s\S]{0,400}<img src="images\/hero\.jpg"/.test(html));
+  /class="hero-image"[\s\S]{0,1200}?<img\s[^>]*src="images\/hero-[0-9]+\.jpg"[^>]*alt="Air Jordan 1 Retro High OG"/.test(html) &&
+  /class="hero-image"[\s\S]*?<video class="hero-video"/.test(html));
 ok('A6  app.js fades the clip in only once it decodes, and out again on error',
   /addEventListener\('loadeddata',\s*show\)/.test(app) && /addEventListener\('canplay',\s*show\)/.test(app) && /addEventListener\('error',\s*hide\)/.test(app));
 ok('A7  reduced-motion users get the still, not the clip',

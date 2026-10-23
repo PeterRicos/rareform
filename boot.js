@@ -38,7 +38,12 @@
       window.addEventListener("load", function () {
         // updateViaCache:"none" keeps the worker script itself out of the HTTP
         // cache too, so a fix to sw.js lands on the visit after it is deployed.
-        navigator.serviceWorker.register("sw.js", { updateViaCache: "none" })
+        // Registered from "/" on purpose: a listing page is served from
+        // /product/<slug>/, where a bare "sw.js" would resolve to
+        // /product/<slug>/sw.js — a 404, and one that leaves that page without the
+        // worker. The leading slash also gives the worker the root scope, which is what
+        // lets it cover both the shop and every listing.
+        navigator.serviceWorker.register("/sw.js", { updateViaCache: "none" })
           .catch(function () {
             /* Registration is a nicety: the site works exactly as before without it. */
           });

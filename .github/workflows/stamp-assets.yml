@@ -13,9 +13,22 @@ name: Refresh index.html
 # the same builder the shop page runs, so a listing edit can never leave the two
 # describing different products.
 #
-# Both steps only ever touch index.html, so the commit below covers each of them.
+# A third step is what gives each pair an address of its own.
+# prerender-products.js writes /product/<slug>/index.html for every listing — its own
+# title, canonical, Open Graph tags and Product JSON-LD, with the pair's details already
+# in the markup — and rebuilds sitemap.xml from the same catalog. Without it a listing
+# edit changes the shop while the listing pages still describe what was there before,
+# which is exactly the staleness this workflow exists to prevent.
 #
-# Safe to delete: without it, run "node stamp-assets.js" yourself before pushing.
+# All three steps are pure Node. build-images.js (the AVIF/WebP derivatives) is kept out
+# on purpose: it needs sharp, a native dependency this static repo otherwise does not
+# have, and its output is committed. Run it by hand after replacing one of the three
+# source photos — test-images.js fails the build when that was forgotten.
+#
+# Every step writes only into the paths committed below (index.html, product/, sitemap.xml).
+#
+# Safe to delete: without it, run "node stamp-assets.js && node build-jsonld.js &&
+# node prerender-products.js" yourself before pushing.
 
 on:
   push:
@@ -26,13 +39,20 @@ on:
       - 'jsonld.js'
       - 'app.js'
       - 'qrcode.js'
+      - 'boot.js'
+      - 'slugs.js'
       - 'index.html'
       - 'stamp-assets.js'
       - 'build-jsonld.js'
+      - 'prerender-products.js'
       - 'test-privacy.js'
       # The hero clip: dropping a new video/reel.mp4 has to re-stamp index.html like any
       # other asset change, or the swap would sit behind the ten-minute cache.
       - 'video/reel.mp4'
+      # Freshly regenerated photo derivatives, whenever build-images.js has been run.
+      - 'images/*.avif'
+      - 'images/*.webp'
+      - 'images/*.jpg'
   workflow_dispatch:
 
 permissions:
@@ -59,6 +79,18 @@ jobs:
       - name: Rebuild the catalog JSON-LD in index.html
         run: node build-jsonld.js
 
+      # One real page per listing, plus sitemap.xml. Runs after the stamping above so the
+      # pages inherit the ?v= URLs written into index.html — otherwise a listing page
+      # would keep pointing at the previous deploy's stylesheet for ten minutes.
+      - name: Prerender /product/<slug>/ pages and the sitemap
+        run: node prerender-products.js
+
+      - name: Check the listing pages still describe the catalog
+        run: node test-product-pages.js
+
+      - name: Check the photo derivatives are not stale
+        run: node test-images.js
+
       # index.html only turns the hero tag on when the clip is really here, so this step
       # is what proves the pairing held — and what refuses to let a clip that is not
       # actually a video (an .mp4 that has been through a text pipeline, say) go
@@ -78,19 +110,22 @@ jobs:
       - name: Check the number stays out of the shipped files
         run: node test-privacy.js
 
-      - name: Commit index.html when it was stale
+      - name: Commit the regenerated HTML when it was stale
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          if git diff --quiet -- index.html; then
-            echo "index.html already points at the current hashes and listings; nothing to commit"
+          # index.html carries the ?v= stamps and the catalog block; product/ carries one
+          # page per listing; sitemap.xml lists them. All three are written above and all
+          # three have to land in the same commit, or the pages and the shop disagree.
+          if git diff --quiet -- index.html product sitemap.xml; then
+            echo "index.html, product/ and sitemap.xml already match the catalog; nothing to commit"
             exit 0
           fi
 
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add index.html
-          git commit -m "Refresh index.html asset hashes and catalog JSON-LD"
+          git add index.html product sitemap.xml
+          git commit -m "Refresh index.html asset hashes, catalog JSON-LD and listing pages"
 
           for attempt in 1 2 3; do
             if git push; then break; fi
