@@ -248,6 +248,15 @@ function buildPage(page, p) {
     '             listing page, and the clip alone is 1.7 MB this page has no use for. -->');
   html = html.replace('decoding="async" fetchpriority="high"', 'decoding="async" loading="lazy"');
 
+  // One top-level heading per document. index.html has three — the homepage headline, the
+  // shop title and the about heading — which is right for one page showing all three
+  // sections and wrong for this one, where two of those views are hidden and the third
+  // belongs to a pair that is not this pair. The shop and about headings are already <h2>
+  // in the source; the headline steps down here, leaving staticDetails()'s pair name as
+  // the only <h1>. The CSS lists both tags, so nothing looks different.
+  html = replaceOnce(html, "<h1>THE PAIRS YOU'VE BEEN LOOKING FOR.</h1>",
+    "<h2>THE PAIRS YOU'VE BEEN LOOKING FOR.</h2>", 'the hero headline');
+
   return absolutise(html);
 }
 

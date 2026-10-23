@@ -301,7 +301,7 @@ ok('F5b the claim line in the bar carries a number slot, not a typed number',
     && !/\(\d{3}\) \d{3}-\d{4}/.test(html),
   'slot: ' + /id="announcePhone"/.test(html) + '  fill: ' + /announcePhone[\s\S]{0,200}ORDER_PHONE_DISPLAY/.test(app));
 ok('F6  the unfiltered shop is named the vault in both the markup and the render path',
-  /<h1 id="shopTitle">THE VAULT<\/h1>/.test(html) && /\|\| 'THE VAULT'/.test(app),
+  /<h2 id="shopTitle">THE VAULT<\/h2>/.test(html) && /\|\| 'THE VAULT'/.test(app),
   find(/\|\|[^;]*THE VAULT[^;]*/, app) || 'no vault fallback title');
 
 

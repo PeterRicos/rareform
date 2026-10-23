@@ -224,6 +224,37 @@ ok('A17 every photo the sitemap advertises is a file in this folder',
   missingPhoto.length === 0,
   missingPhoto.slice(0, 3).map((p) => String(p.img)).join(' ; '));
 
+// ---- A18: one top-level heading per document ----------------------------------
+// A listing page used to announce four <h1>s: the homepage headline, the shop title,
+// "BUILT AROUND THE PAIR." and the pair's name. Three of those head views the page
+// hides, so the pair competed with three other headings for the top of the outline.
+// Now it is the only one, and the homepage keeps exactly one of its own. Counting the
+// tags is not enough — a page with one <h1> that names something else is still wrong,
+// so the single heading has to name the pair.
+const headingProblems = [];
+dirs.forEach((d) => {
+  const p = slugOf.get(d);
+  const html = pages.get(d) || '';
+  const marks = html.match(/<h1[\s>]/g) || [];
+  if (marks.length !== 1) { headingProblems.push(d + ' h1s=' + marks.length); return; }
+  const block = (html.match(/<h1[\s>][\s\S]*?<\/h1>/) || [])[0] || '';
+  if (!p || block.indexOf(esc(p.name)) < 0) headingProblems.push(d + ' h1 names another pair');
+});
+const homeHtml = read('index.html');
+const homeH1 = (homeHtml.match(/<h1[\s>]/g) || []).length;
+ok('A18 each page has one top-level heading, and on a listing it is the pair',
+  headingProblems.length === 0 && homeH1 === 1,
+  headingProblems.slice(0, 3).join(' ; ') + (homeH1 === 1 ? '' : ' home h1s=' + homeH1));
+
+// ---- A19: the homepage description fits in a result snippet -------------------
+// Product descriptions were already held to 160 characters (A7). The homepage's was
+// 191, so Google cut it mid-sentence right after "inspected by hand". Same limit,
+// same reason: the part past the cut is a part nobody reads.
+const homeDesc = (homeHtml.match(/<meta name="description" content="([^"]*)"/) || [])[1] || '';
+ok('A19 the homepage description fits in a result snippet (≤160 chars)',
+  homeDesc.length > 0 && homeDesc.length <= 160,
+  homeDesc.length + ' chars: ' + homeDesc);
+
 // ---- B. the page script, on a listing URL ------------------------------------
 // The live page loads slugs.js, products.js and app.js in that order.
 const CODE = [read('slugs.js'), read('products.js'), read('app.js')].join('\n');

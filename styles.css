@@ -194,7 +194,10 @@ html.announce-dismissed .announce { display: none; }
   padding: clamp(48px, 8vw, 130px) clamp(22px, 6vw, 90px);
   align-self: center;
 }
-.hero h1 {
+/* .hero h2 is the same headline on a listing page, where it steps down to a second-level
+   heading (one h1 per document, and there it is the pair's name). Both tags are listed so
+   the headline looks identical when a visitor navigates from a pair back to the home view. */
+.hero h1, .hero h2 {
   font-size: clamp(46px, 6.2vw, 98px);
   line-height: 0.92;
   letter-spacing: -0.075em;
@@ -833,7 +836,7 @@ html.announce-dismissed .announce { display: none; }
   line-height: 1.7;
   color: var(--muted);
 }
-.shop-top h1, .about h1 {
+.shop-top h1, .shop-top h2, .about h1, .about h2 {
   font-size: clamp(42px, 6vw, 84px);
   letter-spacing: -0.08em;
   line-height: 0.92;
@@ -1542,7 +1545,7 @@ html.announce-dismissed .announce { display: none; }
 }
 @media (max-width: 480px) {
   .products { grid-template-columns: 1fr; }
-  .hero h1 { font-size: 38px; }
+  .hero h1, .hero h2 { font-size: 38px; }
   .foot-grid { grid-template-columns: 1fr; }
   .foot-grid > div:first-child { grid-column: span 1; }
   .toast { border-radius: 16px; padding: 12px 18px; }
