@@ -23,6 +23,7 @@ page.
 | `styles.css` | All styling. |
 | `sw.js` | Service worker with one job: navigations are fetched `no-store`, so a returning visitor never runs the previous deploy's HTML. |
 | `prerender-products.js` | Writes `product/<slug>/index.html` for every listing, and `sitemap.xml`. |
+| `redirects.js` | Retired addresses: old slug → SKU. `prerender-products.js` leaves a small "moved" page at each one, because a static host cannot answer an old URL with a 301. Add an entry whenever a slug changes. |
 | `stamp-assets.js` | Rewrites the `?v=` hashes in `index.html`. |
 | `build-jsonld.js` | Bakes the catalog's structured data into `index.html`. |
 | `build-images.js` | Responsive AVIF/WebP/JPEG for the hero and the two category tiles. The only script with a dependency (`sharp`). |
@@ -167,7 +168,9 @@ the code.
 - **Descriptions stay ≤160 characters** (`A7` for listings, `A19` for the homepage).
 - **The order number never appears in shipped markup.** It lives in `app.js`, split into
   groups, and is assembled at runtime for the dialer and the lede.
-- **Two slug typos are baked in and known:** `metalic` in
-  `wmns-jordan-1-high-og-black-metalic-cd0461-001`, and "Womans Nike Dunk Low" twice.
-  Fixing them means a `products.js` edit plus a regenerate, which changes those URLs.
+- **A renamed listing keeps its old address working.** The slug comes from the name
+  (`slugs.js`), so fixing a name moves the page; `redirects.js` maps the retired slug to its
+  SKU and the build leaves a "moved" page there — canonical, meta refresh and a plain link,
+  which is the only redirect a static host can offer. A pair that leaves the catalog takes
+  its stub with it. `A20`-`A23` hold that together.
 

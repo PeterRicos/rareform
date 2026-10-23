@@ -101,9 +101,11 @@ applies to the whole command, network time included.
   the generated pages — do not "unify" that, and keep both tags listed in the `.hero` CSS
   rule so navigating back to the home view looks unchanged.
 - **Descriptions ≤160 characters** (`A7` listings, `A19` homepage).
-- **Slugs are addresses, not labels.** `metalic` (one listing) and "Womans Nike Dunk Low"
-  (two) are known and intentionally left alone. Changing a slug changes an indexed URL; it
-  needs a `products.js` edit, a regenerate, and a heads-up.
+- **Slugs are addresses, not labels.** The slug is derived from the name (`slugs.js`), so a
+  rename moves an indexed URL. Renaming is allowed; renaming *silently* is not — add the
+  retired slug → SKU to `redirects.js` in the same commit. `prerender-products.js` leaves a
+  "moved" page at the old address and a static host has no other redirect, so that file is
+  what keeps old links alive.
 - **Don't re-encode `video/reel.mp4`** — the current clip is a placeholder and the final cut
   is still coming. When it lands: 720p, no audio track, `-crf 26`, `-movflags +faststart`,
   target ≤1 MB, then `node stamp-assets.js`.

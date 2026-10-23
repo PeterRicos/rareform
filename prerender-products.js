@@ -18,6 +18,9 @@
 //     has no business downloading 1.7 MB of homepage decoration;
 //   - every relative asset path made root-absolute, because these files sit two
 //     directories down.
+//   - a small "moved" page left at every address a renamed listing used to occupy
+//     (redirects.js). A static host cannot answer an old URL with a 301; a page at that
+//     URL is the only redirect it has.
 //
 // app.js then boots and re-renders the same pair over the top, so a shopper with
 // JavaScript gets the interactive page (size buttons, dialer, QR) and a crawler or a
@@ -36,6 +39,7 @@ const path = require('path');
 const vm = require('vm');
 const slugs = require('./slugs.js');
 const structuredData = require('./jsonld.js');
+const redirects = require('./redirects.js');
 
 const PAGE = path.join(__dirname, 'index.html');
 const CATALOG = path.join(__dirname, 'products.js');
@@ -285,6 +289,36 @@ function imageEntry(p) {
   ].filter(Boolean).join('\n');
 }
 
+// A retired address: the pair it used to name is still for sale, it just lives somewhere
+// else now. Three ways out of the page, because each one fails for a different reader —
+// <link rel="canonical"> tells a search engine which of the two URLs to keep and index, the
+// meta refresh moves a browser without waiting on a script, and the anchor is what a reader
+// gets if the refresh is blocked or the page was saved and opened from disk.
+//
+// Deliberately unstyled and self-contained: no shared CSS, no app.js, no images, and no
+// <h1> — it is not a page of the site, it is a signpost. A stub that needs three more
+// requests to move someone would flash somebody else's layout on the way.
+function movedPage(p, toSlug) {
+  const toPath = '/product/' + toSlug + '/';
+  const url = SITE_URL + toPath.slice(1);
+  return '<!doctype html>\n' +
+    '<html lang="en">\n' +
+    '<head>\n' +
+    '  <meta charset="utf-8">\n' +
+    '  <meta name="viewport" content="width=device-width, initial-scale=1">\n' +
+    '  <!-- Written by prerender-products.js from redirects.js. Generated — do not edit. -->\n' +
+    '  <title>Moved: ' + esc(p.name) + ' — Random Stock</title>\n' +
+    '  <link rel="canonical" href="' + url + '">\n' +
+    '  <meta http-equiv="refresh" content="0; url=' + toPath + '">\n' +
+    '</head>\n' +
+    '<body>\n' +
+    '  <p>This pair has moved.</p>\n' +
+    '  <p><a href="' + toPath + '">' + esc(p.name) + '</a></p>\n' +
+    '  <p><a href="' + SITE_URL + '">Random Stock</a> — hand-checked sneakers, no cart.</p>\n' +
+    '</body>\n' +
+    '</html>\n';
+}
+
 function sitemapFor(listings) {
   const pages = listings.map((p) => ({
     loc: structuredData.productUrl(p),
@@ -344,6 +378,33 @@ function main() {
     written += 1;
   });
 
+  // Retired addresses, written before the prune so their folders are spared by it: a
+  // renamed listing otherwise loses the old page, and with it every link and search
+  // result that still points at the old slug. The manifest is keyed by SKU, so a stub is
+  // only written while the pair is still in the catalog — a stub pointing at a pair the
+  // shop no longer has is worse than the 404 it replaced.
+  const bySku = new Map(listings.map((p) => [String(p.sku).toUpperCase(), p]));
+  const stubs = [];
+  Object.keys(redirects).forEach((from) => {
+    const p = bySku.get(String(redirects[from]).toUpperCase());
+    if (!p) return;
+    const to = slugs.productSlug(p);
+    if (to === from || keep.has(from)) return;   // already there, or a live pair owns the address
+    stubs.push({ from, to, p });
+  });
+  let stubsWritten = 0;
+  stubs.forEach((s) => {
+    const dir = path.join(OUT_DIR, s.from);
+    const file = path.join(dir, 'index.html');
+    const html = movedPage(s.p, s.to);
+    keep.add(s.from);
+    fs.mkdirSync(dir, { recursive: true });
+    const before = fs.existsSync(file) ? fs.readFileSync(file, 'utf8') : null;
+    if (before === html) return;
+    fs.writeFileSync(file, html);
+    stubsWritten += 1;
+  });
+
   // A listing that left the catalog must not leave its page behind: a shopper would
   // reach a pair the shop no longer has, and it would stay indexed.
   let pruned = 0;
@@ -362,6 +423,7 @@ function main() {
     ' written=' + written +
     ' unchanged=' + unchanged +
     ' pruned=' + pruned +
+    ' stubs=' + stubs.length + '/' + stubsWritten +
     ' sitemap=' + (sitemapBefore !== sitemap ? 'rewritten' : 'current'));
 }
 
@@ -374,4 +436,4 @@ if (require.main === module) {
   }
 }
 
-module.exports = { readCatalog, descriptionFor, jsonLdFor, buildPage, sitemapFor, esc };
+module.exports = { readCatalog, descriptionFor, jsonLdFor, buildPage, movedPage, sitemapFor, esc };

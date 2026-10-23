@@ -42,23 +42,35 @@ const slugOf = new Map(catalog.map((p) => [slugs.productSlug(p), p]));
 const dirs = fs.existsSync(OUT)
   ? fs.readdirSync(OUT, { withFileTypes: true }).filter((e) => e.isDirectory()).map((e) => e.name).sort()
   : [];
-
-ok('A1  there is a page for every listing', dirs.length === catalog.length,
-  'pages=' + dirs.length + ' listings=' + catalog.length);
-ok('A2  and no page for a listing that is gone',
-  dirs.every((d) => slugOf.has(d)),
-  dirs.filter((d) => !slugOf.has(d)).slice(0, 3).join(', '));
-ok('A3  every slug is a plain URL safe to paste anywhere',
-  dirs.every((d) => /^[a-z0-9]+(-[a-z0-9]+)*$/.test(d) && d.length <= 90),
-  dirs.filter((d) => !/^[a-z0-9]+(-[a-z0-9]+)*$/.test(d)).slice(0, 3).join(', '));
-
-const pages = new Map(dirs.map((d) => {
+const readPage = (d) => {
   const file = path.join(OUT, d, 'index.html');
-  return [d, fs.existsSync(file) ? fs.readFileSync(file, 'utf8') : ''];
-}));
+  return fs.existsSync(file) ? fs.readFileSync(file, 'utf8') : '';
+};
+
+// Renaming a listing moves its page, and prerender-products.js leaves a small "moved" page
+// at the old address (redirects.js) so the old link still lands somewhere. Those folders
+// are signposts, not listings: A1-A4 count listing pages, and the stubs get A20-A23.
+const redirects = require('./redirects.js');
+const skuOf = new Map(catalog.map((p) => [String(p.sku).toUpperCase(), p]));
+const retired = Object.keys(redirects).filter((from) => {
+  const p = skuOf.get(String(redirects[from]).toUpperCase());
+  return p && slugs.productSlug(p) !== from && !slugOf.has(from);
+});
+const pageDirs = dirs.filter((d) => retired.indexOf(d) < 0);
+
+ok('A1  there is a page for every listing', pageDirs.length === catalog.length,
+  'pages=' + pageDirs.length + ' listings=' + catalog.length);
+ok('A2  and no page for a listing that is gone',
+  pageDirs.every((d) => slugOf.has(d)),
+  pageDirs.filter((d) => !slugOf.has(d)).slice(0, 3).join(', '));
+ok('A3  every slug is a plain URL safe to paste anywhere',
+  pageDirs.every((d) => /^[a-z0-9]+(-[a-z0-9]+)*$/.test(d) && d.length <= 90),
+  pageDirs.filter((d) => !/^[a-z0-9]+(-[a-z0-9]+)*$/.test(d)).slice(0, 3).join(', '));
+
+const pages = new Map(pageDirs.map((d) => [d, readPage(d)]));
 ok('A4  every page directory holds an index.html',
-  dirs.every((d) => pages.get(d).length > 0),
-  dirs.filter((d) => !pages.get(d).length).slice(0, 3).join(', '));
+  pageDirs.every((d) => pages.get(d).length > 0),
+  pageDirs.filter((d) => !pages.get(d).length).slice(0, 3).join(', '));
 
 // Every head field has to name *this* pair. One wrong canonical does not throw: it
 // silently points a crawler at another product, which is worse than no tag at all.
@@ -232,7 +244,7 @@ ok('A17 every photo the sitemap advertises is a file in this folder',
 // tags is not enough — a page with one <h1> that names something else is still wrong,
 // so the single heading has to name the pair.
 const headingProblems = [];
-dirs.forEach((d) => {
+pageDirs.forEach((d) => {
   const p = slugOf.get(d);
   const html = pages.get(d) || '';
   const marks = html.match(/<h1[\s>]/g) || [];
@@ -254,6 +266,48 @@ const homeDesc = (homeHtml.match(/<meta name="description" content="([^"]*)"/) |
 ok('A19 the homepage description fits in a result snippet (≤160 chars)',
   homeDesc.length > 0 && homeDesc.length <= 160,
   homeDesc.length + ' chars: ' + homeDesc);
+
+// ---- A20-A23: retired addresses still land on the pair ------------------------
+// Correcting a listing's name moves its page, because the slug is derived from the name.
+// A static host cannot answer the old URL with a 301, so the only redirect available is a
+// page still sitting at the old address (redirects.js). Without it, every link already out
+// there — a DM, a bookmark, a search result — reaches a 404, and a 404 on a pair that is
+// still for sale reads as "sold".
+const stubDirs = dirs.filter((d) => retired.indexOf(d) !== -1);
+ok('A20 every retired address still has a page on disk', stubDirs.length === retired.length,
+  'stubs=' + stubDirs.length + ' retired=' + retired.length +
+  ' missing=' + retired.filter((d) => stubDirs.indexOf(d) < 0).join(', '));
+
+const badStub = [];
+stubDirs.forEach((d) => {
+  const p = skuOf.get(String(redirects[d]).toUpperCase());
+  const html = readPage(d);
+  const to = '/product/' + slugs.productSlug(p) + '/';
+  if (html.indexOf('<link rel="canonical" href="' + structuredData.SITE_URL + to.replace(/^\//, '') + '">') < 0) badStub.push(d + ' canonical');
+  if (html.indexOf('url=' + to + '"') < 0) badStub.push(d + ' refresh');
+  if (html.indexOf('href="' + to + '"') < 0) badStub.push(d + ' link');
+  if ((html.match(/<h1[\s>]/g) || []).length) badStub.push(d + ' has an <h1>');
+});
+ok('A21 each stub points at its pair\'s current page (canonical + meta refresh + link)',
+  badStub.length === 0, badStub.slice(0, 3).join(' ; '));
+
+// The reverse of A20: nothing of the site's own may still point at an old address. A stub
+// is a courtesy for links that left the building; a link from the shop itself to a signpost
+// means a slug was hard-coded somewhere instead of derived.
+const appCode = read('app.js');
+const staleLinks = [];
+retired.forEach((d) => {
+  const needle = '/product/' + d + '/';
+  if (homeHtml.indexOf(needle) >= 0) staleLinks.push('index.html → ' + d);
+  if (appCode.indexOf(needle) >= 0) staleLinks.push('app.js → ' + d);
+  pages.forEach((html, slug) => { if (html.indexOf(needle) >= 0) staleLinks.push(slug + ' → ' + d); });
+});
+ok('A22 nothing on the site still links to a retired address',
+  staleLinks.length === 0, staleLinks.slice(0, 3).join(' ; '));
+
+const stubInSitemap = retired.filter((d) => sitemap.indexOf('/product/' + d + '/') >= 0);
+ok('A23 the sitemap lists only live pages, never a stub',
+  stubInSitemap.length === 0, stubInSitemap.join(', '));
 
 // ---- B. the page script, on a listing URL ------------------------------------
 // The live page loads slugs.js, products.js and app.js in that order.

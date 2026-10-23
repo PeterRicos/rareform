@@ -509,7 +509,7 @@ const localProducts = [
   {
     id: 42,
     brand: "Jordan",
-    name: "WMNS Jordan 1 High OG Black/Metalic",
+    name: "WMNS Jordan 1 High OG Silver Toe",
     color: "Silver Toe (Women's)",
     condition: "New",
     box: "Original Box",
@@ -1276,7 +1276,7 @@ const localProducts = [
   {
     id: 99,
     brand: "Nike",
-    name: "Womans Nike Dunk Low OG Yellow Strike",
+    name: "Women's Nike Dunk Low OG Yellow Strike",
     color: "Yellow Strike (Women's)",
     condition: "New",
     box: "Original Box",
@@ -1288,7 +1288,7 @@ const localProducts = [
   {
     id: 100,
     brand: "Nike",
-    name: "Womans Nike Dunk Low White Rose Whisper",
+    name: "Women's Nike Dunk Low White Rose Whisper",
     color: "White Rose Whisper (Women's)",
     condition: "New",
     box: "Original Box",
