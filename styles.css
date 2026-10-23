@@ -1306,8 +1306,11 @@ html.announce-dismissed .announce { display: none; }
   font: 500 13.5px/1.6 'Manrope', sans-serif;
   resize: vertical;
 }
+/* Keyboard focus keeps the site's ring (:focus-visible at the top of this file). This rule
+   used to set outline: 0, so the only cue a keyboard user got was the border turning black —
+   which at 1px on a white field is not a cue, and focus with no visible indicator fails
+   WCAG 2.4.7. The border colour stays as the mouse cue; the ring is for tabbing. */
 .order-field textarea:focus {
-  outline: 0;
   border-color: var(--ink);
 }
 .order-actions {
