@@ -35,6 +35,9 @@ on:
     branches: [main]
     paths:
       - 'styles.css'
+      # fonts/fonts.css is a stamped asset: editing a face has to re-stamp its ?v=, or the
+      # change sits behind the ten-minute cache. The woff2 files need no stamping.
+      - 'fonts/fonts.css'
       - 'products.js'
       - 'jsonld.js'
       - 'app.js'
