@@ -946,6 +946,13 @@ function urlKey() {
       const sizeAriaLabel = isSneaker ? 'Size US' : 'Size';
       const hasSizes = current.sizes.length > 0;
 
+      // The pair is the <h1> of whatever document is showing it — including on the
+      // homepage, where the hero line is also an <h1>. That is not two headings in one
+      // outline: `.page { display: none }` means the hero's <h1> leaves the accessibility
+      // tree the moment the product view becomes the active page, so whichever view is
+      // visible supplies the document's single top-level heading. Demoting this to an <h2>
+      // whenever the URL is "/" would instead leave the homepage's pair view with no <h1>
+      // in the tree at all and an outline that starts at level 2. B14 pins the invariant.
       $('details').innerHTML = `
         <span class="eyebrow">${current.brand}</span>
         <h1>${current.name}</h1>

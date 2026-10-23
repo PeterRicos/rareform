@@ -525,6 +525,22 @@ function boot(pathname, hash, base) {
   ok('B13 the homepage card links to the same absolute product URL',
     eCard.indexOf('href="' + href + '"') >= 0, eCard.replace(/\s+/g, ' ').slice(0, 160));
 
+  // ---- B14: the pair is the visible document's only top-level heading --------
+  // `.page { display: none }` keeps every inactive view out of the accessibility tree, so
+  // the pair's <h1> and the hero's <h1> never share an outline. The thing that would break
+  // that is two views active at once, which no assertion here had ever looked at.
+  const G = boot('/', '#home', '');
+  await sleep(300);
+  ev(G, 'openProduct(1)');
+  const gDetails = ev(G, 'document.getElementById("details").innerHTML');
+  const activeViews = ['home', 'shop', 'product', 'about'].filter((v) => G.pages[v]._classes.has('active'));
+  ok('B14 a pair opened anywhere is the only visible <h1>',
+    activeViews.length === 1 && activeViews[0] === 'product' &&
+      (gDetails.match(/<h1[\s>]/g) || []).length === 1 &&
+      G.location.pathname === '/product/' + slugs.productSlug(catalog.find((p) => p.id === 1)) + '/',
+    'active=' + activeViews.join(',') + ' pair-h1s=' + (gDetails.match(/<h1[\s>]/g) || []).length +
+      ' path=' + G.location.pathname);
+
   results.forEach((r) => console.log((r.pass ? 'PASS  ' : 'FAIL  ') + r.name +
     (r.pass ? '' : '   [' + r.extra + ']')));
   const failed = results.filter((r) => !r.pass).length;
