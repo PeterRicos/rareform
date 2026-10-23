@@ -29,6 +29,7 @@ page.
 | `product/` | **Generated.** One directory per listing. Do not hand-edit. |
 | `sitemap.xml` | **Generated** by `prerender-products.js`. One `<url>` per listing, each with its own photo. |
 | `robots.txt` | Allows everything and names the sitemap, so link unfurlers never have to guess. |
+| `_config.yml` | Pages builds this branch with Jekyll, so this is where the repo documents (`README.md`, `AGENTS.md`) are kept out of the published site. It does not affect `index.html`, `product/`, `sitemap.xml` or any asset. |
 | `sneaker_images/` | Source photos, plus `square/` — each photo padded to a 1:1 canvas so a card's `object-fit: cover` can never clip a shoe. |
 | `images/` | The hero and the two category tiles, each at three widths in AVIF/WebP/JPEG — plus `images/clothing/`, the full-size photos the clothing and headwear listings point at directly (they are product photos, not page furniture, so `build-images.js` does not touch them). |
 | `video/reel.mp4` | The hero clip. The page falls back to a still image when it is absent or undecodable. |

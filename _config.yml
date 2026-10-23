@@ -1,0 +1,21 @@
+# _config.yml — what GitHub Pages should leave out of the published site.
+#
+# Pages builds this branch with Jekyll and publishes every file it is not told to skip,
+# which is how the two repo documents became fetchable at /README.md and /AGENTS.md a
+# deploy after they were written. They belong beside the code, not on the storefront: a
+# shopper has no use for either, and AGENTS.md is addressed to whoever edits the repo
+# next rather than to anyone buying a pair.
+#
+# This changes only the published copy. Both files stay in the repo and stay readable on
+# GitHub, and nothing about the site itself is affected — index.html, product/, sitemap.xml,
+# styles.css and the scripts are all still served.
+#
+# `exclude` replaces Jekyll's built-in list rather than adding to it, so the entries worth
+# keeping from that list are repeated here.
+exclude:
+  - README.md
+  - AGENTS.md
+  - node_modules
+  - vendor
+  - Gemfile
+  - Gemfile.lock
