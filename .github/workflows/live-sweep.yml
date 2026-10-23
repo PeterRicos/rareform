@@ -1,0 +1,102 @@
+name: Live shop sweep
+
+# The only check in this repo that is not static. Every test-*.js file reads the shipped
+# source; this one loads randomstock.shop in headless Chrome, taps each hero category and
+# then each brand tile, and fails when a tile that has stock behind it answers with an
+# empty grid.
+#
+# It exists because of a bug no static suite could see. `shopCategory()` left its category
+# on `shopCategoryFilter`, `filterByBrand()` never cleared it, and no control in the filter
+# bar shows a category — so tap SHOP SNEAKERS, go home, tap Supreme, and the grid answered
+# "No Supreme items in stock yet" while eight Supreme tees sat in the catalog. Six brands
+# read as out of stock on a site whose data was perfect. The static suite pins the code
+# shape (test-brand-tiles.js G1–G6); this pins what a shopper actually gets.
+#
+# It runs after a Pages deploy succeeds, weekly, and by hand. See tools/sweep-live.js.
+
+on:
+  workflow_run:
+    # The built-in Pages workflow. This fires when it finishes, which is the first moment
+    # there is a new deploy to sweep.
+    workflows: ["pages build and deployment"]
+    types: [completed]
+  workflow_dispatch:
+    inputs:
+      base:
+        description: 'Page to sweep'
+        required: false
+        default: 'https://randomstock.shop/index.html'
+  schedule:
+    # Monday morning, before the week's edits: catches a site that drifted without a deploy
+    # (a hand-edit in the GitHub UI, a CDN serving something unexpected).
+    - cron: '43 7 * * 1'
+
+permissions:
+  contents: read
+
+# A second deploy supersedes the sweep of the first: those checks are about a build that is
+# no longer live.
+concurrency:
+  group: live-sweep
+  cancel-in-progress: true
+
+jobs:
+  sweep:
+    # A Pages run that failed did not deploy anything, so there is nothing new to look at.
+    if: ${{ github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          # main, not the triggering sha: the stamp check compares the live page against the
+          # index.html in this checkout, and stamp-assets.yml can commit a newer stamp than
+          # the commit that started this run. Following main keeps that comparison honest
+          # (the CDN lag it can expose is what --retries is for).
+          ref: main
+
+      # Node 22 for the global WebSocket the DevTools driver uses. ubuntu-latest is not
+      # guaranteed to ship it, and this repo has no package.json to pin it in.
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Which build should be live
+        id: want
+        run: |
+          stamp=$(grep -o 'app\.js?v=[a-f0-9]*' index.html | head -1)
+          echo "stamp=$stamp" >> "$GITHUB_OUTPUT"
+          echo "expecting $stamp"
+
+      # Phone first: it is where the tiles are tapped, and the filter bar is inside a drawer
+      # there, so the desktop pass is the one that also proves the sidebar agrees.
+      - name: Sweep at 390px
+        env:
+          STAMP: ${{ steps.want.outputs.stamp }}
+          BASE: ${{ github.event.inputs.base || 'https://randomstock.shop/index.html' }}
+        # Three retries at a minute apart: GitHub Pages keeps serving the previous deploy for
+        # a while after the workflow says it finished, and that is a slow pass, not a red one.
+        # The stamp only means something for the deployed site, so a manual run against
+        # another URL (a preview, a local server) sweeps it without that comparison.
+        run: |
+          extra=""
+          if [ "$BASE" = "https://randomstock.shop/index.html" ]; then extra="--expect-stamp=$STAMP"; fi
+          node tools/sweep-live.js --base="$BASE" --width=390 $extra --retries=3 --retry-wait=60 --shot=sweep-390.png
+
+      - name: Sweep at 1280px
+        env:
+          STAMP: ${{ steps.want.outputs.stamp }}
+          BASE: ${{ github.event.inputs.base || 'https://randomstock.shop/index.html' }}
+        run: |
+          extra=""
+          if [ "$BASE" = "https://randomstock.shop/index.html" ]; then extra="--expect-stamp=$STAMP"; fi
+          node tools/sweep-live.js --base="$BASE" --width=1280 $extra --retries=2 --retry-wait=60 --shot=sweep-1280.png
+
+      - name: Keep the screenshot from a failed sweep
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: live-sweep-failure
+          path: sweep-*.png
+          if-no-files-found: ignore
+          retention-days: 14

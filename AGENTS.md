@@ -66,6 +66,30 @@ are the specification for behaviour nobody can see in a diff, and the comment ab
 one says what it is protecting. If a decision genuinely changed, change the assertion *and*
 its comment, and say so in the commit message.
 
+## The live sweep
+
+Those suites read the shipped files; `tools/sweep-live.js` is the one check that loads the
+shop in headless Chrome and taps it — each hero category, then every brand tile, at 390px
+and 1280px — failing when a tile with stock behind it answers empty. It exists because of a
+bug no static suite could see: `shopCategory()` left its category on `shopCategoryFilter`,
+`filterByBrand()` never cleared it, and no control in the filter bar shows a category, so
+after SHOP SNEAKERS every non-sneaker brand read as out of stock. Every file was correct on
+its own; only the order of two clicks was wrong.
+
+```bash
+node tools/sweep-live.js --width=390        # ~9s, the shipped page
+node tools/sweep-live.js --base=http://127.0.0.1:8000/index.html   # a local copy
+```
+
+`.github/workflows/live-sweep.yml` runs it after a successful Pages deploy, weekly, and by
+hand. It needs Chrome and Node 22+ (the DevTools driver uses the global `WebSocket`; there is
+no puppeteer and nothing to install). Two things it cannot do: it is the only check that
+depends on the network, so a red run there is not automatically a site problem — read the
+check names before believing it — and it proves the *deployed* page, so run it after a push,
+not before.
+
+Never point it at a page you have not deployed and call the result a pass.
+
 ## Waiting on CI
 
 The shell an agent works through here kills a foreground command after about thirty
