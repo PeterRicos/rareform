@@ -22,7 +22,9 @@
        at phone widths, where the sidebar is gone.
      - the listing page stops pinning its details column and stops sizing the hero
        against 100vh, both of which are wrong once a URL bar is in the way.
-     - the controls a thumb has to hit stay at their documented minimum sizes.
+     - the controls a thumb has to hit stay at their documented minimum sizes, and the
+       announcement bar gives up its own copy (shipping line, then the tail of the
+       claim, then a single wrap) before any of it leaves the screen.
      - the order bar gave a phone a persistent call/text path it never
        had: off on a desktop, on below 820px, clear of the page it covers, and built
        from the same tel:/sms: links everything else hands to the phone.
@@ -98,6 +100,8 @@ const prop = (src, sel, name) => {
 const hasRule = (src, sel) => decls(src, sel) !== null;
 
 const M820 = media('max-width: 820px');
+const M860 = media('max-width: 860px');
+const M600 = media('max-width: 600px');
 const M480 = media('max-width: 480px');
 const M1024 = media('max-width: 1024px');
 const HOVER = media('hover: hover');
@@ -259,6 +263,38 @@ ok('J3  the number is never written into the markup — shoppers get it from app
   html.indexOf(structuredData.PHONE) === -1
   && html.indexOf(structuredData.PHONE_DISPLAY) === -1,
   'plaintext number found in index.html');
+
+// ---- K. the announcement bar fits the screen it is on ------------------------
+// The bar is one line of monospace that cannot reflow, and it is the first thing a
+// shopper sees. Measured in headless Chrome before this was fixed: the claim with its
+// tail is 361px, and a 390px phone gives the bar 316px between its padding once the 44px
+// dismiss cross is cleared — the centred sentence hung 15px off the left edge (45px at
+// 360px) and "NO CART" was off the screen. Higher up it was worse in a different way: at
+// 640px the claim plus the shipping line spilled 679px into a 576px content box and
+// dragged the document sideways, and at 821px the full desktop line still clipped 769px
+// into 757px. What has to stay true is the order it gives up room: shipping line first,
+// then the tail of the claim, then it wraps — never off the screen, and never the number.
+ok('K1  the tail of the claim is its own element, so a narrow bar can drop it',
+  /<span class="announce-tail">/.test(html), 'no .announce-tail element in index.html');
+ok('K2  the shipping line goes at 860px, above the 833px the whole line needs',
+  prop(BASE, '.announce-shipping', 'display') !== 'none'
+  && prop(M860, '.announce-shipping', 'display') === 'none'
+  && PX(prop(M860, '.announce', 'font-size')) < 11,
+  'base=' + prop(BASE, '.announce-shipping', 'display')
+  + ' 860=' + prop(M860, '.announce-shipping', 'display')
+  + ' size=' + prop(M860, '.announce', 'font-size'));
+ok('K3  a phone drops the tail of the claim rather than the number',
+  prop(M600, '.announce-tail', 'display') === 'none' && prop(BASE, '.announce-tail', 'display') !== 'none',
+  '600=' + prop(M600, '.announce-tail', 'display') + ' base=' + prop(BASE, '.announce-tail', 'display'));
+ok('K4  and the line wraps as a last resort instead of leaving the screen',
+  prop(BASE, '.announce-content', 'white-space') === 'nowrap'
+  && prop(M600, '.announce-content', 'white-space') === 'normal'
+  && prop(M600, '.announce-content', 'flex-wrap') === 'wrap',
+  '600 ws=' + prop(M600, '.announce-content', 'white-space')
+  + ' wrap=' + prop(M600, '.announce-content', 'flex-wrap'));
+ok('K5  the number itself never breaks across two lines',
+  prop(M600, '.announce-phone', 'white-space') === 'nowrap',
+  prop(M600, '.announce-phone', 'white-space'));
 
 const fails = results.filter((r) => !r.pass);
 results.forEach((r) => console.log((r.pass ? 'PASS  ' : 'FAIL  ') + r.name + (r.pass ? '' : '   [' + r.extra + ']')));

@@ -46,7 +46,7 @@
       }
     })();
   </script>
-  <link rel="stylesheet" href="styles.css?v=5157030b">
+  <link rel="stylesheet" href="styles.css?v=68887e64">
   <!-- Catalog structured data (schema.org). build-jsonld.js writes the block
        between these markers from products.js, so every listing a crawler can see
        here carries the same SKU, condition, image and availability the shop page
@@ -67,7 +67,12 @@
        so the role is gone; the aria-label keeps the bar named without the promotion. -->
   <aside class="announce" id="announce" aria-label="Announcement">
     <div class="announce-content">
-      <span class="announce-copy"><span class="announce-claim">NO CART — CALL OR TEXT <a class="announce-phone" id="announcePhone" href="#"></a> TO CLAIM A PAIR</span><span class="announce-shipping"> · ORDERS SHIP WITHIN 1-2 BUSINESS DAYS</span></span>
+      <!-- The tail of the claim is its own element so a phone can drop it. The whole
+           sentence is 361px of monospace, and a 390px phone leaves this bar 316px
+           between its padding once the dismiss cross is cleared — the centred line hung
+           off the left edge and "NO CART" left the screen. The number is the claim; the
+           words after it are the first thing that can go. -->
+      <span class="announce-copy"><span class="announce-claim">NO CART — CALL OR TEXT <a class="announce-phone" id="announcePhone" href="#"></a><span class="announce-tail"> TO CLAIM A PAIR</span></span><span class="announce-shipping"> · ORDERS SHIP WITHIN 1-2 BUSINESS DAYS</span></span>
     </div>
     <button data-act="announceDismiss" aria-label="Dismiss announcement">×</button>
   </aside>

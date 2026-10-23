@@ -1485,6 +1485,26 @@ html.announce-dismissed .announce { display: none; }
 @media (max-width: 1024px) {
   .products { grid-template-columns: repeat(3, 1fr); }
 }
+/* The announcement bar is one line of monospace that cannot reflow, so every width it
+   has to survive is a budget. Measured in headless Chrome: the claim and the shipping
+   line together are 769px of text inside a `vw - 64px` content box, so the desktop bar
+   needs a window about 833px wide before its own line fits — at 640px it spilled 679px
+   into 576px and dragged the whole document sideways (691px of page in a 640px window),
+   and at 821px it was still clipping. So tablet and phone drop the shipping line and
+   step the type down at 860px, with slack above the 833px the full line needs. */
+@media (max-width: 860px) {
+  .announce {
+    font-size: 10px;
+    letter-spacing: 0.08em;
+    padding-left: 8px;
+    /* Clears the 44px dismiss button so a long number and a long sentence cannot run
+       under it. */
+    padding-right: 66px;
+  }
+  .announce-phone { font-size: 15px; padding: 0 4px; }
+  .announce button { font-size: 13px; }
+  .announce-shipping { display: none; }
+}
 @media (max-width: 600px) {
   #recentlyViewedSection { display: none; }
   .section-head { padding-left: 45px; }
@@ -1492,20 +1512,19 @@ html.announce-dismissed .announce { display: none; }
     font-size: 36px;
     left: 0;
   }
-  .announce {
-    font-size: 9px;
-    letter-spacing: 0.06em;
-    padding-left: 8px;
-    /* Clears the 44px dismiss button so a long number and a long sentence cannot run
-       under it. */
-    padding-right: 66px;
-  }
-  /* 14px: still the largest text in the bar, and small enough that the whole claim line
-     stays on one line at 360px. The dismiss cross is smaller again, so the number is the
-     largest thing in the bar at every width. */
-  .announce-phone { font-size: 14px; padding: 0 4px; }
-  .announce button { font-size: 13px; }
-  .announce-shipping { display: none; }
+  .announce { font-size: 9px; letter-spacing: 0.06em; }
+  /* 14px: still the largest text in the bar. The dismiss cross is smaller again, so the
+     number is the largest thing in the bar at every width. */
+  .announce-phone { font-size: 14px; padding: 0 4px; white-space: nowrap; }
+  /* Measured, not guessed: with the tail the claim line needs 361px, and a 390px phone
+     leaves the bar 316px between its padding — the centred sentence hung 15px off the
+     left edge, 45px on a 360px phone, so the first words were off the screen. Without
+     it the line needs ~257px and fits the phones that matter. */
+  .announce-tail { display: none; }
+  /* Belt and braces for anything narrower (a 320px phone, a split view): the line wraps
+     rather than leaving the screen. The number itself never breaks — a phone number cut
+     over two lines is unreadable. */
+  .announce-content { white-space: normal; flex-wrap: wrap; }
 }
 @media (max-width: 820px) {
   .nav { height: 66px; }
