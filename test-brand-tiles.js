@@ -305,6 +305,54 @@ ok('F6  the unfiltered shop is named the vault in both the markup and the render
   find(/\|\|[^;]*THE VAULT[^;]*/, app) || 'no vault fallback title');
 
 
+// ---- G. a tile answers with its brand, not with what the shop asked last ---------
+// Measured in headless Chrome against the deployed build: tap SHOP SNEAKERS in the
+// hero, come home, tap Supreme — 0 cards and "No Supreme items in stock yet — new
+// stock goes up weekly", while the catalog carried eight Supreme tees. shopCategory()
+// leaves its category on shopCategoryFilter, and the tile handler only ever set the
+// brand, so every brand outside that category came back empty: Bearbrick, Huffy,
+// MadCan, New Era and The North Face too. Jordan, Nike, adidas and New Balance looked
+// fine only because they are sneakers, which is exactly what made it look like a
+// stock problem with six brands instead of a filter problem with one. The category has
+// no control in the filter bar either — nothing on screen named it, and nothing but the
+// empty state's Reset button could clear it. So: a tile clears what the shop was asking
+// before it applies its own brand, and the "not in stock yet" line may only run when
+// the brand really is absent from the catalog.
+const filterByBrandSrc = find(/function filterByBrand\(brand, el\)\s*\{[\s\S]*?\n    \}/, app) || '';
+const resetFiltersSrc = find(/function resetFilters\(\)\s*\{[\s\S]*?\n    \}/, app) || '';
+ok('G1  a brand tile clears the shop filters before applying its brand',
+  /resetFilters\(\);/.test(filterByBrandSrc)
+  && filterByBrandSrc.indexOf('resetFilters();') < filterByBrandSrc.indexOf("$('brandFilter').value"),
+  'reset at ' + filterByBrandSrc.indexOf('resetFilters();')
+  + ', brand set at ' + filterByBrandSrc.indexOf("$('brandFilter').value"));
+ok('G2  and the reset is what drops the category no control in the bar can show',
+  /shopCategoryFilter = ''/.test(resetFiltersSrc),
+  resetFiltersSrc.slice(0, 120) || 'no resetFilters() body');
+ok('G3  the tapped tile is still the one marked as the live filter',
+  filterByBrandSrc.indexOf("classList.add('selected')") > filterByBrandSrc.indexOf('resetFilters();')
+  && filterByBrandSrc.indexOf("classList.add('selected')") > 0,
+  "add('selected') at " + filterByBrandSrc.indexOf("classList.add('selected')"));
+ok('G4  a brand with stock never gets told it has none',
+  /const brandHasStock = brand/.test(app)
+  && /brandHasStock\s*\n?\s*\?\s*`Nothing in \$\{brand\} matched those filters/.test(app)
+  && /: `No \$\{brand\} items in stock yet/.test(app),
+  find(/const brandHasStock[\s\S]{0,200}/, app) || 'no brandHasStock guard');
+// The catalog is the other half of the promise: every brand the grid shows has to have
+// something behind it. Travis Scott is the one tile that is still a plan.
+const catalog = new Function('window', read('products.js') + '; return window.localProducts;')({});
+const planned = (find(/const BRAND_TILES = \[[^\]]*\]/, app) || '')
+  .match(/'[^']+'/g) || [];
+const plannedBrands = planned.map((s) => s.slice(1, -1));
+const withoutStock = plannedBrands.filter((b) => !catalog.some((p) => p.brand.toLowerCase() === b.toLowerCase()));
+ok('G5  Travis Scott is the only planned brand still waiting on stock',
+  withoutStock.length === 1 && withoutStock[0].toLowerCase() === 'travis scott',
+  withoutStock.join(', ') || 'none empty (Travis Scott has stock?)');
+const NAMED = ['Supreme', 'Bearbrick', 'Huffy', 'MadCan', 'New Era', 'The North Face'];
+ok('G6  every brand a shopper asked for has items behind its tile, none behind a filter',
+  NAMED.every((b) => catalog.filter((p) => p.brand.toLowerCase() === b.toLowerCase()).length > 0),
+  NAMED.filter((b) => !catalog.some((p) => p.brand.toLowerCase() === b.toLowerCase())).join(', ') || 'all stocked');
+
+
 const fails = results.filter((r) => !r.pass);
 results.forEach((r) => console.log((r.pass ? 'PASS  ' : 'FAIL  ') + r.name + (r.pass ? '' : '   [' + r.extra + ']')));
 console.log('\nTOTAL=' + results.length + ' FAIL=' + fails.length);

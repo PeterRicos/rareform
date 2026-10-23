@@ -683,11 +683,24 @@ function urlKey() {
       // found matching those filters" reads like the shop is broken; "no Supreme
       // items in stock yet" reads like the shop is early. A size search that finds
       // nothing gets its own line too, otherwise people assume the size is wrong.
+      //
+      // That stock line is only allowed to run when the brand really is empty. It was
+      // printed whenever a brand filter came back with nothing, which turned a filter
+      // the shopper couldn't see (a leftover category, before filterByBrand cleared it)
+      // into "No Supreme items in stock yet" over eight Supreme tees — a claim about the
+      // catalog made by a filter. Everything below now answers for the filter it applied.
+      const brandHasStock = brand
+        ? products.some(p => p.brand.toLowerCase() === brand.toLowerCase())
+        : false;
       const emptyCopy = brand && !list.length
-        ? `No ${brand} items in stock yet — new stock goes up weekly.`
+        ? (brandHasStock
+          ? `Nothing in ${brand} matched those filters — clear one to see the rest.`
+          : `No ${brand} items in stock yet — new stock goes up weekly.`)
         : (sizeQuery
           ? `Nothing in ${sizeQuery.display} right now — try another size.`
-          : (brand === 'Supreme' ? 'No clothing found matching those filters.' : 'No sneakers found matching those filters.'));
+          : (shopCategoryFilter === 'clothing' ? 'No clothing found matching those filters.'
+            : (shopCategoryFilter === 'random' ? 'Nothing in Random Shit matched those filters.'
+              : 'No sneakers found matching those filters.')));
 
       // The size dropdown asks the same question as a typed size, so the cards answer
       // it the same way: the run it was set to is the run printed on them.
@@ -745,13 +758,26 @@ function urlKey() {
     }
 
     // Brand Tile Click Handler
+    //
+    // A tile asks one question — what does this brand have — so the filters the shop was
+    // left holding have to go first, the category included. A tap used to keep whatever
+    // category the last visit set: tap SHOP SNEAKERS in the hero (or Clothing, or Random
+    // Shit), come home, tap Supreme, and the grid answered 0 with "No Supreme items in
+    // stock yet" while eight Supreme tees sat in the catalog. Jordan, Nike, adidas and
+    // New Balance only survived because they happen to be sneakers; Bearbrick, Huffy,
+    // MadCan, New Era and The North Face all read as out of stock. The category has no
+    // control in the filter bar, so nothing on screen named that filter and nothing but
+    // the empty state's Reset button could clear it — after the shopper had already been
+    // told the shop didn't carry the brand.
     function filterByBrand(brand, el) {
-      document.querySelectorAll('.brand-tile').forEach(x => x.classList.remove('selected'));
-      if (el) el.classList.add('selected');
       // Ignore a brand that isn't on the tile list at all, rather than silently
       // filtering to nothing. A brand that's listed but not yet stocked is a
       // different case — that one keeps its filter and explains itself below.
       const known = TILE_BRANDS.some(b => b.toLowerCase() === String(brand || '').toLowerCase());
+      // Same order shopNav() uses: clear what the shop was asking, then set the brand.
+      resetFilters();
+      // resetFilters() strips .selected from every tile, so the tap is marked after it.
+      if (el) el.classList.add('selected');
       if ($('brandFilter')) $('brandFilter').value = known ? brand : '';
       go('shop');
       renderShop();
