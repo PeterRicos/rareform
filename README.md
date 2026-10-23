@@ -35,7 +35,7 @@ page.
 | `sneaker_images/` | Source photos, plus `square/` — each photo padded to a 1:1 canvas so a card's `object-fit: cover` can never clip a shoe. |
 | `images/` | The hero and the two category tiles, each at three widths in AVIF/WebP/JPEG — plus `images/clothing/`, the full-size photos the clothing and headwear listings point at directly (they are product photos, not page furniture, so `build-images.js` does not touch them). |
 | `video/reel.mp4` | The hero clip. The page falls back to a still image when it is absent or undecodable. |
-| `test-*.js` | Eleven suites. Plain Node, no dependencies, ~12 s for all of them. |
+| `test-*.js` | Twelve suites. Plain Node, no dependencies, ~12 s for all of them. |
 | `.github/workflows/stamp-assets.yml` | The only workflow that touches the site. |
 | `tools/visit-counter-worker.js` | Optional Cloudflare Worker that counts page views. This repo does not deploy it. |
 | `tools/ci-status.js` | Prints the newest Actions runs, polling in chunks small enough to survive a 30-second command cap. `node tools/ci-status.js --wait 20`; exit `3` means look again. |
@@ -126,6 +126,7 @@ for f in test-*.js; do echo "== $f"; node "$f"; done
 | `test-reveal.js` | The card scroll-reveal — every renderer arms it, so a grid can never be invisible. |
 | `test-hero-video.js` | The hero clip: the tag is on only when the file is really a video. |
 | `test-images.js` | Every width and format the hero and tile `srcset`s name actually exists on disk — a `srcset` is a list of URLs nothing validates at runtime. |
+| `test-fonts.js` | The type: no page asks a font host for anything, every `url()` in `fonts/fonts.css` is a real woff2 on disk, Manrope's weight range covers every weight `styles.css` asks for, and the payload stays in the tens of KB. |
 | `test-privacy.js` | The order number is not sitting in the shipped files. |
 
 Each prints `PASS`/`FAIL` lines and ends with `TOTAL=<n> FAIL=<n>`. A `FAIL` is a merge

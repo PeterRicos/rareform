@@ -142,10 +142,15 @@ no IP, no user agent, no referrer. That is why there is no cookie banner. Keep i
   of a bug that was already paid for once.
 - Test files are plain Node: `ok(name, condition, extra)` and a final `TOTAL=`/`FAIL=` line.
   A new assertion belongs in the series that already covers its area and takes the next
-  number (`A19`, `W4`, `P7`), not a new file.
+  number (`A19`, `W4`, `P7`), not a new file — a new file is for a new area, like fonts.
+- Do not judge a font by searching its bytes. WOFF2 stores a known table tag (`fvar` among
+  them) as a flag byte, so `grep fvar` reports nothing for a genuinely variable font, which
+  is a whole false alarm about bold text. Read the directory (`test-fonts.js` does) or leave
+  it to the suite.
 
 ## Fastest way to understand a feature
 
 Read the suite that covers it. `test-product-pages.js` says what a listing page owes a
 crawler, `test-mobile.js` says what it owes a thumb, `test-privacy.js` says what it must not
-contain. The tests are the specification; the prose comments are the reasoning.
+contain, `test-fonts.js` says what the type owes nobody. The tests are the specification;
+the prose comments are the reasoning.
