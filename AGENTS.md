@@ -61,6 +61,28 @@ are the specification for behaviour nobody can see in a diff, and the comment ab
 one says what it is protecting. If a decision genuinely changed, change the assertion *and*
 its comment, and say so in the commit message.
 
+## Waiting on CI
+
+The shell an agent works through here kills a foreground command after about thirty
+seconds, and `gh` is not installed — so neither `gh run watch` nor a bare `sleep 60` can be
+used to wait for the Pages build. Wait in a chunk that fits inside the cap:
+
+```bash
+node tools/ci-status.js --wait 20   # exit 0 green · 1 failed · 3 still running · 2 unreadable
+```
+
+Repeat the same command while it exits `3`. A docs-only push finishes well inside a minute,
+so two or three calls is normal. Add `--sha <prefix>` to watch one commit instead of the
+newest runs — a second workflow landing on the same sha means the top row is not always the
+run you pushed. Exit `3` with *no* run listed is a real answer rather than an error: either
+it is the first half-minute after a push, or the commit fell outside `stamp-assets.yml`'s
+`paths:` filter and will never have a run.
+
+The runs API allows 60 unauthenticated calls an hour per IP, so the script polls every eight
+seconds; at the `--wait 24` ceiling that is at most four calls per invocation. Export
+`GITHUB_TOKEN` if a loop is going to run long. Do not push `--wait` further — the cap
+applies to the whole command, network time included.
+
 ## Do not "improve" these — each was decided on purpose
 
 - **No prices.** No `price` in a listing, no `Offer.price` in the structured data, no price

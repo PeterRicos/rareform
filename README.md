@@ -36,6 +36,7 @@ page.
 | `test-*.js` | Eleven suites. Plain Node, no dependencies, ~12 s for all of them. |
 | `.github/workflows/stamp-assets.yml` | The only workflow that touches the site. |
 | `tools/visit-counter-worker.js` | Optional Cloudflare Worker that counts page views. This repo does not deploy it. |
+| `tools/ci-status.js` | Prints the newest Actions runs, polling in chunks small enough to survive a 30-second command cap. `node tools/ci-status.js --wait 20`; exit `3` means look again. |
 
 ## Run it locally
 
