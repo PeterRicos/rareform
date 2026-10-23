@@ -252,25 +252,50 @@ function buildPage(page, p) {
 }
 
 // The sitemap was a single homepage entry because that was the only URL a crawler could
-// reach. Now there is one per pair, so it lists them.
+// reach. Now there is one per pair, so it lists them — and each entry carries the photo
+// its own page shows, because image search is how a pair gets found by someone who does
+// not yet know its name. test-product-pages.js proves every <image:loc> resolves to a
+// real file: an image sitemap pointing at 404s is worse than no image sitemap.
 //
 // No <lastmod>: the honest value is "when this listing last changed", which the files do
 // not record. A build-time "today" would rewrite the sitemap on every run, put a changed
 // date on all 103 entries in every commit, and teach a crawler to ignore the field —
 // worse than its absence.
+function imageEntry(p) {
+  const src = String((p && p.img) || '').replace(/^\/+/, '');
+  if (!src) return '';
+  // encodeURI covers the spaces a photo arrives with; # and ? would otherwise pass
+  // through and silently truncate the URL, so they are escaped here as well.
+  const loc = SITE_URL + encodeURI(src).replace(/#/g, '%23').replace(/\?/g, '%3F');
+  const title = String((p && p.name) || '').trim();
+  return [
+    '    <image:image>',
+    '      <image:loc>' + esc(loc) + '</image:loc>',
+    title ? '      <image:title>' + esc(title) + '</image:title>' : '',
+    '    </image:image>'
+  ].filter(Boolean).join('\n');
+}
+
 function sitemapFor(listings) {
-  const urls = [SITE_URL].concat(listings.map((p) => structuredData.productUrl(p)));
-  const entries = urls.map((url, i) => [
+  const pages = listings.map((p) => ({
+    loc: structuredData.productUrl(p),
+    image: imageEntry(p)
+  }));
+  const entries = [{ loc: SITE_URL, image: '' }].concat(pages).map((e, i) => [
     '  <url>',
-    '    <loc>' + url + '</loc>',
+    '    <loc>' + e.loc + '</loc>',
     '    <changefreq>weekly</changefreq>',
     '    <priority>' + (i === 0 ? '1.0' : '0.8') + '</priority>',
+    e.image,
     '  </url>'
-  ].join('\n')).join('\n');
+  ].filter(Boolean).join('\n')).join('\n');
+  const hasImages = pages.some((e) => e.image);
   return '<?xml version="1.0" encoding="UTF-8"?>\n' +
-    '<!-- Written by prerender-products.js: the homepage and one URL per listing. -->\n' +
-    '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n' +
-    entries + '\n</urlset>\n';
+    '<!-- Written by prerender-products.js: the homepage, one URL per listing, and the\n' +
+    '     photo each listing page shows. -->\n' +
+    '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"' +
+    (hasImages ? ' xmlns:image="http://www.google.com/schemas/sitemap-image/1.1"' : '') +
+    '>\n' + entries + '\n</urlset>\n';
 }
 
 function main() {

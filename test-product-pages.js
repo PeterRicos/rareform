@@ -187,6 +187,43 @@ ok('A15 the sitemap lists the homepage and every pair exactly once',
   'locs=' + locs.length + ' expected=' + expected.length +
   ' missing=' + expected.filter((u) => locs.indexOf(u) < 0).slice(0, 2).join(', '));
 
+// ---- A16: each pair's photo is in that pair's entry ---------------------------
+// Image search is how a pair nobody knows by name gets found. What makes that worth
+// having is the pairing being right: a photo filed under the wrong URL would advertise
+// one pair on another's page. The block is split per <url> so the check is on the
+// association, not on the presence of some <image:loc> somewhere in the file.
+const blocks = sitemap.split('  <url>').slice(1);
+const sourced = (url) => {
+  try { return decodeURI(url); } catch (err) { return url; }
+};
+const photoProblems = [];
+blocks.forEach((block) => {
+  const loc = (block.match(/<loc>([^<]+)<\/loc>/) || [])[1] || '';
+  const shot = sourced((block.match(/<image:loc>([^<]+)<\/image:loc>/) || [])[1] || '');
+  if (loc === structuredData.SITE_URL) return;            // the homepage advertises no photo
+  const slug = loc.replace(structuredData.SITE_URL + 'product/', '').replace(/\/$/, '');
+  const p = catalog.filter((x) => slugs.productSlug(x) === slug)[0];
+  if (!p) { photoProblems.push(slug + ' unknown'); return; }
+  const want = structuredData.SITE_URL + String(p.img || '').replace(/^\/+/, '');
+  if (shot !== want) photoProblems.push(slug + ' photo=' + shot);
+});
+ok('A16 every pair carries its own photo, and no one else\'s',
+  /xmlns:image="http:\/\/www\.google\.com\/schemas\/sitemap-image\/1\.1"/.test(sitemap) &&
+  blocks.length === expected.length &&
+  photoProblems.length === 0,
+  'blocks=' + blocks.length + ' ' + photoProblems.slice(0, 3).join(' ; '));
+
+// ---- A17: the listed photos are files that exist ------------------------------
+// Pages is case-sensitive, so "(1).JPG" for "(1).jpg" is a 404 that still looks like a
+// perfectly good sitemap entry. Checking the disk is the only way to know.
+const missingPhoto = catalog.filter((p) => {
+  const src = String(p.img || '').replace(/^\/+/, '');
+  return !src || !fs.existsSync(path.join(__dirname, src));
+});
+ok('A17 every photo the sitemap advertises is a file in this folder',
+  missingPhoto.length === 0,
+  missingPhoto.slice(0, 3).map((p) => String(p.img)).join(' ; '));
+
 // ---- B. the page script, on a listing URL ------------------------------------
 // The live page loads slugs.js, products.js and app.js in that order.
 const CODE = [read('slugs.js'), read('products.js'), read('app.js')].join('\n');
