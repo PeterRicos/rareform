@@ -71,6 +71,7 @@ function urlKey() {
     let selectedSize = null;
     let galleryList = [];   // photos of `current`, in the order the gallery draws them
     let zoomIndex = 0;      // which of them the zoom viewer is showing
+    let shopRendered = false;   // has the shop grid been mounted yet? (see showPage)
 
     const $ = id => document.getElementById(id);
 
@@ -647,6 +648,7 @@ function urlKey() {
 
     // Render Shop with Active Filters & Sorter
     function renderShop() {
+      shopRendered = true;
       let list = [...products];
       const q = ($('filterSearch')?.value || $('mobileSearch')?.value || '').trim().toLowerCase();
       const brand = $('brandFilter')?.value;
@@ -771,6 +773,13 @@ function urlKey() {
       // collision entirely, so the browser never scrolls on its own.
       const target = $('view-' + page) || $('view-home');
       target.classList.add('active');
+      // The shop grid is the heaviest thing this script builds — 102 cards — and plenty of
+      // visits never open it: the hero, one of the home rails, or a shared /product/ link
+      // is the whole visit. So it is built the first time the view is actually shown
+      // rather than at boot. Same cards in the same order, just not built for a page nobody
+      // looked at. Every filter, size search and category tile already ends in renderShop()
+      // itself, so this only ever covers the first arrival.
+      if (target.dataset.view === 'shop' && !shopRendered) renderShop();
       if (target.dataset.view === 'product' && (restore || pid)) {
         renderProduct(pid || current.id);
       }
@@ -1640,8 +1649,10 @@ function urlKey() {
     })();
     renderFilterUI();
     renderHome();
-    renderShop();
     renderRecentlyViewed();
+    // renderShop() is deliberately not called here. The grid mounts when the shop view is
+    // first shown (showPage), so boot builds the hero rails and nothing else; a visitor who
+    // never opens the shop never pays for 102 cards.
 
     // Then restore whatever the URL asked for (refresh, shared link, bookmark)
     hydrateFromURL();

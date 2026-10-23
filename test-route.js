@@ -250,6 +250,21 @@ function boot(initialHash, cfg) {
   G.history.back();
   await sleep(320);
   ok('G7  back → home', G.active() === 'home' && G.location.hash === '#home', G.active() + ' ' + G.location.hash);
+
+  // ---- G8: the shop grid is built when the shop is shown ---------------------
+  // Boot used to render all 102 cards for every visitor, including the ones who only ever
+  // looked at the hero or a shared pair link. The grid now mounts on first arrival at the
+  // view, so boot has to leave it empty and going to the shop has to fill it — one without
+  // the other means the deferral either did nothing or broke the shop.
+  const Q = boot('');
+  await sleep(320);
+  const beforeShop = String(Q.getEl('shopProducts').innerHTML || '');
+  ev(Q, 'go("shop")');
+  await sleep(80);
+  const afterShop = String(Q.getEl('shopProducts').innerHTML || '');
+  ok('G8  the shop grid is built when the shop is shown, not at boot',
+    beforeShop === '' && afterShop.indexOf('class="product"') >= 0,
+    'at boot=' + beforeShop.length + ' chars, at #shop=' + afterShop.length + ' chars');
   // ---- H. section nav is shareable and reversible ---------------------------
   // (the old '#heat' section and its scrollToSection() helper were removed from
   // the site, so this exercises today's flow: a section hash on the home route)
