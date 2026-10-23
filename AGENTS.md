@@ -98,6 +98,10 @@ into a failure. A failed *newest* run still exits `1` and names the workflow and
 - **No prices.** No `price` in a listing, no `Offer.price` in the structured data, no price
   field in the page toolbar. Friends and family settle the price by text. Search Console's
   "Missing field 'price'" on the product markup is expected and must not be "fixed".
+- **Type stays on this domain.** `fonts/fonts.css` plus four woff2 files. Do not put a
+  Google Fonts `<link>` (or its preconnects) back into `index.html`: it re-adds two DNS/TLS
+  round-trips, a render-blocking stylesheet before the first word paints, and a third-party
+  request on every page of a shop that otherwise talks to nobody.
 - **No `<lastmod>` in the sitemap**, and leave `changefreq`/`priority` alone.
 - **No `<VideoObject>`** for the hero clip. It is decoration.
 - **No visible "more pairs" link rail** on listing pages. It was offered and declined;

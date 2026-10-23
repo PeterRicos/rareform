@@ -21,6 +21,7 @@ page.
 | `slugs.js` | The one slug rule. `app.js`, `jsonld.js` and `prerender-products.js` all read it, so a pair's address is the same in a card's link, in the structured data, and as a folder on disk. |
 | `jsonld.js` | Listing → schema.org. Used by the live page *and* by the build step, so the baked-in copy and the runtime copy cannot drift. |
 | `styles.css` | All styling. |
+| `fonts/` | The two type families, served from this domain: `fonts.css` (2 KB of `@font-face`) plus one variable Manrope and three DM Mono woff2 files, latin subsets, 70 KB total. No request to `fonts.googleapis.com` on any page. |
 | `sw.js` | Service worker with one job: navigations are fetched `no-store`, so a returning visitor never runs the previous deploy's HTML. |
 | `prerender-products.js` | Writes `product/<slug>/index.html` for every listing, and `sitemap.xml`. |
 | `redirects.js` | Retired addresses: old slug → SKU. `prerender-products.js` leaves a small "moved" page at each one, because a static host cannot answer an old URL with a 301. Add an entry whenever a slug changes. |

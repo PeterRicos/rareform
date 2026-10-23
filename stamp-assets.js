@@ -23,7 +23,11 @@ const crypto = require('crypto');
 // the same, so it is stamped like the rest.)
 // (Images and icons are left alone: they are replaced by adding a new file rather
 // than by editing one in place.)
-const ASSETS = ['styles.css', 'slugs.js', 'products.js', 'jsonld.js', 'app.js', 'qrcode.js', 'boot.js'];
+// fonts/fonts.css is stamped like the rest even though it changes rarely: it is a stylesheet
+// a visitor pays for before the first word paints, and Pages lets every cache in the path
+// hold it for ten minutes. Its own woff2 siblings are not stamped — a font swap is a new
+// file name, not a new query string.
+const ASSETS = ['styles.css', 'fonts/fonts.css', 'slugs.js', 'products.js', 'jsonld.js', 'app.js', 'qrcode.js', 'boot.js'];
 
 // The hero clip is the one asset the owner swaps by overwriting a file in place, which
 // is the case a bare URL handles worst: the name never changes, so for the ten minutes
