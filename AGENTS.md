@@ -4,24 +4,29 @@ Working notes for AI agents and automation in this repo. `README.md` explains wh
 is; this file explains the rules. The site is live and friends and family order from it, so
 the bar is "it still works on a phone", not "the diff looks right".
 
-## Pushing is a separate, explicit step
+## Ship without being asked
 
-Implementing, regenerating, testing and committing are all fine. **Do not push, do not
-merge into `main`, and do not run `git ship` unless the person you are working with asked
-for it in that turn.** `main` deploys to randomstock.shop about a minute after the push.
-
-The stop point:
+The owner of this repo has said, in as many words, that a finished change should be merged
+and pushed without waiting to be told. So the flow runs end to end in one pass:
 
 1. make the change
 2. regenerate whatever derives from it (below)
-3. run all eleven suites
+3. run all eleven suites — a `FAIL` means stop and fix it, not ship it
 4. commit on a branch — never commit to `main` directly
-5. report the sha, `git show --stat`, and what the suites printed
-6. stop and wait
+5. `git ship` — fetch → push the branch → `--ff-only` merge into `main` → push `main`
+6. confirm the deploy with `node tools/ci-status.js --wait 20` (see *Waiting on CI*)
+7. report the sha, `git show --stat`, what the suites printed, and what the deploy did
 
-`git ship` is a configured alias for what happens when you *are* asked: fetch → push the
-branch → `--ff-only` merge into `main` → push `main`. It refuses on a dirty tree and
-refuses on `main`, so it is the safe form of the operation — not an implicit permission.
+`main` is live at randomstock.shop about a minute after the push, which is why step 6 is part
+of the job rather than a courtesy.
+
+Two habits keep this safe now that no one is gatekeeping. `git ship` refuses a dirty tree and
+refuses to run on `main`, so the commit always lands on a branch first. And `stamp-assets.yml`
+commits to `main` by itself after a site change, so never force-push and never rewrite `main`:
+to undo something that shipped, `git revert <sha>` and ship the revert.
+
+Ask only when the answer is genuinely the owner's to give — a price, a photo, whether a
+listing should be public at all, or a slug rename that moves an already-indexed URL.
 
 ## Never hand-edit generated files
 
