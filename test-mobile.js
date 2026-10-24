@@ -259,10 +259,13 @@ ok('J1  no fixed order bar ships in the markup',
 ok('J2  and no rules or wiring for one are left in the CSS or app.js',
   !/order-bar/.test(css) && !/updateOrderBar/.test(app),
   'order bar rules or wiring still present');
-ok('J3  the number is never written into the markup — shoppers get it from app.js',
-  html.indexOf(structuredData.PHONE) === -1
-  && html.indexOf(structuredData.PHONE_DISPLAY) === -1,
-  'plaintext number found in index.html');
+// Exception since 2026-10-24: the announcement bar's <noscript> fallback may carry
+// the number (test-privacy.js P8) — the check below reads the markup with those
+// blocks removed, so a literal anywhere else still fails.
+ok('J3  the number is never written into the markup outside the noscript fallback — shoppers get it from app.js',
+  html.replace(/<noscript[\s\S]*?<\/noscript>/g, '').indexOf(structuredData.PHONE) === -1
+  && html.replace(/<noscript[\s\S]*?<\/noscript>/g, '').indexOf(structuredData.PHONE_DISPLAY) === -1,
+  'plaintext number found in index.html outside noscript');
 
 // ---- K. the announcement bar fits the screen it is on ------------------------
 // The bar is one line of monospace that cannot reflow, and it is the first thing a

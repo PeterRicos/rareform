@@ -147,7 +147,7 @@ into a failure. A failed *newest* run still exits `1` and names the workflow and
 
 The order number is assembled at runtime from `ORDER_PHONE_GROUPS` in `app.js` and must not
 appear as a literal in `index.html`, in a listing page, or in the sitemap. `test-privacy.js`
-enforces it; if it fails, you have written the number somewhere it does not belong.
+enforces it; if it fails, you have written the number somewhere it does not belong. The one exception, decided 2026-10-24: a `<noscript>` fallback inside the announcement-bar phone link, so a visitor with scripts off still sees the number — without it the bar names no number at all. `test-privacy.js` strips noscript blocks before the literal check and asserts the fallback exists (P8); the number stays out of every other file.
 
 The visit counter (a Cloudflare Worker, `tools/`) records the page path and nothing else —
 no IP, no user agent, no referrer. That is why there is no cookie banner. Keep it that way.

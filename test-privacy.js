@@ -12,7 +12,11 @@
    So the digits live in exactly two places, split into three groups and joined at
    runtime — app.js (the page and its dialer links) and jsonld.js (the structured
    data; they never load together in the harnesses, so each keeps its own copy) — and
-   nothing else. What this suite pins:
+   nothing else, except one deliberate exception, decided 2026-10-24: a <noscript>
+   fallback inside the announcement-bar phone link, so a visitor with scripts off
+   still sees the number. Without it the bar names no number at all, which is a
+   worse bug than a scraper-readable fallback — the tradeoff is accepted, and the
+   number stays out of every other file. What this suite pins:
 
      - no shipped file names the number in plain text, in any of the forms worth
        scraping: the E.164 form, the bare digits, the 3-4 split, the display form
@@ -26,6 +30,9 @@
        worse bug than the one it fixed
      - a sweep of every text file in the repo, so the next leak is caught wherever it
        lands, not only in the three files that leaked this time
+     - the noscript fallback itself: it must exist in the announcement bar and
+       carry the display form, so the exception cannot silently rot into an
+       empty link again
 
    Out of scope on purpose: git history. The number is still in the commits that put
    it there (and in the public GitHub history), and this file — which reads files, not
@@ -61,9 +68,16 @@ function named(text) {
   return NEEDLES.filter((n) => text.indexOf(n) !== -1);
 }
 
+// The one sanctioned literal: a <noscript> fallback is readable by a no-JavaScript
+// fetch by design, so the literal checks below read the page with those blocks
+// removed, and P8 pins the fallback separately instead of pretending it is not there.
+function stripNoscript(text) {
+  return text.replace(/<noscript[\s\S]*?<\/noscript>/g, '');
+}
+
 // ---- 1. the three files that shipped the number ------------------------------
 [['index.html', html], ['app.js', app], ['jsonld.js', jsonldSrc]].forEach(([name, text]) => {
-  const found = named(text);
+  const found = named(stripNoscript(text));
   ok('P1  ' + name + ' names no phone number in plain text', found.length === 0,
     found.length + ' scrapable form(s) present, e.g. "' + (found[0] || '') + '"');
 });
@@ -166,11 +180,19 @@ for (const file of walk(__dirname, [])) {
   if (buf.includes(0)) continue;             // not text, whatever its name says
   scanned++;
   const text = buf.toString('utf8');
-  if (named(text).length) leaks.push(path.relative(__dirname, file).split(path.sep).join('/'));
+  if (named(stripNoscript(text)).length) leaks.push(path.relative(__dirname, file).split(path.sep).join('/'));
 }
 
 ok('P7  no text file in the repo names the number (' + scanned + ' scanned)',
   leaks.length === 0, leaks.join(', '));
+
+// ---- 8. the noscript fallback exists and carries the display form ------------
+// The expected value is built from the groups, never typed: a harness that spelled
+// the number out would be the very leak it is supposed to catch.
+const noscriptMatch = html.match(/<a class="announce-phone" id="announcePhone"[^>]*><noscript>([\s\S]*?)<\/noscript><\/a>/);
+ok('P8  the announcement bar carries a noscript fallback with the number',
+  !!(noscriptMatch && noscriptMatch[1].replace(/<[^>]+>/g, '').trim() === structuredData.PHONE_DISPLAY),
+  'noscript fallback missing from the announcement bar or not the display form');
 
 const fails = results.filter((r) => !r.pass);
 results.forEach((r) => console.log((r.pass ? 'PASS  ' : 'FAIL  ') + r.name + (r.pass ? '' : '   [' + r.extra + ']')));

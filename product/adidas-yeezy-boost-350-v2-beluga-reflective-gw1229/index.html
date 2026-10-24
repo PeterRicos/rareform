@@ -72,7 +72,9 @@
            between its padding once the dismiss cross is cleared — the centred line hung
            off the left edge and "NO CART" left the screen. The number is the claim; the
            words after it are the first thing that can go. -->
-      <span class="announce-copy"><span class="announce-claim">NO CART — CALL OR TEXT <a class="announce-phone" id="announcePhone" href="#"></a><span class="announce-tail"> TO ASK ABOUT A PAIR</span></span><span class="announce-shipping"> · ORDERS SHIP WITHIN 1-2 BUSINESS DAYS</span></span>
+      <!-- The number inside <noscript> is the one literal allowed (see Privacy in
+           AGENTS.md): with scripts off, the bar otherwise names no number at all. -->
+      <span class="announce-copy"><span class="announce-claim">NO CART — CALL OR TEXT <a class="announce-phone" id="announcePhone" href="#"><noscript>(914) 482-1144</noscript></a><span class="announce-tail"> TO ASK ABOUT A PAIR</span></span><span class="announce-shipping"> · ORDERS SHIP WITHIN 1-2 BUSINESS DAYS</span></span>
     </div>
     <button data-act="announceDismiss" aria-label="Dismiss announcement">×</button>
   </aside>
