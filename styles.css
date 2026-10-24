@@ -912,6 +912,10 @@ html.announce-dismissed .announce { display: none; }
   border-radius: var(--radius);
   font-size: 13px;
 }
+.shop-actions #sizeFilter {
+  flex: 0 1 190px;
+  min-width: 0;
+}
 .clear-filters-btn {
   margin-top: 18px;
   width: 100%;
@@ -1556,6 +1560,7 @@ html.announce-dismissed .announce { display: none; }
   .shop-actions { flex-wrap: wrap; }
   .shop-actions input { max-width: none; flex: 1 1 100%; }
   .shop-actions select { flex: 1; min-width: 0; }
+  .shop-actions #sizeFilter { flex: 1; }
   /* The sidebar's search field is hidden below this breakpoint (see the
      .filters .filter:first-child rule), so this one has to turn on here —
      otherwise mobile has no search box anywhere on the page. */

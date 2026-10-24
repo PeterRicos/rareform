@@ -733,8 +733,8 @@ function urlKey() {
     function updateFilterCount() {
       const btn = $('filterToggle');
       if (!btn) return;
-      const n = ['brandFilter', 'sizeFilter', 'conditionFilter'].filter(id => $(id) && $(id).value).length;
-      btn.textContent = n ? 'Filters (' + n + ')' : 'Filters';
+      const n = ['brandFilter', 'conditionFilter'].filter(id => $(id) && $(id).value).length;
+      btn.textContent = n ? 'More Filters (' + n + ')' : 'More Filters';
     }
 
     // Resetting the controls and redrawing the grid are two jobs. The category tiles below
@@ -894,7 +894,7 @@ function urlKey() {
       if (page === 'product' && current) document.title = current.name + ' — Random Stock';
       else if (page === 'shop') document.title = 'Shop All Sneakers — Random Stock';
       else if (page === 'about') document.title = 'Our Story — Random Stock';
-      else document.title = 'Random Stock — Verified Sneakers';
+      else document.title = 'Random Stock — Hand-Checked Sneakers';
     }
 
     function go(page) {
@@ -1016,13 +1016,13 @@ function urlKey() {
           ${sizeQuery && matchedSizes.length ? `<p class="size-match-note">This ${itemLabel} is held in the sizes your search asked for: ${matchedSizes.map(s => sizeDisplay(s, current.sizeGroup)).join(' · ')}.</p>` : ''}
         </div>` : ''}
         <div class="order-cta">
-          <a class="btn" id="orderCall" href="tel:${ORDER_PHONE}">Call to claim</a>
-          <a class="btn light" id="orderText" href="sms:${ORDER_PHONE}">Text to claim this ${itemLabel}</a>
+          <a class="btn" id="orderCall" href="tel:${ORDER_PHONE}">Ask about this pair</a>
+          <a class="btn light" id="orderText" href="sms:${ORDER_PHONE}">Text to ask about this ${itemLabel}</a>
         </div>
         <p class="order-note">${hasSizes ? `Sizes listed are what we hold right now. Call or text the ${itemLabel} and your size and we will confirm the price, availability, condition and shipping.` : `Call or text about this ${itemLabel} and we will confirm the price, availability, condition and shipping.`}</p>
         <div class="listing-qr" id="listingQr"></div>
         <div class="perks">
-          <p>✓ <b>100% Authenticity Guaranteed:</b> Hand-inspected by verification specialists.</p>
+          <p>✓ <b>Authenticity promise:</b> Every pair is inspected in hand before listing.</p>
           <p>✓ <b>Insured Express Shipping:</b> Ships double-boxed with tracking in 1-2 business days.</p>
           <p>✓ <b>Buyer Protection:</b> Full refund if authenticity does not meet our standard.</p>
         </div>

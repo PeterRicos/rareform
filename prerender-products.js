@@ -84,13 +84,16 @@ function descriptionFor(p) {
     p.name + (p.color ? ' in ' + p.color : '') + '.',
     [p.condition, p.box].filter(Boolean).join(', ') + '.',
     sizes ? 'Sizes held: ' + sizes + '.' : '',
-    'Hand-checked and authentic. No cart — call or text to claim it and confirm the price.'
+    'Checked in hand.'
   ];
-  const text = parts.filter(Boolean).join(' ').replace(/\s+/g, ' ').trim();
-  if (text.length <= 160) return text;
-  const cut = text.slice(0, 157);
+  const base = parts.filter(Boolean).join(' ').replace(/\s+/g, ' ').trim();
+  const suffix = ' Ask us about availability and price.';
+  if (base.length + suffix.length <= 160) return base + suffix;
+
+  const budget = 160 - suffix.length - 1; // reserve room for the ellipsis and inquiry cue
+  const cut = base.slice(0, budget);
   const space = cut.lastIndexOf(' ');
-  return (space > 100 ? cut.slice(0, space) : cut).replace(/[.,;:]$/, '') + '.';
+  return (space > 100 ? cut.slice(0, space) : cut).replace(/[.,;:]$/, '') + '…' + suffix;
 }
 
 // The product's own structured data. No telephone on either node: this file is what a
@@ -142,9 +145,9 @@ function staticDetails(p) {
           PRICE: ON REQUEST — ASK US
         </div>
         <p class="order-note">Call or text about this pair and we will confirm the price, availability, condition and shipping.</p>
-        <noscript><p class="order-note">The call and text buttons on this page need JavaScript. Turn it on and reload to claim this pair.</p></noscript>
+        <noscript><p class="order-note">The call and text buttons on this page need JavaScript. Turn it on and reload to ask about this pair.</p></noscript>
         <div class="perks">
-          <p>✓ <b>100% Authenticity Guaranteed:</b> Hand-inspected by verification specialists.</p>
+          <p>✓ <b>Authenticity promise:</b> Every pair is inspected in hand before listing.</p>
           <p>✓ <b>Insured Express Shipping:</b> Ships double-boxed with tracking in 1-2 business days.</p>
           <p>✓ <b>Buyer Protection:</b> Full refund if authenticity does not meet our standard.</p>
         </div>`;

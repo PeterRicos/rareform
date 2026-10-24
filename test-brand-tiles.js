@@ -288,7 +288,7 @@ ok('F4  nothing in the page even names a cart, a checkout or a buy-now path',
   !/add[\s-]*to[\s-]*cart|>\s*(checkout|buy now)/i.test(html)
     && !/add[\s-]*to[\s-]*cart|>\s*(checkout|buy now)/i.test(app),
   ((html + app).match(/[^>\n]{0,40}add[\s-]*to[\s-]*cart[^<\n]{0,40}/gi) || []).join(' | '));
-ok('F5  the page says a pair is claimed by message, and the price comes on asking',
+ok('F5  the page says to ask about a pair by message before the price is confirmed',
   /no cart,? no checkout/i.test(html) && /call or text/i.test(html)
     && /we will confirm the price/.test(app),
   'no-cart: ' + /no cart,? no checkout/i.test(html)

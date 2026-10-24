@@ -188,7 +188,7 @@ function boot(initialHash, cfg) {
   await sleep(320);
   ok('A1  hash normalised to #home', A.location.hash === '#home', A.location.hash);
   ok('A2  home page active', A.active() === 'home', A.active());
-  ok('A3  default title', A.doc.title === 'Random Stock — Verified Sneakers', A.doc.title);
+  ok('A3  default title', A.doc.title === 'Random Stock — Hand-Checked Sneakers', A.doc.title);
   // The sheet draws a card invisible (opacity: 0) until something adds .reveal, so a view
   // that never hands its grid to an observer draws a blank page. A stub DOM would not notice
   // that on its own — it is the one place this used to be hidden, by dying on the call.
