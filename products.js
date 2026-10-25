@@ -389,7 +389,7 @@ const localProducts = [
   {
     id: 32,
     brand: "Jordan",
-    name: "WMNS Air Jordan 1 Low",
+    name: "Women's Air Jordan 1 Low",
     color: "Marina Blue (Women's)",
     condition: "New",
     box: "Original Box",
@@ -401,7 +401,7 @@ const localProducts = [
   {
     id: 33,
     brand: "Jordan",
-    name: "Jordan 5 RetroRaging Bull Red (2021) (GS)",
+    name: "Jordan 5 Retro Raging Bull Red (2021) (GS)",
     color: "Raging Bull Red (2021) (GS)",
     condition: "New",
     box: "Original Box",
@@ -509,7 +509,7 @@ const localProducts = [
   {
     id: 42,
     brand: "Jordan",
-    name: "WMNS Jordan 1 High OG Silver Toe",
+    name: "Women's Jordan 1 High OG Silver Toe",
     color: "Silver Toe (Women's)",
     condition: "New",
     box: "Original Box",
@@ -521,7 +521,7 @@ const localProducts = [
   {
     id: 43,
     brand: "Jordan",
-    name: "WMNS Jordan 3 Retro SP A Ma Maniere",
+    name: "Women's Jordan 3 Retro SP A Ma Maniére",
     color: "A Ma Maniére (Women's)",
     condition: "New",
     box: "Original Box",
@@ -569,7 +569,7 @@ const localProducts = [
   {
     id: 47,
     brand: "adidas",
-    name: "Adidas Forum Buckle Low Bad Bunny Last Forum",
+    name: "adidas Forum Buckle Low Bad Bunny Last Forum",
     color: "Bad Bunny Last Forum",
     condition: "New",
     box: "Original Box",
@@ -581,7 +581,7 @@ const localProducts = [
   {
     id: 48,
     brand: "adidas",
-    name: "Adidas Forum 84 Bape Low Green Camo",
+    name: "adidas Forum 84 Bape Low Green Camo",
     color: "Bape 30th Anniversary Green Camo",
     condition: "New",
     box: "Original Box",
@@ -809,7 +809,7 @@ const localProducts = [
   {
     id: 67,
     brand: "adidas",
-    name: "Adidas Forum Powerphase Bad Bunny Benito",
+    name: "adidas Forum Powerphase Bad Bunny Benito",
     color: "Bad Bunny Benito",
     condition: "New",
     box: "Original Box",
@@ -845,7 +845,7 @@ const localProducts = [
   {
     id: 70,
     brand: "Jordan",
-    name: "Jordan 1 Spider Man",
+    name: "Jordan 1 Spider-Man",
     color: "Spider-Man Across the Spider-Verse",
     condition: "New",
     box: "Original Box",
@@ -1120,8 +1120,8 @@ const localProducts = [
   {
     id: 86,
     brand: "Jordan",
-    name: "Air Jordan 12 Retro Grade School",
-    color: "Grade School",
+    name: "Air Jordan 12 Retro Grade School University Gold",
+    color: "University Gold (Grade School)",
     condition: "New",
     box: "Original Box",
     sizes: ["4Y"],
@@ -1132,8 +1132,8 @@ const localProducts = [
   {
     id: 87,
     brand: "Jordan",
-    name: "Air Jordan 12 Retro Grade School",
-    color: "Grade School",
+    name: "Air Jordan 12 Retro Grade School Dark Concord",
+    color: "Dark Concord (Grade School)",
     condition: "New",
     box: "Original Box",
     sizes: ["3.5Y", "4Y"],
@@ -1264,7 +1264,7 @@ const localProducts = [
   {
     id: 98,
     brand: "Nike",
-    name: "WMNS Travis Scott Air Force 1 White/White",
+    name: "Women's Travis Scott Air Force 1 White/White",
     color: "White/White (Women's)",
     condition: "New",
     box: "Original Box",

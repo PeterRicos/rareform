@@ -123,6 +123,16 @@ function urlKey() {
       return SIZING_LABELS[cats[0]] || 'Sizing';
     }
 
+    // The color line under a name usually restates it ("Onyx" under a title that
+    // already ends in Onyx), so it only prints when the name does not already
+    // contain the colorway. Parenthetical tags ("(Women's)", "(GS)") are not part
+    // of the colorway, so they are stripped before comparing.
+    function colorRepeatsName(product) {
+      const color = String((product && product.color) || '').replace(/\([^)]*\)/g, '').trim().toLowerCase();
+      const name = String((product && product.name) || '').toLowerCase();
+      return !!color && name.indexOf(color) >= 0;
+    }
+
     // The shop answers orders by phone or text; this is the number, written once.
     //
     // Its digits are kept in three pieces and joined here rather than written out
@@ -294,7 +304,7 @@ function urlKey() {
           <div class="p-info">
             <div class="brand">${p.brand}</div>
             <a class="name" href="${href}" data-product-link data-act="openProduct" data-arg="${p.id}">${p.name}</a>
-            <div class="color">${p.color}</div>
+            ${colorRepeatsName(p) ? '' : `<div class="color">${p.color}</div>`}
             ${sizeText ? `<div class="sizes${sizeQuery ? ' sizes-match' : ''}">${sizeText}</div>` : ''}
             <div class="price-note">Price on request</div>
             <a class="quick" href="${href}" data-product-link data-act="openProduct" data-arg="${p.id}" data-stop="1">
@@ -391,7 +401,6 @@ function urlKey() {
     function renderFilterUI() {
       const inStock = uniqSorted(products.map(p => (p.brand || '').trim()));
       CATALOG_BRANDS = inStock;
-      const sizes = uniqSorted(products.reduce((acc, p) => acc.concat(p.sizes || []), []), compareSizes);
       const conditions = uniqSorted(products.map(p => (p.condition || '').trim()));
 
       // The tile grid is the shop's roadmap, not a mirror of current stock, so it
@@ -408,14 +417,22 @@ function urlKey() {
 
       // Group sizes by the run they belong to, so "2Y" is not offered as if it were
       // a men's size next to "US 10", a "S" isn't passed off as a men's shoe, and a
-      // hat fraction like "7 1/4" gets a Headwear group of its own.
+      // hat fraction like "7 1/4" gets a Headwear group of its own. The group is
+      // taken from the listing that holds the size, not from the string alone: a
+      // bare "7" is a men's shoe size in this catalog and also a real fitted-cap
+      // size, so grouping the deduped strings filed the cap's 7 under Men as
+      // "US 7". The same string can therefore appear under two groups at once.
       const sizeGroups = { Men: [], Women: [], Youth: [], Apparel: [], Headwear: [] };
-      sizes.forEach(s => { sizeGroups[sizeCategory(s)].push(s); });
+      products.forEach(p => (p.sizes || []).forEach(s => {
+        const g = sizeCategory(s, p.sizeGroup);
+        if (sizeGroups[g] && sizeGroups[g].indexOf(s) === -1) sizeGroups[g].push(s);
+      }));
       const sizeGroupOrder = ['Men', 'Women', 'Youth', 'Apparel', 'Headwear'];
+      sizeGroupOrder.forEach(g => sizeGroups[g].sort(compareSizes));
       $('sizeFilter').innerHTML = '<option value="">All Sizes</option>' +
         sizeGroupOrder.filter(g => sizeGroups[g].length).map(g =>
           '<optgroup label="' + g + '">' +
-          sizeGroups[g].map(s => `<option value="${s}">${sizeDisplay(s)}</option>`).join('') +
+          sizeGroups[g].map(s => `<option value="${s}">${sizeDisplay(s, g)}</option>`).join('') +
           '</optgroup>').join('');
 
       // A dropdown whose only option is the filter's own default is noise, so the
@@ -991,7 +1008,7 @@ function urlKey() {
       $('details').innerHTML = `
         <span class="eyebrow">${current.brand}</span>
         <h1>${current.name}</h1>
-        <p class="color" style="font-size:14px;color:var(--muted);margin:4px 0 16px">${current.color}</p>
+        ${colorRepeatsName(current) ? '' : `<p class="color" style="font-size:14px;color:var(--muted);margin:4px 0 16px">${current.color}</p>`}
         <div class="meta">
           SKU: ${current.sku}<br>
           CONDITION: ${current.condition}<br>

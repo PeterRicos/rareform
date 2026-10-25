@@ -309,6 +309,22 @@ const stubInSitemap = retired.filter((d) => sitemap.indexOf('/product/' + d + '/
 ok('A23 the sitemap lists only live pages, never a stub',
   stubInSitemap.length === 0, stubInSitemap.join(', '));
 
+// The visible color line repeats the name on most listings, so the static page
+// omits it when the name already says the colorway (app.js and
+// prerender-products.js share the rule): a page that still prints one is a page
+// whose rule drifted from the shop's.
+const repeatingColor = [];
+pages.forEach((html, slug) => {
+  const p = slugOf.get(slug);
+  if (!p) return;
+  const m = html.match(/<p class="color"[^>]*>([^<]*)<\/p>/);
+  if (!m) return;
+  const color = m[1].replace(/&amp;/g, '&').replace(/\([^)]*\)/g, '').trim().toLowerCase();
+  if (color && String(p.name).toLowerCase().indexOf(color) >= 0) repeatingColor.push(slug);
+});
+ok('A24 no listing page prints a color line its name already says',
+  repeatingColor.length === 0, repeatingColor.slice(0, 3).join(', '));
+
 // ---- B. the page script, on a listing URL ------------------------------------
 // The live page loads slugs.js, products.js and app.js in that order.
 const CODE = [read('slugs.js'), read('products.js'), read('app.js')].join('\n');

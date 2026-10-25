@@ -74,6 +74,15 @@ function esc(value) {
     .replace(/"/g, '&quot;');
 }
 
+// Twin of colorRepeatsName in app.js: the visible color line repeats the name on
+// most listings, so the static page omits it under the same rule. This file cannot
+// require the browser script, so the rule lives here too — change one, change both.
+function colorRepeatsName(p) {
+  const color = String((p && p.color) || '').replace(/\([^)]*\)/g, '').trim().toLowerCase();
+  const name = String((p && p.name) || '').toLowerCase();
+  return !!color && name.indexOf(color) >= 0;
+}
+
 // A description long enough to say something, short enough not to be cut in the
 // results: Google truncates around 160 characters, and a snippet ending in "…" reads
 // like a broken page. Built from what the catalog actually knows, then trimmed at a
@@ -136,7 +145,7 @@ function staticDetails(p) {
   return `
         <span class="eyebrow">${esc(p.brand)}</span>
         <h1>${esc(p.name)}</h1>
-        <p class="color" style="font-size:14px;color:var(--muted);margin:4px 0 16px">${esc(p.color)}</p>
+        ${colorRepeatsName(p) ? '' : `<p class="color" style="font-size:14px;color:var(--muted);margin:4px 0 16px">${esc(p.color)}</p>`}
         <div class="meta">
           SKU: ${esc(p.sku)}<br>
           CONDITION: ${esc(p.condition)}<br>

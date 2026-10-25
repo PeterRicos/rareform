@@ -23,5 +23,18 @@ module.exports = {
   'womans-nike-dunk-low-white-rose-whisper-dd1503-118': 'DD1503-118',
   // "Black/Metalic" → "Silver Toe": CD0461-001 is the Silver Toe, and the color field
   // already said so. The name was the odd one out, not the photo.
-  'wmns-jordan-1-high-og-black-metalic-cd0461-001': 'CD0461-001'
+  'wmns-jordan-1-high-og-black-metalic-cd0461-001': 'CD0461-001',
+  // Critique round 2 (2026-10-25): names corrected, so their pages moved.
+  // "WMNS" → "Women's", four listings.
+  'wmns-air-jordan-1-low-dc0774-114': 'DC0774-114',
+  'wmns-jordan-1-high-og-silver-toe-cd0461-001': 'CD0461-001',
+  'wmns-jordan-3-retro-sp-a-ma-maniere-dh3434-110': 'DH3434-110',
+  'wmns-travis-scott-air-force-1-white-white-dd8959-100': 'DD8959-100',
+  // "RetroRaging" → "Retro Raging".
+  'jordan-5-retroraging-bull-red-2021-gs-440888-600': '440888-600',
+  // The two AJ12 GS listings, finally named for their colorways — identified from
+  // the listing photos and confirmed against the GS style codes (153265-070
+  // University Gold, DH0905-005 Dark Concord).
+  'air-jordan-12-retro-grade-school-153265-070': '153265-070',
+  'air-jordan-12-retro-grade-school-dh0905-005': 'DH0905-005'
 };

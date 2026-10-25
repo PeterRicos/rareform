@@ -285,6 +285,22 @@ const cardIds = (html) => {
   const hatIds = cardIds(ev(H, "document.getElementById('shopProducts').innerHTML"));
   ok('F6  the size filter reaches the cap by its hat size', hatIds.indexOf(85) >= 0, JSON.stringify(hatIds));
 
+  // ---- H. the size dropdown groups by the listing's run, not the string -------
+  // The fitted cap's bare "7" used to land under Men as "US 7": the dropdown was
+  // built from deduped size strings, so the listing's declared run never reached
+  // it. Grouping by the listing instead puts the cap's 7 under Headwear as "7"
+  // while the shoe held in 7 stays under Men as "US 7".
+  ev(H, 'renderFilterUI();');
+  const sizeHtml = String(ev(H, "document.getElementById('sizeFilter').innerHTML"));
+  const groupOf = (html, label) => {
+    const m = html.match(new RegExp('<optgroup label="' + label + '">([\\s\\S]*?)</optgroup>'));
+    return m ? m[1] : '';
+  };
+  ok('H1  the cap\'s bare 7 is a Headwear option, not a men\'s shoe size',
+    /<option value="7">7<\/option>/.test(groupOf(sizeHtml, 'Headwear')), groupOf(sizeHtml, 'Headwear'));
+  ok('H2  the shoe held in 7 still reads as a men\'s size',
+    /<option value="7">US 7<\/option>/.test(groupOf(sizeHtml, 'Men')), groupOf(sizeHtml, 'Men'));
+
 
   // ---- G. what the cards SHOW under a size search -----------------------------
   // Filtering correctly is only half of it. A card that answers "11" but prints the
