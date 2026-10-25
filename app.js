@@ -325,12 +325,14 @@ function urlKey() {
     let CATALOG_BRANDS = [];
     let TILE_BRANDS = [];
 
-    // Brands shown on the homepage grid, in display order. Several of these are
-    // placeholders for stock that hasn't been added yet — they render as dashed
-    // "Soon" tiles and say so if you click one, rather than dropping you on a
-    // confusing empty grid. As soon as a product carries the brand, the tile goes
-    // live on its own with no edit here. Matching is case-insensitive, so
-    // "SUPREME" picks up products whose brand string reads "Supreme".
+    // Brands shown on the homepage grid, in display order. A brand with nothing
+    // behind it yet renders as a dashed "Soon" tile and says so if you click
+    // one, rather than dropping you on a confusing empty grid. As soon as a
+    // product answers for the brand, the tile goes live on its own with no edit
+    // here. Matching is case-insensitive, so "SUPREME" picks up products whose
+    // brand string reads "Supreme" — and a tile also answers for collaborations
+    // named for it, so "TRAVIS SCOTT" picks up the Travis Scott pairs filed
+    // under Jordan and Nike instead of claiming no pairs are in stock yet.
     //
     // This one list is also what the shop's BRAND dropdown offers, so a brand taken
     // out of it leaves both the grid and that dropdown.
@@ -396,6 +398,19 @@ function urlKey() {
       const out = [];
       list.forEach(v => { if (v && out.indexOf(v) === -1) out.push(v); });
       return out.sort(cmp || ((x, y) => x.localeCompare(y)));
+    }
+
+    // What a brand tile — and the brand dropdown — answers for: the brand
+    // itself, plus collaborations named for it. The Travis Scott pairs are filed
+    // under Jordan and Nike, so a brand-only match left the tile claiming "no
+    // pairs in stock yet" for a brand the shop sells, and tapping it landed on
+    // an empty grid. One rule serves the tile, the dropdown and the empty-state
+    // guard, so the three can never disagree about whether a brand has stock.
+    function matchesBrand(brand, product) {
+      const b = String(brand || '').trim().toLowerCase();
+      if (!b) return false;
+      return String(product.brand || '').toLowerCase() === b ||
+        String(product.name || '').toLowerCase().indexOf(b) >= 0;
     }
 
     function renderFilterUI() {
@@ -464,7 +479,7 @@ function urlKey() {
         `<button type="button" class="brand-tile" data-mark="all" data-act="filterByBrand" data-arg="">` +
           `<span class="wm">All Brands</span></button>` +
         tiles.map((b, i) => {
-          const has = inStock.some(s => s.toLowerCase() === b.toLowerCase());
+          const has = products.some(p => matchesBrand(b, p));
           const m = brandMark(b);
           return `<button type="button" class="brand-tile${has ? '' : ' soon'}" data-mark="${m.mark}"` +
             `${m.len ? ` data-len="${m.len}"` : ''} data-act="filterByBrandAt" data-arg="${i}"` +
@@ -698,7 +713,7 @@ function urlKey() {
         list = list.filter(p => productCategory(p) === shopCategoryFilter);
       }
       if (brand) {
-        list = list.filter(p => p.brand.toLowerCase() === brand.toLowerCase());
+        list = list.filter(p => matchesBrand(brand, p));
       }
       if (size) {
         // The run gates the match: Headwear's 7 must not pull in the men's shoe
@@ -725,7 +740,7 @@ function urlKey() {
       // into "No Supreme items in stock yet" over eight Supreme tees — a claim about the
       // catalog made by a filter. Everything below now answers for the filter it applied.
       const brandHasStock = brand
-        ? products.some(p => p.brand.toLowerCase() === brand.toLowerCase())
+        ? products.some(p => matchesBrand(brand, p))
         : false;
       const emptyCopy = brand && !list.length
         ? (brandHasStock

@@ -339,19 +339,27 @@ ok('G4  a brand with stock never gets told it has none',
   && /: `No \$\{brand\} items in stock yet/.test(app),
   find(/const brandHasStock[\s\S]{0,200}/, app) || 'no brandHasStock guard');
 // The catalog is the other half of the promise: every brand the grid shows has to have
-// something behind it. Travis Scott is the one tile that is still a plan.
+// something behind it. A tile answers for collaborations named for it too, so
+// the Travis Scott tile counts its Jordan and Nike pairs — the same rule
+// matchesBrand() in app.js applies, mirrored here because this suite reads the
+// source rather than booting the page.
 const catalog = new Function('window', read('products.js') + '; return window.localProducts;')({});
 const planned = (find(/const BRAND_TILES = \[[^\]]*\]/, app) || '')
   .match(/'[^']+'/g) || [];
 const plannedBrands = planned.map((s) => s.slice(1, -1));
-const withoutStock = plannedBrands.filter((b) => !catalog.some((p) => p.brand.toLowerCase() === b.toLowerCase()));
-ok('G5  Travis Scott is the only planned brand still waiting on stock',
-  withoutStock.length === 1 && withoutStock[0].toLowerCase() === 'travis scott',
-  withoutStock.join(', ') || 'none empty (Travis Scott has stock?)');
+const withoutStock = plannedBrands.filter((b) => !catalog.some((p) =>
+  p.brand.toLowerCase() === b.toLowerCase() || p.name.toLowerCase().indexOf(b.toLowerCase()) >= 0));
+ok('G5  every roadmap brand has stock behind its tile, collaborations included',
+  withoutStock.length === 0, withoutStock.join(', ') || 'all stocked');
 const NAMED = ['Supreme', 'Bearbrick', 'Huffy', 'MadCan', 'New Era', 'The North Face'];
 ok('G6  every brand a shopper asked for has items behind its tile, none behind a filter',
   NAMED.every((b) => catalog.filter((p) => p.brand.toLowerCase() === b.toLowerCase()).length > 0),
   NAMED.filter((b) => !catalog.some((p) => p.brand.toLowerCase() === b.toLowerCase())).join(', ') || 'all stocked');
+// ...and the Travis Scott tile specifically answers for its three named pairs,
+// which are filed under Jordan and Nike rather than under Travis Scott itself.
+const travisPairs = catalog.filter((p) => p.name.toLowerCase().indexOf('travis scott') >= 0);
+ok('G7  the Travis Scott tile answers for its three named pairs',
+  travisPairs.length === 3, travisPairs.map((p) => p.id).join(', '));
 
 
 const fails = results.filter((r) => !r.pass);
