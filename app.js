@@ -1052,7 +1052,7 @@ function urlKey() {
           SKU: ${current.sku}<br>
           CONDITION: ${current.condition}<br>
           PACKAGING: ${current.box || 'Original Box'}<br>
-          PRICE: ON REQUEST — ASK US
+          PRICE: ON REQUEST — CALL OR TEXT US
         </div>
         ${current.details ? `<ul class="product-details">${current.details.map(d => `<li>${d}</li>`).join('')}</ul>` : ''}
         ${hasSizes ? `<div style="margin-top: 24px">
