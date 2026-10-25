@@ -284,8 +284,13 @@ function urlKey() {
       const buttonText = isSneaker ? 'VIEW PAIR' : 'VIEW ITEM';
       const held = sizeQuery ? matchingSizes(p, sizeQuery) : (p.sizes || []).slice();
       const shown = sizeQuery ? held : held.slice(0, 4);
+      // A card prints at most four sizes, so a longer run used to end in a bare
+      // '· +' that said nothing about how many sizes were hidden. The count is
+      // the useful half of that tail: '· +2 more' tells a shopper whether the
+      // hidden sizes are worth opening the listing for. Under a size query
+      // shown === held, so no tail is printed at all.
       const sizeLine = shown.length
-        ? shown.map(s => sizeDisplay(s, p.sizeGroup)).join(' · ') + (held.length > shown.length ? ' · +' : '')
+        ? shown.map(s => sizeDisplay(s, p.sizeGroup)).join(' · ') + (held.length > shown.length ? ' · +' + (held.length - shown.length) + ' more' : '')
         : '';
       // Sneakers are the ones whose run is worth printing unasked; a size query prints
       // whatever answered it, clothing included ("M" is the answer to typing m).

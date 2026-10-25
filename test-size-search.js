@@ -406,6 +406,28 @@ const cardIds = (html) => {
     JSON.stringify(sizeLinesIn(gridDrop)));
   ev(H, "document.getElementById('sizeFilter').value = '';");
 
+  // ---- J. a truncated size line says how many sizes it hid -------------------
+  // A card prints at most four sizes, so a longer run used to end in a bare
+  // '· +' that said nothing about what was hidden. The tail now counts:
+  // the Jordan 11 Retro Jubilee (id 39) is held in six sizes, so its
+  // unfiltered card prints the first four and then '+2 more'.
+  ev(H, "document.getElementById('filterSearch').value = ''; document.getElementById('sizeFilter').value = ''; renderShop();");
+  const gridAll = String(ev(H, "document.getElementById('shopProducts').innerHTML"));
+  const jubilee = catalog.find((p) => p.id === 39);
+  const jubileeLine = (cardBlock(gridAll, 39).match(/<div class="sizes[^"]*">([^<]*)</) || [])[1] || '';
+  ok('J1  a card hiding sizes counts them, not a bare +',
+    !!jubilee && jubilee.sizes.length === 6 && /\+2 more$/.test(jubileeLine.trim()),
+    jubileeLine + '  (run: ' + JSON.stringify(jubilee && jubilee.sizes) + ')');
+  // Under a size query nothing is hidden — shown === held — so the same card
+  // prints only the sizes that answered and no '+N more' tail at all.
+  ev(H, "document.getElementById('filterSearch').value = '11'; renderShop();");
+  const grid11b = String(ev(H, "document.getElementById('shopProducts').innerHTML"));
+  const jubileeQueryLine = (cardBlock(grid11b, 39).match(/<div class="sizes[^"]*">([^<]*)</) || [])[1] || '';
+  ok('J2  under a size query the same card prints no +N more tail',
+    !/more/.test(jubileeQueryLine) && numbersIn(jubileeQueryLine).every((v) => v === '11' || v === '11.5'),
+    jubileeQueryLine);
+  ev(H, "document.getElementById('filterSearch').value = '';");
+
   const fails = results.filter((r) => !r.pass);
   results.forEach((r) => console.log((r.pass ? 'PASS  ' : 'FAIL  ') + r.name + (r.pass ? '' : '   [' + r.extra + ']')));
   console.log('\nTOTAL=' + results.length + ' FAIL=' + fails.length);
