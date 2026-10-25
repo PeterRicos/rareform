@@ -281,7 +281,7 @@ const cardIds = (html) => {
   ok('F5  no listing reads "Mixed sizing"', mixed.length === 0, JSON.stringify(mixed));
 
   // ...and the run a listing declares has to keep it reachable by that size.
-  ev(H, "document.getElementById('filterSearch').value = ''; document.getElementById('sizeFilter').value = '7 1/2'; renderShop();");
+  ev(H, "document.getElementById('filterSearch').value = ''; document.getElementById('sizeFilter').value = 'Headwear|7 1/2'; renderShop();");
   const hatIds = cardIds(ev(H, "document.getElementById('shopProducts').innerHTML"));
   ok('F6  the size filter reaches the cap by its hat size', hatIds.indexOf(85) >= 0, JSON.stringify(hatIds));
 
@@ -297,9 +297,29 @@ const cardIds = (html) => {
     return m ? m[1] : '';
   };
   ok('H1  the cap\'s bare 7 is a Headwear option, not a men\'s shoe size',
-    /<option value="7">7<\/option>/.test(groupOf(sizeHtml, 'Headwear')), groupOf(sizeHtml, 'Headwear'));
+    /<option value="Headwear\|7">7<\/option>/.test(groupOf(sizeHtml, 'Headwear')), groupOf(sizeHtml, 'Headwear'));
   ok('H2  the shoe held in 7 still reads as a men\'s size',
-    /<option value="7">US 7<\/option>/.test(groupOf(sizeHtml, 'Men')), groupOf(sizeHtml, 'Men'));
+    /<option value="Men\|7">US 7<\/option>/.test(groupOf(sizeHtml, 'Men')), groupOf(sizeHtml, 'Men'));
+
+  // ---- I. picking a dropdown size filters by run as well as size --------------
+  // Grouping the dropdown was only half of it: the option value was still the
+  // bare size, so Headwear's 7 pulled in the men's shoe held in 7 too. The value
+  // now carries the run, and the filter matches both.
+  ev(H, "document.getElementById('filterSearch').value = ''; document.getElementById('sizeFilter').value = 'Headwear|7'; renderShop();");
+  const hat7Ids = cardIds(ev(H, "document.getElementById('shopProducts').innerHTML"));
+  ok('I1  Headwear 7 reaches the cap and nothing else', JSON.stringify(hat7Ids) === JSON.stringify([85]),
+    JSON.stringify(hat7Ids));
+  ev(H, "document.getElementById('filterSearch').value = ''; document.getElementById('sizeFilter').value = 'Men|7'; renderShop();");
+  const men7Ids = cardIds(ev(H, "document.getElementById('shopProducts').innerHTML"));
+  ok('I2  Men 7 reaches the shoe held in 7, not the cap',
+    men7Ids.indexOf(85) < 0 && men7Ids.indexOf(48) >= 0, JSON.stringify(men7Ids));
+  ev(H, "document.getElementById('filterSearch').value = ''; document.getElementById('sizeFilter').value = 'Headwear|7'; renderShop();");
+  const hat7Grid = String(ev(H, "document.getElementById('shopProducts').innerHTML"));
+  ok('I3  the cap card prints its hat size, and the count reads it as one',
+    /<div class="sizes[^"]*">7<\/div>/.test(hat7Grid)
+      && /1 ITEMS IN 7$/.test(String(ev(H, "document.getElementById('productTotal').textContent"))),
+    String(ev(H, "document.getElementById('productTotal').textContent")));
+  ev(H, "document.getElementById('sizeFilter').value = '';");
 
 
   // ---- G. what the cards SHOW under a size search -----------------------------
@@ -378,7 +398,7 @@ const cardIds = (html) => {
     (plain.match(/<button class="size-btn[^"]*"/g) || []).join(' '));
 
   // ...and the size dropdown asks the same question, so the cards answer it the same way.
-  ev(H, "document.getElementById('filterSearch').value = ''; document.getElementById('sizeFilter').value = '11'; renderShop();");
+  ev(H, "document.getElementById('filterSearch').value = ''; document.getElementById('sizeFilter').value = 'Men|11'; renderShop();");
   const gridDrop = String(ev(H, "document.getElementById('shopProducts').innerHTML"));
   const dropLines = sizeLinesIn(gridDrop).map((block) => numbersIn(block));
   ok('G10 the size dropdown narrows the printed sizes too',

@@ -422,6 +422,9 @@ function urlKey() {
       // bare "7" is a men's shoe size in this catalog and also a real fitted-cap
       // size, so grouping the deduped strings filed the cap's 7 under Men as
       // "US 7". The same string can therefore appear under two groups at once.
+      // The option value carries the run too ("Headwear|7"), so picking it
+      // filters by run as well as size — a bare value could never say which 7
+      // the shopper meant.
       const sizeGroups = { Men: [], Women: [], Youth: [], Apparel: [], Headwear: [] };
       products.forEach(p => (p.sizes || []).forEach(s => {
         const g = sizeCategory(s, p.sizeGroup);
@@ -432,7 +435,7 @@ function urlKey() {
       $('sizeFilter').innerHTML = '<option value="">All Sizes</option>' +
         sizeGroupOrder.filter(g => sizeGroups[g].length).map(g =>
           '<optgroup label="' + g + '">' +
-          sizeGroups[g].map(s => `<option value="${s}">${sizeDisplay(s, g)}</option>`).join('') +
+          sizeGroups[g].map(s => `<option value="${g}|${s}">${sizeDisplay(s, g)}</option>`).join('') +
           '</optgroup>').join('');
 
       // A dropdown whose only option is the filter's own default is noise, so the
@@ -663,6 +666,17 @@ function urlKey() {
       return q ? parseSizeQuery(q) : null;
     }
 
+    // The dropdown's value names the run as well as the size ("Headwear|7"): a
+    // bare "7" is a men's shoe size and a fitted-cap size, so the value alone
+    // cannot say which one the shopper picked. Split it back apart before
+    // filtering. A value with no bar is a bare size, as before.
+    function parseSizeFilter(value) {
+      const raw = String(value || '');
+      const bar = raw.indexOf('|');
+      if (bar < 0) return { group: '', size: raw };
+      return { group: raw.slice(0, bar), size: raw.slice(bar + 1) };
+    }
+
     // Render Shop with Active Filters & Sorter
     function renderShop() {
       shopRendered = true;
@@ -687,7 +701,11 @@ function urlKey() {
         list = list.filter(p => p.brand.toLowerCase() === brand.toLowerCase());
       }
       if (size) {
-        list = list.filter(p => p.sizes.includes(size));
+        // The run gates the match: Headwear's 7 must not pull in the men's shoe
+        // held in 7, and Men's 7 must not pull in the cap.
+        const picked = parseSizeFilter(size);
+        list = list.filter(p => (p.sizes || []).some(s =>
+          s === picked.size && (!picked.group || sizeCategory(s, p.sizeGroup) === picked.group)));
       }
       if (condition) {
         list = list.filter(p => p.condition === condition);
@@ -720,8 +738,14 @@ function urlKey() {
               : 'No sneakers found matching those filters.')));
 
       // The size dropdown asks the same question as a typed size, so the cards answer
-      // it the same way: the run it was set to is the run printed on them.
-      const filterSizeQuery = size ? parseSizeQuery(String(size).trim().toLowerCase()) : null;
+      // it the same way: the run it was set to is the run printed on them. The
+      // value is split back into run and size first — parseSizeQuery only reads
+      // the size — and a hat pick counts in hat language ("7", not "US 7 / 7.5").
+      const pickedSize = size ? parseSizeFilter(size) : null;
+      const filterSizeQuery = pickedSize ? parseSizeQuery(pickedSize.size.trim().toLowerCase()) : null;
+      if (filterSizeQuery && pickedSize.group === 'Headwear') {
+        filterSizeQuery.display = pickedSize.size;
+      }
       const shownQuery = sizeQuery || filterSizeQuery;
 
       $('shopProducts').innerHTML = list.length
