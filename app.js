@@ -144,7 +144,7 @@ function urlKey() {
     // `grep`. Keep the pieces in order; jsonld.js holds the same three groups
     // (the two files never load together in the harnesses, so neither can read the
     // other, and test-privacy.js verifies the copies agree).
-    const ORDER_PHONE_GROUPS = ['914', '482', '1144'];
+    const ORDER_PHONE_GROUPS = ['914', '732', '7506'];
     const ORDER_PHONE = '+1' + ORDER_PHONE_GROUPS.join('');
     const ORDER_PHONE_DISPLAY = '(' + ORDER_PHONE_GROUPS[0] + ') ' +
       ORDER_PHONE_GROUPS[1] + '-' + ORDER_PHONE_GROUPS[2];

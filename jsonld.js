@@ -21,7 +21,7 @@
   // catalog block in index.html omits it entirely, so the one file a scraper can
   // fetch without running JavaScript names no number: the live page builds it,
   // and the dialer and the runtime structured data still get it.
-  const PHONE_GROUPS = ['914', '482', '1144'];
+  const PHONE_GROUPS = ['914', '732', '7506'];
   const PHONE = '+1' + PHONE_GROUPS.join('');
   const PHONE_DISPLAY = '(' + PHONE_GROUPS[0] + ') ' +
     PHONE_GROUPS[1] + '-' + PHONE_GROUPS[2];
