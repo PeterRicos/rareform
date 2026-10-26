@@ -1077,7 +1077,7 @@ function urlKey() {
           ${sizeQuery && matchedSizes.length ? `<p class="size-match-note">This ${itemLabel} is held in the sizes your search asked for: ${matchedSizes.map(s => sizeDisplay(s, current.sizeGroup)).join(' · ')}.</p>` : ''}
         </div>` : ''}
         <div class="order-cta">
-          <a class="btn" id="orderCall" href="tel:${ORDER_PHONE}">Call about this pair</a>
+          <a class="btn" id="orderCall" href="tel:${ORDER_PHONE}">Call about this item</a>
           <a class="btn light" id="orderText" href="sms:${ORDER_PHONE}">Text to ask about this ${itemLabel}</a>
         </div>
         <p class="order-note">${hasSizes ? `Sizes listed are what we hold right now. Call or text the ${itemLabel} and your size and we will confirm the price, availability, condition and shipping.` : `Call or text about this ${itemLabel} and we will confirm the price, availability, condition and shipping.`}</p>
