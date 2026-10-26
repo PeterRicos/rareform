@@ -1083,7 +1083,7 @@ function urlKey() {
         <p class="order-note">${hasSizes ? `Sizes listed are what we hold right now. Call or text the ${itemLabel} and your size and we will confirm the price, availability, condition and shipping.` : `Call or text about this ${itemLabel} and we will confirm the price, availability, condition and shipping.`}</p>
         <div class="listing-qr" id="listingQr"></div>
         <div class="perks">
-          <p>✓ <b>Authenticity promise:</b> Every pair is inspected in hand before listing.</p>
+          <p>✓ <b>Authenticity promise:</b> Every item is inspected in hand before listing.</p>
           <p>✓ <b>Insured Express Shipping:</b> Ships double-boxed with tracking in 1-2 business days.</p>
           <p>✓ <b>Buyer Protection:</b> Full refund if authenticity does not meet our standard.</p>
         </div>
