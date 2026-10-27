@@ -116,14 +116,16 @@ jobs:
       - name: Check the number stays out of the shipped files
         run: node test-privacy.js
 
-      # The remaining six suites: routing, the small-screen layout, the zoom viewer, size
-      # search, the listing QR codes and the category tiles. Each is pure Node, so all of
-      # them together cost seconds — cheap enough that a merge which breaks one of them
-      # should never reach Pages.
+      # The remaining seven suites: routing, the small-screen layout, the zoom
+      # viewer, size search, the listing QR codes, the category tiles and the
+      # font integrity check. Each is pure Node, so all of them together cost
+      # seconds — cheap enough that a merge which breaks one of them should
+      # never reach Pages. (test-fonts.js was missing from this loop until
+      # 2026-10-27, so font checks ran locally but never on a push.)
       - name: Check the rest of the suite
         run: |
           for t in test-route.js test-mobile.js test-zoom.js test-size-search.js \
-                   test-listing-qr.js test-brand-tiles.js; do
+                   test-listing-qr.js test-brand-tiles.js test-fonts.js; do
             echo "::group::$t"
             node "$t"
             echo "::endgroup::"
