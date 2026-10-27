@@ -46,7 +46,7 @@
       }
     })();
   </script>
-  <link rel="stylesheet" href="/styles.css?v=395baf36">
+  <link rel="stylesheet" href="/styles.css?v=5933d463">
   <!-- Catalog structured data (schema.org). build-jsonld.js writes the block
        between these markers from products.js, so every listing a crawler can see
        here carries the same SKU, condition, image and availability the shop page
@@ -95,6 +95,7 @@
       </div>
 
       <div class="actions">
+        <button class="icon-btn" id="savedBtn" data-act="savedOpen" aria-label="Open your saved items" aria-expanded="false" aria-controls="savedModal">★&nbsp;<span id="savedCount">0</span></button>
         <button class="icon-btn" id="searchBtn" data-act="searchOpen" aria-label="Open search" aria-expanded="false" aria-controls="searchModal">
           <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
         </button>
@@ -472,6 +473,22 @@
     </div>
   </section>
 
+  <!-- SAVED ITEMS — the shortlist, not a cart. Stars on cards save listing ids
+       to localStorage; this panel lists them with one text link that names
+       every saved item, so a friend can ask about two or three pairs at once. -->
+  <section class="search-modal" id="savedModal" role="dialog" aria-modal="true" aria-label="Saved items" aria-hidden="true">
+    <button class="search-modal-close" data-act="savedClose" aria-label="Close saved items">×</button>
+    <div class="suggestions">
+      <span class="eyebrow">Your shortlist</span>
+      <h2 class="saved-title">SAVED ITEMS</h2>
+      <p id="savedEmpty">Nothing saved yet. Tap the star on any card and it will wait here until you are ready to ask about it.</p>
+      <div id="savedItems" class="products saved-list"></div>
+      <div class="order-actions saved-actions">
+        <a class="btn" id="savedTextBtn" href="#">Text us about these items</a>
+      </div>
+    </div>
+  </section>
+
   <!-- TOAST NOTIFICATION -->
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
@@ -543,7 +560,7 @@
   <!-- jsonld.js turns a listing into schema.org data. app.js reads it immediately
        (the first view is rendered on load), so it has to come before app.js. -->
   <script src="/jsonld.js?v=d5b7363e" defer></script>
-  <script src="/app.js?v=1d77c93a" defer></script>
+  <script src="/app.js?v=e62e58bc" defer></script>
   <script src="/boot.js?v=c5fe06f4" defer></script>
   
 

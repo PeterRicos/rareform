@@ -395,6 +395,48 @@ function boot(initialHash, cfg) {
   ok('N5  on the unfiltered vault no category link claims to be current',
     activeNav().length === 0 && currentNav().length === 0, JSON.stringify(activeNav()));
 
+  // ---- O. shortlist: stars, localStorage, one text for several pairs ---------
+  // There is no cart and prices are settled by text, so friends asking about
+  // two or three pairs at once need a shortlist, not a checkout. A star on a
+  // card saves the listing id under randomstock.saved (the Recently Viewed
+  // pattern), and the saved panel's text link names every saved item with its
+  // SKU and held sizes. The stub DOM has no localStorage, so this section
+  // hands the harness a small in-memory one first — without it, the save
+  // would silently not persist, which is exactly the failure to catch.
+  const O = boot('');
+  await sleep(320);
+  O.ctx.localStorage = {
+    store: {},
+    getItem(k) { return this.store[k] || null; },
+    setItem(k, v) { this.store[k] = String(v); }
+  };
+  const card50 = ev(O, 'productCard(products.find(p => p.id === 50))');
+  ok('O1  a card carries a save star for its listing, unpressed at first',
+    /class="save-btn"/.test(card50) && /data-act="toggleSave" data-arg="50"/.test(card50)
+      && /aria-pressed="false"/.test(card50) && card50.indexOf('☆') >= 0,
+    card50.replace(/\s+/g, ' ').slice(0, 200));
+  ev(O, 'toggleSave(50); toggleSave(17);');
+  const msg = ev(O, 'savedMessage()');
+  ok('O2  two saved pairs make one message naming both, with SKU and sizes',
+    msg.indexOf('Travis Scott') >= 0 && msg.indexOf('Wave Runner') >= 0
+      && msg.indexOf('SKU') >= 0 && msg.indexOf('still available') >= 0,
+    msg);
+  const card50Saved = ev(O, 'productCard(products.find(p => p.id === 50))');
+  ok('O3  a saved card re-renders pressed, with a filled star',
+    /class="save-btn is-saved"/.test(card50Saved) && /aria-pressed="true"/.test(card50Saved)
+      && card50Saved.indexOf('★') >= 0,
+    card50Saved.replace(/\s+/g, ' ').slice(0, 200));
+  ev(O, 'toggleSave(50);');
+  ok('O4  toggling again removes the pair, leaving only the other',
+    ev(O, 'savedMessage()').indexOf('Travis Scott') < 0
+      && ev(O, 'savedMessage()').indexOf('Wave Runner') >= 0,
+    ev(O, 'savedMessage()'));
+  O.ctx.localStorage.setItem('randomstock.saved', JSON.stringify([17, 9999]));
+  ok('O5  a stale id (pair removed from the catalog) drops out, not a crash',
+    ev(O, 'savedMessage()').indexOf('Wave Runner') >= 0
+      && ev(O, 'savedMessage()').indexOf('undefined') < 0,
+    ev(O, 'savedMessage()'));
+
   const fails = results.filter((r) => !r.pass);
   results.forEach((r) => console.log((r.pass ? 'PASS  ' : 'FAIL  ') + r.name + (r.pass ? '' : '   [' + r.extra + ']')));
   console.log('\nTOTAL=' + results.length + ' FAIL=' + fails.length);

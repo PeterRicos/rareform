@@ -301,11 +301,13 @@ function urlKey() {
       // stays instant. (A <button> could do neither: it has no address to copy, and all
       // 102 listings shared the homepage URL.)
       const href = productHref(p);
+      const saved = isSaved(p.id);
       return `
         <article class="product">
           <a class="product-image" href="${href}" aria-label="View ${p.name}" data-product-link data-act="openProduct" data-arg="${p.id}">
             <img src="${assetURL(p.img)}" alt="${p.name}" loading="lazy" decoding="async" width="400" height="400">
           </a>
+          <button type="button" class="save-btn${saved ? ' is-saved' : ''}" data-act="toggleSave" data-arg="${p.id}" aria-pressed="${saved ? 'true' : 'false'}" aria-label="${saved ? 'Remove' : 'Save'} ${esc(p.name)}">${saved ? '★' : '☆'}</button>
           <div class="p-info">
             <div class="brand">${p.brand}</div>
             <a class="name" href="${href}" data-product-link data-act="openProduct" data-arg="${p.id}">${p.name}</a>
@@ -1199,6 +1201,11 @@ function urlKey() {
       // otherwise a result click navigates underneath it and the page looks frozen.
       $('searchModal').classList.remove('open');
       $('searchModal').setAttribute('aria-hidden', 'true');
+      // Same rule for the saved-items overlay, which is a second full-screen
+      // panel on the same pattern as the search overlay.
+      $('savedModal').classList.remove('open');
+      $('savedModal').setAttribute('aria-hidden', 'true');
+      if ($('savedBtn')) $('savedBtn').setAttribute('aria-expanded', 'false');
       // Same rule for the order dialog, which also opens over a product view.
       if ($('orderModal')) $('orderModal').classList.remove('open');
       // And again for the photo viewer, which covers the whole screen: a route change
@@ -1575,6 +1582,7 @@ function urlKey() {
       if (e.key === 'Escape') {
         menuClose();
         searchClose();
+        savedClose();
         orderModalClose();
         zoomClose();
         return;
@@ -1785,6 +1793,95 @@ function urlKey() {
       }
     }
 
+    // Saved shortlist — the multi-pair question, without a cart. Friends often
+    // want to ask about two or three pairs at once, and the single-item text
+    // button only ever knew about `current`, so a star on a card saves the
+    // listing id to localStorage (same pattern as Recently Viewed, same
+    // try/catch for a blocked store) and the header's Saved button opens the
+    // list with one text link that names every saved item. No cart, no prices,
+    // no checkout: the text is still the transaction, it just names more than
+    // one pair. A pair removed from the catalog by hand drops out of the list
+    // the same way it drops out of a rail, instead of breaking it.
+    const SAVED_KEY = 'randomstock.saved';
+    function getSavedIds() {
+      try {
+        const v = JSON.parse(localStorage.getItem(SAVED_KEY) || '[]');
+        return Array.isArray(v) ? v.filter((id) => Number.isFinite(id)) : [];
+      } catch (err) {
+        return [];
+      }
+    }
+    function savedProducts() {
+      return getSavedIds().map((id) => products.find((p) => p.id === id)).filter(Boolean);
+    }
+    function isSaved(id) { return getSavedIds().indexOf(id) >= 0; }
+    function savedMessage() {
+      const items = savedProducts();
+      if (!items.length) return '';
+      const lines = items.map((p) => {
+        const sizes = (p.sizes || []).map((s) => sizeDisplay(s, p.sizeGroup)).join('/');
+        return '- ' + p.name + ' (SKU ' + p.sku + ')' + (sizes ? ', sizes ' + sizes : '');
+      });
+      return 'Hi Random Stock, are these still available?\n' + lines.join('\n');
+    }
+    function syncSavedUI() {
+      // Every visible card for a listing carries the same star, so update them
+      // all in place instead of re-rendering grids (which would jump the scroll
+      // a shopper was in the middle of). The header count and the open list
+      // follow from the same read.
+      const ids = getSavedIds();
+      document.querySelectorAll('.save-btn').forEach((btn) => {
+        const id = parseInt(btn.getAttribute('data-arg'), 10);
+        const on = ids.indexOf(id) >= 0;
+        btn.classList.toggle('is-saved', on);
+        btn.setAttribute('aria-pressed', on ? 'true' : 'false');
+        btn.textContent = on ? '★' : '☆';
+      });
+      const count = $('savedCount');
+      if (count) count.textContent = String(ids.length);
+      const btn = $('savedBtn');
+      if (btn) btn.setAttribute('aria-label', 'Open your saved items' + (ids.length ? ' (' + ids.length + ' saved)' : ''));
+      if ($('savedModal') && $('savedModal').classList.contains('open')) renderSaved();
+    }
+    function toggleSave(id) {
+      try {
+        let ids = getSavedIds();
+        ids = ids.indexOf(id) >= 0 ? ids.filter((x) => x !== id) : ids.concat([id]);
+        localStorage.setItem(SAVED_KEY, JSON.stringify(ids));
+      } catch (err) {
+        // localStorage blocked — the star still cannot persist, so say so plainly
+        // in the next render rather than pretending it saved.
+      }
+      syncSavedUI();
+    }
+    function renderSaved() {
+      const items = savedProducts();
+      const box = $('savedItems');
+      if (box) box.innerHTML = items.map((p) => productCard(p)).join('');
+      const empty = $('savedEmpty');
+      if (empty) empty.style.display = items.length ? 'none' : '';
+      const textBtn = $('savedTextBtn');
+      if (textBtn) {
+        textBtn.href = smsHref(savedMessage());
+        textBtn.style.display = items.length ? '' : 'none';
+      }
+      if (box) observeProducts();
+    }
+    function savedOpen() {
+      closeAllDrawers();
+      renderSaved();
+      $('savedModal').classList.add('open');
+      $('savedModal').setAttribute('aria-hidden', 'false');
+      if ($('savedBtn')) $('savedBtn').setAttribute('aria-expanded', 'true');
+      trapFocus($('savedModal'));
+    }
+    function savedClose() {
+      $('savedModal').classList.remove('open');
+      $('savedModal').setAttribute('aria-hidden', 'true');
+      if ($('savedBtn')) $('savedBtn').setAttribute('aria-expanded', 'false');
+      releaseFocus();
+    }
+
     // Initial Render — filters first: renderShop() reads their values to label the count
     // Hero video: the still image is the hero until the clip actually decodes, so a
     // missing video/reel.mp4 is invisible rather than a broken player.
@@ -1836,6 +1933,7 @@ function urlKey() {
     renderFilterUI();
     renderHome();
     renderRecentlyViewed();
+    syncSavedUI();
     // renderShop() is deliberately not called here. The grid mounts when the shop view is
     // first shown (showPage), so boot builds the hero rails and nothing else; a visitor who
     // never opens the shop never pays for 102 cards.
@@ -1878,6 +1976,9 @@ function urlKey() {
       zoomClose: () => zoomClose(),
       zoomStep: (el, arg) => zoomStep(parseInt(arg, 10)),
       openProduct: (el, arg) => openProduct(parseInt(arg, 10)),
+      toggleSave: (el, arg) => toggleSave(parseInt(arg, 10)),
+      savedOpen: () => savedOpen(),
+      savedClose: () => savedClose(),
       zoomOpen: (el, arg) => zoomOpen(parseInt(arg, 10)),
       setSearchBrand: (el, arg) => setSearchBrand(parseInt(arg, 10)),
       filterByBrand: (el, arg) => filterByBrand(arg, el),

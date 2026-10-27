@@ -474,14 +474,24 @@ function boot(pathname, hash, base) {
   ok('B4  the title names the pair', B.doc.title === jordan.name + ' — Random Stock', B.doc.title);
 
   // ---- B5-B7: a card is a link, not a button -------------------------------
+  // The card itself is links to the pair's page, never a button that pretends
+  // to be one — that is what keeps ctrl-click, copy-link and open-in-new-tab
+  // working. The one button a card now carries is the shortlist star, which is
+  // not a way into the pair at all: it is a toggle with its own data-act, it
+  // sits outside the photo/name/quick links (never nested inside one), and it
+  // carries aria-pressed for its state. B6 therefore allows exactly that
+  // button and nothing else, rather than none at all.
   const card = ev(B, 'productCard(products.find(p => p.id === 3))');
   ok('B5  the card links to that pair\'s page',
     card.indexOf('class="product-image" href="' + href + '"') >= 0 &&
     card.indexOf('class="name" href="' + href + '"') >= 0 &&
     card.indexOf('class="quick" href="' + href + '"') >= 0,
     card.replace(/\s+/g, ' ').slice(0, 200));
-  ok('B6  nothing on the card is a bare <button> any more',
-    !/<button/.test(card), (card.match(/<button[^>]*>/) || [''])[0]);
+  ok('B6  the only button on the card is the shortlist star, outside the links',
+    (card.match(/<button/g) || []).length === 1
+      && /<button[^>]*class="save-btn"[^>]*data-act="toggleSave"/.test(card)
+      && !/save-btn[^>]*data-product-link/.test(card),
+    (card.match(/<button[^>]*>/g) || []).join(' '));
   ok('B7  every way into the pair is marked as one the page may take over',
     (card.match(/data-product-link/g) || []).length === 3,
     (card.match(/data-product-link/g) || []).length);

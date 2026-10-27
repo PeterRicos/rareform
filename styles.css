@@ -460,6 +460,30 @@ html.announce-dismissed .announce { display: none; }
   transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1);
 }
 .product:hover .product-image img { transform: scale(1.06); }
+/* Shortlist star: a card is a link-filled article, so the star is a sibling
+   button parked over the photo's corner, never nested inside the photo link.
+   The article is position: relative, so the button's corner is the card's. */
+.save-btn {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  z-index: 2;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: #fff;
+  border: 1px solid var(--line);
+  font-size: 18px;
+  line-height: 1;
+  color: var(--ink);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.save-btn.is-saved { background: var(--ink); color: #fff; }
+.saved-title { font-size: clamp(26px, 4.5vw, 52px); letter-spacing: -0.06em; margin: 10px 0 30px; }
+.saved-list { margin-top: 20px; }
+.saved-actions { margin-top: 30px; }
 .p-info {
   padding: 16px;
   display: flex;

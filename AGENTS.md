@@ -11,7 +11,7 @@ and pushed without waiting to be told. So the flow runs end to end in one pass:
 
 1. make the change
 2. regenerate whatever derives from it (below)
-3. run all eleven suites — a `FAIL` means stop and fix it, not ship it
+3. run all twelve suites — a `FAIL` means stop and fix it, not ship it
 4. commit on a branch — never commit to `main` directly
 5. `git ship` — fetch → push the branch → `--ff-only` merge into `main` → push `main`
 6. confirm the deploy with `node tools/ci-status.js --wait 20` (see *Waiting on CI*)
