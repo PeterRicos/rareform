@@ -421,12 +421,12 @@ html.announce-dismissed .announce { display: none; }
   box-shadow: 0 12px 30px rgba(0,0,0,0.06);
 }
 .product-image {
-  /* Beige panel, restored at the owner's call: the white version shipped in
-     Ship 3 made the whole shop grid read as one white block on desktop, and
-     the owner hates it. Yes, a beige panel frames a white-canvas photo twice
-     — that editorial nit is what the white version fixed, and it is the
-     tradeoff the owner rejected. Warmth on the grid beats it. */
-  background: #edece9;
+  /* Beige panel, darkened at the owner's call: the restored #edece9 read
+     more white than he remembered on desktop, so the panel goes a clear step
+     darker to #d3c9b0 — warm mid-beige, still well clear of brown, and the
+     white-canvas photos still sit cleanly on it. The hairline underneath
+     stays from Ship 3. */
+  background: #d3c9b0;
   border-bottom: 1px solid var(--line);
   aspect-ratio: 1;
   overflow: hidden;
