@@ -194,6 +194,22 @@ ok('P8  the announcement bar carries a noscript fallback with the number',
   !!(noscriptMatch && noscriptMatch[1].replace(/<[^>]+>/g, '').trim() === structuredData.PHONE_DISPLAY),
   'noscript fallback missing from the announcement bar or not the display form');
 
+// ---- 9. price and source files are excluded from the published site --------
+// The shop shows no prices, so a price list fetchable at /sneaker_prices_filled.csv
+// undoes that rule through the back door — and it was fetchable, with a filled Price
+// column, until the three files below were added to _config.yml's exclude list.
+// Pages publishes every file it is not told to skip, so exclusion is the mechanism,
+// and the already-excluded README.md proves it: it 404s on the live domain while
+// the files stay in the repo for generate_products.py and make_csv.py to read.
+// Same scope limit as the number above: this says nothing about git history, where
+// the files remain in the commits that put them there.
+const config = read('_config.yml');
+const excluded = (config.match(/exclude:([\s\S]*)$/) || [,''])[1];
+ok('P9  _config.yml excludes the price list and its source files',
+  ['sneaker_prices_filled.csv', 'sneaker_prices.csv', 'yeezys.xlsx'].every((f) => excluded.indexOf('- ' + f) >= 0)
+    && fs.existsSync(path.join(__dirname, 'sneaker_prices_filled.csv')),
+  excluded.trim());
+
 const fails = results.filter((r) => !r.pass);
 results.forEach((r) => console.log((r.pass ? 'PASS  ' : 'FAIL  ') + r.name + (r.pass ? '' : '   [' + r.extra + ']')));
 console.log('\nTOTAL=' + results.length + ' FAIL=' + fails.length);

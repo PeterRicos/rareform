@@ -6,15 +6,26 @@
 # shopper has no use for either, and AGENTS.md is addressed to whoever edits the repo
 # next rather than to anyone buying a pair.
 #
-# This changes only the published copy. Both files stay in the repo and stay readable on
-# GitHub, and nothing about the site itself is affected — index.html, product/, sitemap.xml,
-# styles.css and the scripts are all still served.
+# The same rule covers the price and source files below, with a sharper reason: the
+# shop deliberately shows no prices — friends and family settle the price by text — so
+# a price list fetchable at /sneaker_prices_filled.csv undoes that rule through the
+# back door. The filled CSV carries a Price column for 79 listings, and the other two
+# files are its source material (the spreadsheet generate_products.py and make_csv.py
+# read, and the unfilled CSV those scripts produce). None of the three is read by the
+# site itself, so excluding them changes nothing a shopper sees.
 #
-# `exclude` replaces Jekyll's built-in list rather than adding to it, so the entries worth
-# keeping from that list are repeated here.
+# This changes only the published copy. All three files stay in the repo and stay
+# readable on GitHub, and nothing about the site itself is affected — index.html,
+# product/, sitemap.xml, styles.css and the scripts are all still served. Excluding
+# them does not scrub git history: the files are still in the commits that put them
+# there, and a copy already scraped cannot be un-scraped this way. Scrubbing history
+# is a rewrite and a force-push, a decision for the repo owner, not a config edit.
 exclude:
   - README.md
   - AGENTS.md
+  - sneaker_prices_filled.csv
+  - sneaker_prices.csv
+  - yeezys.xlsx
   - node_modules
   - vendor
   - Gemfile
