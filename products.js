@@ -10,7 +10,10 @@
 // `sizeGroup` is optional too, and only needed when the size strings alone
 // cannot say which run a listing belongs to: a bare "7" is a men's shoe size
 // here, so a fitted cap that holds 7 next to 7 1/8 declares sizeGroup:
-// "Headwear" (the runs are Men, Women, Youth, Apparel and Headwear).
+// "Headwear" (the runs are Men, Women, Youth, Apparel and Headwear). The same
+// rule covers a Women's or grade-school listing held in bare numbers: without
+// a declared group its detail page would read "US Men's sizing" for a women's
+// pair, so those listings declare Women or Youth explicitly.
 
 /* == local-products:begin == */
 const localProducts = [
@@ -393,6 +396,7 @@ const localProducts = [
     color: "Marina Blue (Women's)",
     condition: "New",
     box: "Original Box",
+    sizeGroup: "Women",
     sizes: ["6"],
     img: "sneaker_images/square/Sheet2_WMNS_Air_Jordan_1_Low_DC0774_114.jpg",
     gallery: ["sneaker_images/square/Sheet2_WMNS_Air_Jordan_1_Low_DC0774_114.jpg"],
@@ -405,6 +409,7 @@ const localProducts = [
     color: "Raging Bull Red (2021) (GS)",
     condition: "New",
     box: "Original Box",
+    sizeGroup: "Youth",
     sizes: ["3.5", "4", "4.5", "6.5"],
     img: "sneaker_images/square/Sheet2_Jordan_5_RetroRaging_Bull_Red_2021_GS_440888_600.jpg",
     gallery: ["sneaker_images/square/Sheet2_Jordan_5_RetroRaging_Bull_Red_2021_GS_440888_600.jpg"],
@@ -429,6 +434,7 @@ const localProducts = [
     color: "Hyper Royal Smoke Grey (GS)",
     condition: "New",
     box: "Original Box",
+    sizeGroup: "Youth",
     sizes: ["4.5"],
     img: "sneaker_images/square/Sheet2_Hyper_Royal_Light_Smoke_Grey_White_575441_402.jpg",
     gallery: ["sneaker_images/square/Sheet2_Hyper_Royal_Light_Smoke_Grey_White_575441_402.jpg"],
@@ -453,6 +459,7 @@ const localProducts = [
     color: "Lucky Green (Women's)",
     condition: "New",
     box: "Original Box",
+    sizeGroup: "Women",
     sizes: ["7", "12"],
     img: "sneaker_images/square/Sheet2_Jordan_1_Lucky_Green_White_Sail_Black_DB4612_300.jpg",
     gallery: ["sneaker_images/square/Sheet2_Jordan_1_Lucky_Green_White_Sail_Black_DB4612_300.jpg"],
@@ -669,6 +676,7 @@ const localProducts = [
     color: "White Oreo (2021) (GS)",
     condition: "New",
     box: "Original Box",
+    sizeGroup: "Youth",
     sizes: ["6.5"],
     img: "sneaker_images/square/Sheet2_Jordan_4_Retro_GS_White_Cement_DJ4699_100.jpg",
     gallery: ["sneaker_images/square/Sheet2_Jordan_4_Retro_GS_White_Cement_DJ4699_100.jpg"],

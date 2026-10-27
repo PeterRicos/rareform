@@ -929,6 +929,24 @@ html.announce-dismissed .announce { display: none; }
 }
 .clear-filters-btn:hover { background: #eae8e3; }
 
+/* The search modal shows four cards and then the way to the rest: a button that
+   hands the query to the shop grid, where every match is listed. */
+.see-all-results {
+  grid-column: 1 / -1;
+  justify-self: center;
+  margin: 8px 0 4px;
+  padding: 11px 20px;
+  border: 1px solid var(--ink);
+  border-radius: var(--radius);
+  background: #fff;
+  color: var(--ink);
+  font: 800 12px/1 'Manrope', sans-serif;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+.see-all-results:hover { background: var(--ink); color: #fff; }
+
 /* Empty State */
 .empty-state {
   grid-column: 1/-1;
@@ -1143,12 +1161,17 @@ html.announce-dismissed .announce { display: none; }
   background: #fff;
   z-index: 50;
   transform: translateX(-100%);
-  transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+  visibility: hidden;
+  /* Off-screen is not hidden: a drawer parked at translateX(-100%) is still in
+     the tab order and still exposed to assistive technology while closed. Hiding
+     it the same way the order modal hides (visibility, delayed to the end of the
+     slide) keeps the slide-in and takes the closed drawer out of both. */
+  transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1), visibility 0s 0.35s;
   display: flex;
   flex-direction: column;
   box-shadow: 8px 0 35px rgba(0,0,0,0.15);
 }
-.mobile-drawer.open { transform: none; }
+.mobile-drawer.open { transform: none; visibility: visible; transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1), visibility 0s; }
 .mobile-drawer-head {
   padding: 22px;
   border-bottom: 1px solid var(--line);
@@ -1179,11 +1202,15 @@ html.announce-dismissed .announce { display: none; }
   background: var(--paper);
   z-index: 60;
   transform: translateY(-100%);
-  transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+  visibility: hidden;
+  /* Same rule as the drawer above: translated off-screen is still reachable,
+     so visibility — delayed to the end of the slide-out — is what actually
+     closes it to keyboards and assistive technology. */
+  transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1), visibility 0s 0.35s;
   padding: 30px clamp(20px, 8vw, 120px);
   overflow-y: auto;
 }
-.search-modal.open { transform: none; }
+.search-modal.open { transform: none; visibility: visible; transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1), visibility 0s; }
 .search-modal-close {
   position: absolute;
   right: clamp(20px, 4vw, 50px);
@@ -1571,7 +1598,19 @@ html.announce-dismissed .announce { display: none; }
   .gallery { gap: 8px; }
 }
 @media (max-width: 480px) {
-  .products { grid-template-columns: 1fr; }
+  /* The smallest phones used to drop to one card across, which turned 102 items
+     into a very long scroll. Two across at 390px is still readable — a card is
+     about 170px wide, the photo stays square, the name stays two lines — so the
+     grid stays two-up here, with tighter gaps and padding to keep it compact.
+     This deliberately reverses the earlier 1-up rule (see test-mobile H2). */
+  .products { grid-template-columns: repeat(2, 1fr); gap: 10px; }
+  .p-info { padding: 10px; }
+  .p-info .name { font-size: 13px; }
+  /* The sort menu shared a row with the size filter and the filter toggle, so at
+     390px "Sort: Featured" clipped to "Sort: Fe,". The sort label is now just
+     "Featured" (the select's aria-label still says "Sort products"), and the sort
+     control takes a double share of the row, so the full word fits. */
+  .shop-actions #sort { flex: 2 1 0; }
   .hero h1, .hero h2 { font-size: 38px; }
   .foot-grid { grid-template-columns: 1fr; }
   .foot-grid > div:first-child { grid-column: span 1; }

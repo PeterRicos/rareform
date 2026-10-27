@@ -225,7 +225,42 @@ ok('G4  the announcement dismiss button keeps its 40px hit area',
 
 // ---- H. the grids ---------------------------------------------------------------
 ok('H1  product grids are 2-up on a phone', prop(M820, '.products', 'grid-template-columns') === 'repeat(2, 1fr)');
-ok('H2  and 1-up on the smallest ones', prop(M480, '.products', 'grid-template-columns') === '1fr');
+// The smallest phones used to drop to one card across, which turned a 102-item
+// catalog into a very long scroll. Two across at 390px is still readable — a
+// card is about 170px wide, the photo stays square, the name stays two lines —
+// so the grid stays two-up here, with tighter gaps and padding to keep it
+// compact. This deliberately reverses the earlier 1-up rule.
+ok('H2  and 2-up on the smallest ones, compact', prop(M480, '.products', 'grid-template-columns') === 'repeat(2, 1fr)'
+  && prop(M480, '.products', 'gap') === '10px'
+  && prop(M480, '.p-info', 'padding') === '10px',
+  prop(M480, '.products', 'grid-template-columns') + ' gap=' + prop(M480, '.products', 'gap'));
+// The sort menu shared a row with the size filter and the filter toggle, so at
+// 390px "Sort: Featured" clipped to "Sort: Fe,". The option text is now just
+// "Featured" — the select's aria-label still says "Sort products" — and the
+// sort control takes a double share of the row at the smallest widths.
+ok('H2b sort option text is short, and the sort control takes a double share',
+  /<option value="featured">Featured<\/option>/.test(html)
+    && /<option value="new">Newest First<\/option>/.test(html)
+    && prop(M480, '.shop-actions #sort', 'flex') === '2 1 0',
+  prop(M480, '.shop-actions #sort', 'flex'));
+// A closed drawer or search modal is not hidden by being parked off-screen:
+// a transform leaves it in the tab order and in the accessibility tree. Both
+// panels therefore hide with visibility (delayed to the end of the slide-out,
+// like the order modal already did) and start aria-hidden, with app.js flipping
+// aria-hidden on open and close.
+ok('H4  closed drawer and search modal hide with visibility, not just a transform',
+  prop(BASE, '.mobile-drawer', 'visibility') === 'hidden'
+    && prop(BASE, '.mobile-drawer.open', 'visibility') === 'visible'
+    && prop(BASE, '.search-modal', 'visibility') === 'hidden'
+    && prop(BASE, '.search-modal.open', 'visibility') === 'visible',
+  'drawer=' + prop(BASE, '.mobile-drawer', 'visibility') + ' modal=' + prop(BASE, '.search-modal', 'visibility'));
+ok('H5  drawer and search modal start aria-hidden, and app.js flips them',
+  /id="mobileDrawer"[^>]*aria-hidden="true"/.test(html)
+    && /id="searchModal"[^>]*aria-hidden="true"/.test(html)
+    && /\$\('mobileDrawer'\)\.setAttribute\('aria-hidden', 'false'\)/.test(app)
+    && /\$\('searchModal'\)\.setAttribute\('aria-hidden', 'false'\)/.test(app)
+    && /\$\('mobileDrawer'\)\.setAttribute\('aria-hidden', 'true'\)/.test(app)
+    && /\$\('searchModal'\)\.setAttribute\('aria-hidden', 'true'\)/.test(app));
 // The brand grid is no longer a fixed 8/4/2 column ladder. "Six roadmap brands plus
 // 'All Brands' plus every other brand the catalog carries" is not a count that divides
 // into eight, so the last row stopped short and left a hole where two tiles would have

@@ -452,9 +452,12 @@ function urlKey() {
       }));
       const sizeGroupOrder = ['Men', 'Women', 'Youth', 'Apparel', 'Headwear'];
       sizeGroupOrder.forEach(g => sizeGroups[g].sort(compareSizes));
+      // The groups were already there; what they lacked was a reason to open one.
+      // A count on each group ("Men (21)") tells a shopper at a glance which run
+      // holds anything, instead of opening five long lists to find out.
       $('sizeFilter').innerHTML = '<option value="">All Sizes</option>' +
         sizeGroupOrder.filter(g => sizeGroups[g].length).map(g =>
-          '<optgroup label="' + g + '">' +
+          '<optgroup label="' + g + ' (' + sizeGroups[g].length + ')">' +
           sizeGroups[g].map(s => `<option value="${g}|${s}">${sizeDisplay(s, g)}</option>`).join('') +
           '</optgroup>').join('');
 
@@ -999,9 +1002,21 @@ function urlKey() {
       // A pair opened from a size search starts on the size that was searched: the order
       // sentence should name the 11 the shopper asked for, not the first size of the run.
       // Everywhere else it is the first size, exactly as it was.
+      //
+      // The size dropdown asks the same question and used to be ignored here: filtering
+      // for Men's 8 and opening a pair held in 5.5, 6 and 8 selected 5.5 — the run's
+      // first size — and that wrong size went into the order sentence. The dropdown
+      // therefore wins first when it names a size this listing actually holds in the
+      // named run; the search box is the fallback, and the first size is the last resort.
       const sizeQuery = shopSizeQuery();
       const matchedSizes = matchingSizes(current, sizeQuery);
-      selectedSize = matchedSizes[0] || current.sizes[0]; // initialize default selected size
+      const filterVal = $('sizeFilter') ? $('sizeFilter').value : '';
+      const filterPicked = filterVal ? parseSizeFilter(filterVal) : null;
+      const filterMatched = (filterPicked && (current.sizes || []).some(s =>
+        s === filterPicked.size && (!filterPicked.group || sizeCategory(s, current.sizeGroup) === filterPicked.group)))
+        ? [filterPicked.size] : [];
+      const preferredSizes = filterMatched.length ? filterMatched : matchedSizes;
+      selectedSize = preferredSizes[0] || current.sizes[0]; // initialize default selected size
 
       // Update breadcrumb
       if ($('breadcrumbProduct')) $('breadcrumbProduct').textContent = current.name;
@@ -1067,14 +1082,15 @@ function urlKey() {
           </div>
           <div class="size-grid">
             ${current.sizes.map(s => `
-              <button class="size-btn${s === selectedSize ? ' selected' : ''}${sizeQuery && matchedSizes.indexOf(s) >= 0 ? ' is-match' : ''}"
+              <button class="size-btn${s === selectedSize ? ' selected' : ''}${(sizeQuery && matchedSizes.indexOf(s) >= 0) || filterMatched.indexOf(s) >= 0 ? ' is-match' : ''}"
                       data-act="selectSize" data-arg="${s}"
+                      aria-pressed="${s === selectedSize ? 'true' : 'false'}"
                       aria-label="${sizeAriaLabel} ${s}">
                 ${s}
               </button>
             `).join('')}
           </div>
-          ${sizeQuery && matchedSizes.length ? `<p class="size-match-note">This ${itemLabel} is held in the sizes your search asked for: ${matchedSizes.map(s => sizeDisplay(s, current.sizeGroup)).join(' · ')}.</p>` : ''}
+          ${filterMatched.length ? `<p class="size-match-note">This ${itemLabel} is held in the size your filter asked for: ${filterMatched.map(s => sizeDisplay(s, current.sizeGroup)).join(' · ')}.</p>` : (sizeQuery && matchedSizes.length ? `<p class="size-match-note">This ${itemLabel} is held in the sizes your search asked for: ${matchedSizes.map(s => sizeDisplay(s, current.sizeGroup)).join(' · ')}.</p>` : '')}
         </div>` : ''}
         <div class="order-cta">
           <a class="btn" id="orderCall" href="tel:${ORDER_PHONE}">Call about this item</a>
@@ -1093,8 +1109,12 @@ function urlKey() {
 
     function selectSize(size, el) {
       selectedSize = size;
-      document.querySelectorAll('.size-grid .size-btn').forEach(btn => btn.classList.remove('selected'));
+      document.querySelectorAll('.size-grid .size-btn').forEach(btn => {
+        btn.classList.remove('selected');
+        if (btn.setAttribute) btn.setAttribute('aria-pressed', 'false');
+      });
       el.classList.add('selected');
+      if (el.setAttribute) el.setAttribute('aria-pressed', 'true');
       updateOrderLinks();
     }
 
@@ -1116,9 +1136,14 @@ function urlKey() {
     }
 
     // Mobile Menu Drawer Handlers
+    // visibility:hidden in CSS takes a closed drawer/modal out of the tab order
+    // and the accessibility tree; aria-hidden says the same thing explicitly, so
+    // a closed panel is closed to assistive technology by both mechanisms, not
+    // merely parked off-screen by a transform.
     function menuOpen() {
       closeAllDrawers();
       $('mobileDrawer').classList.add('open');
+      $('mobileDrawer').setAttribute('aria-hidden', 'false');
       $('shade').classList.add('open');
       $('hambBtn').setAttribute('aria-expanded', 'true');
       trapFocus($('mobileDrawer'));
@@ -1128,6 +1153,7 @@ function urlKey() {
 
     function menuClose() {
       $('mobileDrawer').classList.remove('open');
+      $('mobileDrawer').setAttribute('aria-hidden', 'true');
       $('shade').classList.remove('open');
       $('hambBtn').setAttribute('aria-expanded', 'false');
       releaseFocus();
@@ -1136,10 +1162,13 @@ function urlKey() {
     function closeAllDrawers() {
       releaseFocus();
       if ($('searchBtn')) $('searchBtn').setAttribute('aria-expanded', 'false');
+      if ($('hambBtn')) $('hambBtn').setAttribute('aria-expanded', 'false');
       $('mobileDrawer').classList.remove('open');
+      $('mobileDrawer').setAttribute('aria-hidden', 'true');
       // The search overlay must never outlive the view it opened from —
       // otherwise a result click navigates underneath it and the page looks frozen.
       $('searchModal').classList.remove('open');
+      $('searchModal').setAttribute('aria-hidden', 'true');
       // Same rule for the order dialog, which also opens over a product view.
       if ($('orderModal')) $('orderModal').classList.remove('open');
       // And again for the photo viewer, which covers the whole screen: a route change
@@ -1152,6 +1181,7 @@ function urlKey() {
     function searchOpen() {
       closeAllDrawers();
       $('searchModal').classList.add('open');
+      $('searchModal').setAttribute('aria-hidden', 'false');
       if ($('searchBtn')) $('searchBtn').setAttribute('aria-expanded', 'true');
       trapFocus($('searchModal'));
       setTimeout(() => $('globalSearch').focus(), 150);
@@ -1160,6 +1190,7 @@ function urlKey() {
 
     function searchClose() {
       $('searchModal').classList.remove('open');
+      $('searchModal').setAttribute('aria-hidden', 'true');
       if ($('searchBtn')) $('searchBtn').setAttribute('aria-expanded', 'false');
       releaseFocus();
     }
@@ -1174,21 +1205,43 @@ function urlKey() {
         return;
       }
       const sizeQuery = parseSizeQuery(q);
-      const matches = (sizeQuery
+      const allMatches = sizeQuery
         ? products.filter(p => matchesSize(p, sizeQuery))
         : products.filter(p =>
             (p.brand + ' ' + p.name + ' ' + p.color + ' ' + p.sku).toLowerCase().includes(q)
-          )
-      ).slice(0, 4);
+          );
+      // The modal is a shortlist, not the shop: four cards, then a way to the rest.
+      // Capping it with no way out hid every match past the fourth, so a search
+      // that answered twenty pairs read as if it had answered four.
+      const matches = allMatches.slice(0, 4);
 
       if (!matches.length) {
         $('searchResults').innerHTML = sizeQuery
           ? '<p style="grid-column: 1/-1; color: var(--muted); padding: 20px 0;">Nothing in ' + sizeQuery.display + ' right now — try another size.</p>'
           : '<p style="grid-column: 1/-1; color: var(--muted); padding: 20px 0;">No matching sneakers found.</p>';
       } else {
-        $('searchResults').innerHTML = matches.map(p => productCard(p, sizeQuery)).join('');
+        $('searchResults').innerHTML = matches.map(p => productCard(p, sizeQuery)).join('') +
+          (allMatches.length > matches.length
+            ? `<button type="button" class="see-all-results" data-act="seeAllSearch">See all ${allMatches.length} results</button>`
+            : '');
         observeProducts();   // fresh nodes: the reveal observer has never seen them
       }
+    }
+
+    // The modal's "see all" hands its query to the shop instead of re-answering it
+    // in miniature: the shop's own search box carries the same query, so the grid
+    // shows every match, in the shop's order, with its filters available.
+    function seeAllSearch() {
+      const q = ($('globalSearch') && $('globalSearch').value) || '';
+      searchClose();
+      if ($('filterSearch')) $('filterSearch').value = q;
+      if ($('mobileSearch')) $('mobileSearch').value = q;
+      if ($('brandFilter')) $('brandFilter').value = '';
+      if ($('sizeFilter')) $('sizeFilter').value = '';
+      if ($('conditionFilter')) $('conditionFilter').value = '';
+      shopCategoryFilter = '';
+      go('shop');
+      renderShop();
     }
 
     function setSearch(term) {
@@ -1772,6 +1825,7 @@ function urlKey() {
       orderModalMode: (el, arg) => orderModalMode(arg),
       searchClose: () => searchClose(),
       searchOpen: () => searchOpen(),
+      seeAllSearch: () => seeAllSearch(),
       shopCategory: (el, arg) => shopCategory(arg),
       shopNav: (el, arg) => shopNav(arg),
       toggleFilters: () => toggleFilters(),

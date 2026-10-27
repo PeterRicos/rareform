@@ -293,13 +293,19 @@ const cardIds = (html) => {
   ev(H, 'renderFilterUI();');
   const sizeHtml = String(ev(H, "document.getElementById('sizeFilter').innerHTML"));
   const groupOf = (html, label) => {
-    const m = html.match(new RegExp('<optgroup label="' + label + '">([\\s\\S]*?)</optgroup>'));
+    const m = html.match(new RegExp('<optgroup label="' + label + '(?: \\(\\d+\\))?">([\\s\\S]*?)</optgroup>'));
     return m ? m[1] : '';
   };
   ok('H1  the cap\'s bare 7 is a Headwear option, not a men\'s shoe size',
     /<option value="Headwear\|7">7<\/option>/.test(groupOf(sizeHtml, 'Headwear')), groupOf(sizeHtml, 'Headwear'));
   ok('H2  the shoe held in 7 still reads as a men\'s size',
     /<option value="Men\|7">US 7<\/option>/.test(groupOf(sizeHtml, 'Men')), groupOf(sizeHtml, 'Men'));
+  // The groups were already there; a count on each one is what makes them
+  // scannable — a shopper can see which run holds anything without opening
+  // five long lists.
+  ok('H3  each size group carries its count',
+    /<optgroup label="Men \(\d+\)">/.test(sizeHtml) && /<optgroup label="Women \(\d+\)">/.test(sizeHtml)
+      && /<optgroup label="Youth \(\d+\)">/.test(sizeHtml), sizeHtml.match(/<optgroup label="[^"]*">/g));
 
   // ---- I. picking a dropdown size filters by run as well as size --------------
   // Grouping the dropdown was only half of it: the option value was still the
@@ -427,6 +433,62 @@ const cardIds = (html) => {
     !/more/.test(jubileeQueryLine) && numbersIn(jubileeQueryLine).every((v) => v === '11' || v === '11.5'),
     jubileeQueryLine);
   ev(H, "document.getElementById('filterSearch').value = '';");
+
+  // ---- K. the size dropdown carries through to the listing, like the search -
+  // Filtering for Men's 8 and opening a pair held in 5.5, 6 and 8 used to select
+  // 5.5 — the dropdown was read by the shop grid but never by the detail page,
+  // so the run's first size went into the order sentence. The Yeezy Beluga
+  // Reflective (id 3) is held in exactly that run.
+  ev(H, "document.getElementById('filterSearch').value = ''; document.getElementById('sizeFilter').value = 'Men|8'; renderShop();");
+  ev(H, 'renderProduct(3)');
+  const dropDetail = String(ev(H, "document.getElementById('details').innerHTML"));
+  ok('K1  a listing opened from a Men 8 filter starts on 8, not the run\'s first size',
+    /<button class="size-btn selected is-match"/.test(dropDetail)
+      && /data-arg="8"/.test(dropDetail),
+    (dropDetail.match(/<button class="size-btn[^"]*"/g) || []).join(' '));
+  ok('K2  and it says so in a note naming the filtered size',
+    /class="size-match-note">This pair is held in the size your filter asked for: US 8\.</.test(dropDetail),
+    (dropDetail.match(/class="size-match-note">[^<]*/) || ['no note'])[0]);
+  ok('K3  and the order sentence carries the filtered size, not 5.5',
+    (() => { const href = String(ev(H, "document.getElementById('orderText').href")); const msg = decodeURIComponent(href); return /size US 8/.test(msg) && !/size US 5\.5/.test(msg); })(),
+    String(ev(H, "document.getElementById('orderText').href")));
+  // A size that is not the selected one still says it is not selected: a screen
+  // reader gets the state from aria-pressed, not from the visual highlight.
+  ok('K4  unselected sizes report aria-pressed false, the selected one true',
+    /aria-pressed="false"/.test(dropDetail) && /aria-pressed="true"/.test(dropDetail), dropDetail.match(/aria-pressed="[^"]*"/g));
+  ev(H, "document.getElementById('sizeFilter').value = '';");
+
+  // ---- L. a listing's size category is declared, not defaulted ---------------
+  // A bare number defaults to Men's in sizeCategory, so a Women's listing held
+  // in a bare "6" read "US Men's sizing" — and grade-school listings read the
+  // same way. Those five listings now declare their run outright.
+  ok('L1  the Women\'s Jordan 1 Low reads US Women\'s sizing, not men\'s',
+    ev(H, 'sizeCategoryLabel(window.localProducts.find(p => p.id === 32))') === "US Women's sizing",
+    ev(H, 'sizeCategoryLabel(window.localProducts.find(p => p.id === 32))'));
+  ok('L2  the grade-school listings read US Youth sizing',
+    [33, 35, 55].every((id) => ev(H, 'sizeCategoryLabel(window.localProducts.find(p => p.id === ' + id + '))') === 'US Youth sizing'),
+    [33, 35, 55].map((id) => ev(H, 'sizeCategoryLabel(window.localProducts.find(p => p.id === ' + id + '))')));
+  ok('L3  the Lucky Green reads US Women\'s sizing, per its own colour tag',
+    ev(H, 'sizeCategoryLabel(window.localProducts.find(p => p.id === 37))') === "US Women's sizing",
+    ev(H, 'sizeCategoryLabel(window.localProducts.find(p => p.id === 37))'));
+  ok('L4  declaring the run keeps the listing reachable by its size',
+    (() => { ev(H, "document.getElementById('sizeFilter').value = 'Women|6'; renderShop();"); return cardIds(ev(H, "document.getElementById('shopProducts').innerHTML")).indexOf(32) >= 0; })(),
+    'Women 6 grid');
+  ev(H, "document.getElementById('sizeFilter').value = '';");
+
+  // ---- M. the site-wide search shows a way to the rest -----------------------
+  // The modal caps at four cards. Without a way out, a search answering twenty
+  // pairs read as if it had answered four.
+  ev(H, "document.getElementById('globalSearch').value = 'jordan'; globalSearch();");
+  const modalJordan = String(ev(H, "document.getElementById('searchResults').innerHTML"));
+  const jordanTotal = catalog.filter((p) =>
+    (p.brand + ' ' + p.name + ' ' + p.color + ' ' + p.sku).toLowerCase().includes('jordan')).length;
+  ok('M1  a search with more than four matches offers to see all of them',
+    jordanTotal > 4 && new RegExp('See all ' + jordanTotal + ' results').test(modalJordan), modalJordan);
+  ev(H, "document.getElementById('globalSearch').value = 'yeezy'; globalSearch();");
+  ok('M2  and the see-all button hands the query to the shop search',
+    (() => { ev(H, 'seeAllSearch();'); return String(ev(H, "document.getElementById('filterSearch').value")) === 'yeezy'; })(),
+    String(ev(H, "document.getElementById('filterSearch').value")));
 
   const fails = results.filter((r) => !r.pass);
   results.forEach((r) => console.log((r.pass ? 'PASS  ' : 'FAIL  ') + r.name + (r.pass ? '' : '   [' + r.extra + ']')));

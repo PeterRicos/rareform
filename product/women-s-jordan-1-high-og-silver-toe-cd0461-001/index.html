@@ -46,7 +46,7 @@
       }
     })();
   </script>
-  <link rel="stylesheet" href="/styles.css?v=83017bbf">
+  <link rel="stylesheet" href="/styles.css?v=e6db76ec">
   <!-- Catalog structured data (schema.org). build-jsonld.js writes the block
        between these markers from products.js, so every listing a crawler can see
        here carries the same SKU, condition, image and availability the shop page
@@ -103,7 +103,7 @@
   </header>
 
   <!-- Mobile Menu Drawer -->
-  <div class="mobile-drawer" id="mobileDrawer" role="dialog" aria-modal="true" aria-label="Navigation Menu">
+  <div class="mobile-drawer" id="mobileDrawer" role="dialog" aria-modal="true" aria-label="Navigation Menu" aria-hidden="true">
     <div class="mobile-drawer-head">
       <span class="logo">RANDOM&nbsp;<i>STOCK</i></span>
       <button class="drawer-close" data-act="menuClose" aria-label="Close menu">×</button>
@@ -353,8 +353,8 @@
             <select id="sizeFilter" data-change="renderShop" aria-label="Filter by size"></select>
             <button class="filter-toggle" id="filterToggle" type="button" data-act="toggleFilters" aria-expanded="false" aria-controls="filtersPanel">More Filters</button>
             <select id="sort" data-change="renderShop" aria-label="Sort products">
-              <option value="featured">Sort: Featured</option>
-              <option value="new">Sort: Newest First</option>
+              <option value="featured">Featured</option>
+              <option value="new">Newest First</option>
             </select>
           </div>
           <div class="products" id="shopProducts"></div>
@@ -450,7 +450,7 @@
   <div class="overlay" id="shade" data-act="closeAllDrawers"></div>
 
   <!-- SEARCH MODAL -->
-  <section class="search-modal" id="searchModal" role="dialog" aria-modal="true" aria-label="Global Search">
+  <section class="search-modal" id="searchModal" role="dialog" aria-modal="true" aria-label="Global Search" aria-hidden="true">
     <button class="search-modal-close" data-act="searchClose" aria-label="Close search">×</button>
     <div class="search-bar">
       <input id="globalSearch" aria-label="Search the vault" placeholder="Search the vault, SKU, brand..." data-input="globalSearch" autocomplete="off">
@@ -529,11 +529,11 @@
        with a newer release means updating this note and the hash, not editing it. -->
   <script src="/slugs.js?v=d531b834" defer></script>
   <script src="/qrcode.js?v=4c79be16" defer></script>
-  <script src="/products.js?v=b55e83e6" defer></script>
+  <script src="/products.js?v=938023ae" defer></script>
   <!-- jsonld.js turns a listing into schema.org data. app.js reads it immediately
        (the first view is rendered on load), so it has to come before app.js. -->
   <script src="/jsonld.js?v=d5b7363e" defer></script>
-  <script src="/app.js?v=eea732fd" defer></script>
+  <script src="/app.js?v=15bea026" defer></script>
   <script src="/boot.js?v=c5fe06f4" defer></script>
   
 
