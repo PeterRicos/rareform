@@ -210,10 +210,11 @@ function buildPage(page, p) {
   const description = descriptionFor(p);
   const image = structuredData.absolute(p.img);
 
-  // The catalog stores photos relative to the site root; this is the depth they resolve
-  // from here, and app.js reads it back off <html> (see ASSET_BASE there).
-  let html = replaceOnce(page, '<html lang="en">',
-    '<html lang="en" data-asset-base="../../">', 'the <html> tag');
+  // The catalog stores photos relative to the site root, and app.js now makes them
+  // root-relative itself (leading slash), so it no longer reads a stamped depth off
+  // <html> — the listing pages carry no data-asset-base, and the static gallery
+  // below already uses absolute /images/… paths for the same reason.
+  let html = page;
 
   html = replaceOnce(html, '<link rel="canonical" href="https://randomstock.shop/">',
     '<link rel="canonical" href="' + url + '">', 'the canonical link');

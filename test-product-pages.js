@@ -496,9 +496,17 @@ function boot(pathname, hash, base) {
     (card.match(/data-product-link/g) || []).length === 3,
     (card.match(/data-product-link/g) || []).length);
 
-  // ---- B8: the photos still resolve from two directories down --------------
-  ok('B8  the gallery asks for its photo through the stamped depth',
-    B.getEl('gallery').innerHTML.indexOf('src="../../sneaker_images/') >= 0,
+  // ---- B8: the photos resolve from any depth, not a stamped one -------------
+  // Gallery paths used to carry the <html data-asset-base> depth ("../../" on a
+  // listing page). That broke the shopper's real path: a listing opened from the
+  // shop renders its gallery at the root, then pushState moves the address to
+  // /product/<slug>/, and the lazy photos after the eager first one resolved
+  // their bare "images/…" against the new listing path and 404'd as broken tiles
+  // (Mariano cap, MadCan, Huffy — first photo fine, the rest broken, on a phone
+  // and in a desktop check alike). Photos are root-relative now, so the gallery
+  // asks for the same URL no matter which page served the script.
+  ok('B8  the gallery asks for its photo from the site root, whatever served the page',
+    B.getEl('gallery').innerHTML.indexOf('src="/sneaker_images/') >= 0,
     (B.getEl('gallery').innerHTML.match(/src="[^"]*"/) || [''])[0]);
 
   // ---- B9-B11: plain click stays in the document, modified click does not ---
@@ -594,6 +602,19 @@ function boot(pathname, hash, base) {
   ok('B17  neither rail still shows the old catalog-order openers',
     ![32, 33, 35, 99, 100, 101, 102].some((id) => trending.indexOf(id) >= 0 || recent.indexOf(id) >= 0),
     'trending=' + JSON.stringify(trending) + ' recent=' + JSON.stringify(recent));
+
+  // ---- B18: a listing opened from the shop keeps every angle -----------------
+  // The Mariano cap (id 85) holds three photos. Opened from the homepage — the
+  // shopper's path, where the script was served with no depth at all — its
+  // gallery must carry all three as root-relative URLs, so the lazy second and
+  // third angles still resolve after pushState moves the address to the listing
+  // page. A bare "images/…" here is the bug, not a style choice.
+  ev(G, 'openProduct(85)');
+  const multiGallery = G.getEl('gallery').innerHTML || '';
+  const multiSrcs = multiGallery.match(/src="[^"]*"/g) || [];
+  ok('B18  a multi-photo listing opened from the shop keeps all angles root-relative',
+    multiSrcs.length === 3 && multiSrcs.every((s) => s.indexOf('src="/images/') === 0),
+    multiGallery.replace(/\s+/g, ' ').slice(0, 300));
 
   results.forEach((r) => console.log((r.pass ? 'PASS  ' : 'FAIL  ') + r.name +
     (r.pass ? '' : '   [' + r.extra + ']')));

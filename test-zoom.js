@@ -230,9 +230,10 @@ function boot(initialHash) {
     /^\s*<button class="gallery-shot" type="button" data-act="zoomOpen" data-arg="0"/.test(a), a.slice(0, 160));
   // A lone photo is the listing's main image and sits above the fold, so it is drawn
   // eager and at high priority; the rest of a gallery stays lazy. Either way the src
-  // is the listing's own image.
+  // is the listing's own image, root-relative (a bare catalog path would resolve
+  // against the listing URL after pushState and break every lazy angle).
   ok('A2  the photo inside it is still the listing image',
-    a.indexOf('<img src="' + jordan.img + '" alt="' + jordan.name + '"') >= 0
+    a.indexOf('<img src="/' + jordan.img + '" alt="' + jordan.name + '"') >= 0
       && /<img [^>]*loading="(lazy|eager)"[^>]*decoding="async"[^>]*>/.test(a), a.slice(0, 300));
   ok('A3  and the button announces what pressing it does',
     a.indexOf('aria-label="Zoom in on ' + jordan.name + '"') >= 0, a.slice(0, 240));
@@ -248,7 +249,7 @@ function boot(initialHash) {
   // ---- C. pressing photo N opens photo N ---------------------------------------
   ev(H, 'zoomOpen(0)');
   ok('C1  the viewer is up', isOpen());
-  ok('C2  showing the photo that was pressed', zoomSrc() === bearbrick.img, zoomSrc() + ' vs ' + bearbrick.img);
+  ok('C2  showing the photo that was pressed', zoomSrc() === '/' + bearbrick.img, zoomSrc() + ' vs ' + bearbrick.img);
   ok('C3  it is the URL the gallery already loaded, so nothing is fetched twice',
     gallery().indexOf('src="' + zoomSrc() + '"') >= 0);
   ok('C4  the alt handed to the viewer is the real name, not the escaped markup',
@@ -263,9 +264,9 @@ function boot(initialHash) {
   // ---- D. nothing can step a listing off its only photo ------------------------
   ev(H, 'zoomStep(1)');
   ok('D1  stepping a one-photo listing is a no-op',
-    zoomSrc() === bearbrick.img && counter() === '', zoomSrc() + ' ' + counter());
+    zoomSrc() === '/' + bearbrick.img && counter() === '', zoomSrc() + ' ' + counter());
   ev(H, 'zoomShow(4)');
-  ok('D2  an index past the end cannot blank the frame', zoomSrc() === bearbrick.img, zoomSrc());
+  ok('D2  an index past the end cannot blank the frame', zoomSrc() === '/' + bearbrick.img, zoomSrc());
 
   // ---- E. a gallery with angles pages through them -----------------------------
   const pair = pick('Jubilee');
@@ -278,22 +279,22 @@ function boot(initialHash) {
     e.indexOf('alt="' + pair.name + ' angle 2"') >= 0, e.slice(0, 240));
   ev(H, 'zoomOpen(1)');
   ok('E3  pressing the second button shows the second photo',
-    zoomSrc() === 'sneaker_images/square/Jubilee-angle-2.jpg', zoomSrc());
+    zoomSrc() === '/sneaker_images/square/Jubilee-angle-2.jpg', zoomSrc());
   ok('E4  the arrows come out with a second angle',
     get('zoomPrev').hidden === false && get('zoomNext').hidden === false);
   ok('E5  the counter says which angle is up', counter() === '2 / 2', counter());
   ev(H, 'zoomStep(1)');
   ok('E6  stepping past the last wraps to the first',
-    zoomSrc() === pair.img && counter() === '1 / 2', zoomSrc() + ' ' + counter());
+    zoomSrc() === '/' + pair.img && counter() === '1 / 2', zoomSrc() + ' ' + counter());
   ev(H, 'zoomStep(-1)');
   ok('E7  stepping back from the first wraps to the last',
-    zoomSrc() === 'sneaker_images/square/Jubilee-angle-2.jpg' && counter() === '2 / 2', counter());
+    zoomSrc() === '/sneaker_images/square/Jubilee-angle-2.jpg' && counter() === '2 / 2', counter());
   ev(H, 'zoomStep(1)');
   key('ArrowRight');
   ok('E8  the right arrow steps forward while the viewer is up',
-    zoomSrc() === 'sneaker_images/square/Jubilee-angle-2.jpg', zoomSrc());
+    zoomSrc() === '/sneaker_images/square/Jubilee-angle-2.jpg', zoomSrc());
   key('ArrowLeft');
-  ok('E9  the left arrow steps back', zoomSrc() === pair.img, zoomSrc());
+  ok('E9  the left arrow steps back', zoomSrc() === '/' + pair.img, zoomSrc());
   pair.gallery = oneAngle;
   ev(H, 'renderProduct(' + pair.id + '); zoomOpen(0);');
   ok('E10  dropping the extra angle puts the arrows and the counter away again',

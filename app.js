@@ -17,19 +17,22 @@ products.push(...(window.localProducts || []));
 const slugger = (typeof window !== 'undefined' && window.RandomStockSlugs) || null;
 
 // The catalog stores every photo as a path from the site root ("sneaker_images/…").
-// That is the right thing to store, but it only resolves on a page served from the
-// root: from /product/<slug>/ the browser would ask for
-// /product/<slug>/sneaker_images/… and get a 404 — which is what a card grid or a
-// gallery drawn on a listing page would do. The generator stamps the depth it wrote on
-// <html data-asset-base>, and every catalog path goes through assetURL().
-const ASSET_BASE = (document.documentElement &&
-  document.documentElement.getAttribute('data-asset-base')) || '';
-
+// That path is made root-relative here, with a leading slash, rather than resolved
+// against the page that happened to serve the script. The old way stamped a depth
+// on <html data-asset-base> ("../../" on a listing page, "" on the homepage) and
+// prefixed it — and that broke the moment the shopper moved inside the single page:
+// opening a listing from the shop renders the gallery while the address is still
+// the root, then pushState moves it to /product/<slug>/, and the lazy photos
+// (every angle after the eager first one) resolve their bare "images/…" against the
+// new listing path, ask for /product/<slug>/images/…, and 404 as broken tiles.
+// A leading slash resolves the same from the root, from a listing page, and after
+// any pushState, so the first photo and the rest can no longer disagree. The site
+// is served from the domain root, so a root-relative path is always right here.
 function assetURL(src) {
   const s = String(src == null ? '' : src);
   if (!s) return s;
   if (s.charAt(0) === '/' || /^[a-z][a-z0-9+.-]*:/i.test(s) || s.indexOf('//') === 0) return s;
-  return ASSET_BASE + s;
+  return '/' + s;
 }
 
 function productSlugOf(p) {
