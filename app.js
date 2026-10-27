@@ -948,8 +948,17 @@ function urlKey() {
       document.querySelectorAll('.nav-links a').forEach(a => {
         const href = (a.getAttribute('href') || '').replace(/^#/, '');
         let on;
-        if (page === 'home') on = activeSection ? href === activeSection : href === 'home';
-        else if (page === 'product') on = href === 'shop';
+        if (a.getAttribute('data-act') === 'shopCategory') {
+          // All three category links share href="#shop", so the href alone cannot
+          // tell them apart — it used to light all three at once on the Shop and
+          // Product views, with aria-current="page" on each. The category is what
+          // distinguishes them: on Shop it is the active filter, on Product it is
+          // the listing's own category, and with no filter set none of them is
+          // current, which is honest — the vault view is not a category.
+          const category = page === 'product' && current ? productCategory(current)
+            : page === 'shop' ? shopCategoryFilter : '';
+          on = !!category && a.getAttribute('data-arg') === category;
+        } else if (page === 'home') on = activeSection ? href === activeSection : href === 'home';
         else on = href === page;
         a.classList.toggle('active', on);
         if (on) a.setAttribute('aria-current', 'page');

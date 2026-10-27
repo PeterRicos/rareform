@@ -343,6 +343,58 @@ function boot(initialHash, cfg) {
     ok('M   ' + (hash || '(empty)') + ' → ' + canon, pass, JSON.stringify(r) + ' url=' + u);
   });
 
+  // ---- N. nav: only one shop category is ever current -----------------------
+  // All three category links share href="#shop", so syncRouteUI used to match on
+  // the href alone and light all three at once on the Shop and Product views,
+  // with aria-current="page" on each. The category is what distinguishes them:
+  // the active filter on Shop, the listing's own category on Product, and none
+  // at all when no filter is set. The stub DOM hands back no nav links, so this
+  // section gives it the three live links, with real attributes to read.
+  const N = boot('');
+  await sleep(320);
+  const makeNavLink = (arg) => {
+    const classes = new Set();
+    const attrs = { href: '#shop', 'data-act': 'shopCategory', 'data-arg': arg };
+    return {
+      getAttribute: (n) => (n in attrs ? attrs[n] : null),
+      setAttribute: (n, v) => { attrs[n] = v; },
+      removeAttribute: (n) => { delete attrs[n]; },
+      classList: {
+        add: (c) => classes.add(c),
+        remove: (c) => classes.delete(c),
+        contains: (c) => classes.has(c),
+        toggle: (c, on) => { if (on) classes.add(c); else classes.delete(c); }
+      },
+      _classes: classes, _attrs: attrs
+    };
+  };
+  const navLinks = ['sneakers', 'clothing', 'random'].map(makeNavLink);
+  const navAbout = makeNavLink(null);
+  navAbout._attrs.href = '#about';
+  delete navAbout._attrs['data-act'];
+  delete navAbout._attrs['data-arg'];
+  navLinks.push(navAbout);
+  const origQSA = N.doc.querySelectorAll;
+  N.doc.querySelectorAll = (sel) => (sel === '.nav-links a' ? navLinks : origQSA(sel));
+  const activeNav = () => navLinks.filter((l) => l._classes.has('active')).map((l) => l._attrs['data-arg'] || 'about');
+  const currentNav = () => navLinks.filter((l) => l._attrs['aria-current'] === 'page').map((l) => l._attrs['data-arg'] || 'about');
+  ev(N, 'shopCategory("clothing")');
+  ok('N1  on Shop (clothing filter) only the clothing link is current',
+    JSON.stringify(activeNav()) === JSON.stringify(['clothing']) && JSON.stringify(currentNav()) === JSON.stringify(['clothing']),
+    'active=' + JSON.stringify(activeNav()) + ' current=' + JSON.stringify(currentNav()));
+  ev(N, 'shopCategory("sneakers")');
+  ok('N2  switching the filter moves the current link, it does not add one',
+    JSON.stringify(activeNav()) === JSON.stringify(['sneakers']), JSON.stringify(activeNav()));
+  ev(N, 'openProduct(82)');
+  ok('N3  on a Random product only the Random link is current',
+    JSON.stringify(activeNav()) === JSON.stringify(['random']), JSON.stringify(activeNav()));
+  ev(N, 'openProduct(3)');
+  ok('N4  on a sneaker product only the Sneakers link is current',
+    JSON.stringify(activeNav()) === JSON.stringify(['sneakers']), JSON.stringify(activeNav()));
+  ev(N, 'resetFilters(); go("shop");');
+  ok('N5  on the unfiltered vault no category link claims to be current',
+    activeNav().length === 0 && currentNav().length === 0, JSON.stringify(activeNav()));
+
   const fails = results.filter((r) => !r.pass);
   results.forEach((r) => console.log((r.pass ? 'PASS  ' : 'FAIL  ') + r.name + (r.pass ? '' : '   [' + r.extra + ']')));
   console.log('\nTOTAL=' + results.length + ' FAIL=' + fails.length);
