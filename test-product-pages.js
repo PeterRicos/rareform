@@ -557,6 +557,34 @@ function boot(pathname, hash, base) {
     'active=' + activeViews.join(',') + ' pair-h1s=' + (gDetails.match(/<h1[\s>]/g) || []).length +
       ' path=' + G.location.pathname);
 
+  // ---- B15-B17: the homepage rails are curated, not catalog order ------------
+  // JORDAN ROTATION used to be the first four Jordans in file order — Women's 6,
+  // GS 3.5–6.5, an adult 8, Youth 4.5 — and MORE FROM THE VAULT was just the last
+  // four rows, two Women's Dunks and two Yeezy Slides, while the marquee pairs
+  // never appeared on the homepage at all. Both rails are now explicit ID lists
+  // in renderHome, so a reordered or extended catalog cannot quietly swap them.
+  // Boot renders the homepage at startup, so the stub's rail elements already
+  // hold the cards; a card carries its listing id in data-arg.
+  const railIds = (id) => {
+    const html = G.getEl(id).innerHTML || '';
+    // A card carries its listing id on three links (photo, name, quick view),
+    // so dedupe in order — the rail is the sequence of distinct cards.
+    const ids = (html.match(/data-arg="(\d+)"/g) || []).map((s) => Number(s.replace(/[^0-9]/g, '')));
+    return ids.filter((v, i) => ids.indexOf(v) === i);
+  };
+  const trending = railIds('trending');
+  const recent = railIds('recent');
+  ok('B15  JORDAN ROTATION is the curated four, in order, all Jordan, all adult sizes',
+    JSON.stringify(trending) === JSON.stringify([50, 52, 59, 56])
+      && trending.every((id) => catalog.find((p) => p.id === id).brand.toLowerCase() === 'jordan'),
+    JSON.stringify(trending));
+  ok('B16  MORE FROM THE VAULT is the curated marquee four, not the last four rows',
+    JSON.stringify(recent) === JSON.stringify([17, 69, 47, 44]),
+    JSON.stringify(recent));
+  ok('B17  neither rail still shows the old catalog-order openers',
+    ![32, 33, 35, 99, 100, 101, 102].some((id) => trending.indexOf(id) >= 0 || recent.indexOf(id) >= 0),
+    'trending=' + JSON.stringify(trending) + ' recent=' + JSON.stringify(recent));
+
   results.forEach((r) => console.log((r.pass ? 'PASS  ' : 'FAIL  ') + r.name +
     (r.pass ? '' : '   [' + r.extra + ']')));
   const failed = results.filter((r) => !r.pass).length;

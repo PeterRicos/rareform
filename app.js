@@ -603,9 +603,30 @@ function urlKey() {
     }
 
     // Render Home Sections
+    // The rails used to be whatever the catalog order happened to put first and
+    // last: JORDAN ROTATION opened on the first four Jordans in file order, three
+    // of which are Women's 6, GS 3.5–6.5 and Youth 4.5, and MORE FROM THE VAULT
+    // was just the last four rows — two Women's Dunks and two Yeezy Slides. The
+    // marquee pairs never appeared on the homepage at all. These two lists are
+    // therefore explicit, in display order, and checked against the catalog
+    // here rather than in products.js, so a pair Pete removes from the catalog
+    // (sold pairs come off the site by hand) simply drops out of its rail
+    // instead of breaking it. The lists are the curation: change an ID here and
+    // the rail changes, no code or catalog order to fight.
+    // JORDAN ROTATION keeps Jordan-only, in common adult sizes: Travis Scott 6
+    // (8, 13), Patent Bred 1 (8), University Blue 4 (8, 10.5), White Cement 4 (8).
+    const FEATURED_JORDAN_IDS = [50, 52, 59, 56];
+    // MORE FROM THE VAULT is the mixed marquee that never made a homepage rail:
+    // Wave Runner 700 (7, 11), Military Black 4 (8), Bad Bunny Forum Buckle
+    // (11), A Ma Maniére 5 (8). Deliberately not in this list: the A Ma Maniére
+    // 3 is a Women's 5.5W single and the Bodega 990v3 is a single size 6 — both
+    // marquee, neither a common adult size, so they stay in the shop grid where
+    // their size is the point, not on the first screen.
+    const VAULT_HIGHLIGHT_IDS = [17, 69, 47, 44];
     function renderHome() {
-      $('trending').innerHTML = products.filter(p => p.brand.toLowerCase() === 'jordan').slice(0, 4).map(p => productCard(p)).join('');
-      $('recent').innerHTML = products.slice(-4).map(p => productCard(p)).join('');
+      const byId = (id) => products.find(p => p.id === id);
+      $('trending').innerHTML = FEATURED_JORDAN_IDS.map(byId).filter(Boolean).map(p => productCard(p)).join('');
+      $('recent').innerHTML = VAULT_HIGHLIGHT_IDS.map(byId).filter(Boolean).map(p => productCard(p)).join('');
       $('clothing-accessories').innerHTML = products.filter(p => productCategory(p) === 'clothing').map(p => productCard(p)).join('');
       $('random-shit').innerHTML = products.filter(p => productCategory(p) === 'random').map(p => productCard(p)).join('');
       observeProducts();
