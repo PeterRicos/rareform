@@ -421,14 +421,12 @@ html.announce-dismissed .announce { display: none; }
   box-shadow: 0 12px 30px rgba(0,0,0,0.06);
 }
 .product-image {
-  /* The photos already sit on a pure white 1:1 canvas, so a beige panel framed
-     them twice: beige around white inside a white card. White here lets the
-     canvas merge with the card, with a hairline under the photo instead of a
-     frame around it. mix-blend-mode: multiply was the other candidate, but it
-     would tint the white parts of white sneakers beige and darken the five
-     Supreme tee photos, which are not white-canvas shots at all — accuracy
-     beats the editorial tint on a shop page. */
-  background: #fff;
+  /* Beige panel, restored at the owner's call: the white version shipped in
+     Ship 3 made the whole shop grid read as one white block on desktop, and
+     the owner hates it. Yes, a beige panel frames a white-canvas photo twice
+     — that editorial nit is what the white version fixed, and it is the
+     tradeoff the owner rejected. Warmth on the grid beats it. */
+  background: #edece9;
   border-bottom: 1px solid var(--line);
   aspect-ratio: 1;
   overflow: hidden;

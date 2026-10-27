@@ -353,8 +353,8 @@ ok('L3  the footer contact links are filled from the runtime constant, not typed
     && /\$\('footText'\)/.test(app) && /footText\.href = 'sms:' \+ ORDER_PHONE/.test(app)
     && !/id="footCall" href="tel:/.test(html) && !/id="footText" href="sms:/.test(html),
   'footer links in app.js / index.html');
-ok('L4  the card photo sits on white, not a beige panel around a white canvas',
-  prop(BASE, '.product-image', 'background') === '#fff'
+ok('L4  the card photo sits on the beige panel the owner wants, not bare white',
+  prop(BASE, '.product-image', 'background') === '#edece9'
     && prop(BASE, '.product-image', 'border-bottom') === '1px solid var(--line)',
   'background=' + prop(BASE, '.product-image', 'background'));
 
