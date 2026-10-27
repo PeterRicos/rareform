@@ -1795,6 +1795,22 @@ function urlKey() {
         bar.textContent = ORDER_PHONE_DISPLAY;
         if (String(bar.tagName || '').toUpperCase() === 'A') bar.href = 'tel:' + ORDER_PHONE;
       }
+      // The footer is the fourth desktop column, and it is the contact column:
+      // the grid defined four tracks but the markup only filled three, leaving
+      // a dead ~28% column on the right. These links are filled the same way as
+      // the bar above, so the number never sits in index.html as a literal —
+      // the "Call us" / "Text us" text in the markup is only the no-JavaScript
+      // fallback, and the hrefs are upgraded here.
+      const footCall = $('footCall');
+      if (footCall) {
+        footCall.textContent = 'Call ' + ORDER_PHONE_DISPLAY;
+        footCall.href = 'tel:' + ORDER_PHONE;
+      }
+      const footText = $('footText');
+      if (footText) {
+        footText.textContent = 'Text ' + ORDER_PHONE_DISPLAY;
+        footText.href = 'sms:' + ORDER_PHONE;
+      }
     })();
     renderFilterUI();
     renderHome();

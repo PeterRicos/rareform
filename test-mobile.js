@@ -334,6 +334,30 @@ ok('K5  the number itself never breaks across two lines',
   prop(M600, '.announce-phone', 'white-space') === 'nowrap',
   prop(M600, '.announce-phone', 'white-space'));
 
+// ---- L. banners, footer columns, and card framing ---------------------------
+// The two category banners sat back-to-back with nothing between them, so two
+// dark gradients read as one block; the footer grid defined four desktop tracks
+// for three children, leaving a dead ~28% column; and the card photo sat on a
+// beige panel around a white canvas inside a white card — a frame inside a
+// frame. Each fix is pinned here so a later layout pass cannot quietly undo it.
+ok('L1  the second category banner is separated from the first',
+  prop(BASE, '.category-tile + .category-tile', 'margin-top') === '24px',
+  prop(BASE, '.category-tile + .category-tile', 'margin-top'));
+ok('L2  the footer grid has four tracks and a fourth, contact, column to fill them',
+  prop(BASE, '.foot-grid', 'grid-template-columns') === '1.5fr 1fr 1fr 1.3fr'
+    && /id="footCall"/.test(html) && /id="footText"/.test(html)
+    && /<h2 class="foot-head">Contact<\/h2>/.test(html),
+  prop(BASE, '.foot-grid', 'grid-template-columns'));
+ok('L3  the footer contact links are filled from the runtime constant, not typed in',
+  /\$\('footCall'\)/.test(app) && /footCall\.href = 'tel:' \+ ORDER_PHONE/.test(app)
+    && /\$\('footText'\)/.test(app) && /footText\.href = 'sms:' \+ ORDER_PHONE/.test(app)
+    && !/id="footCall" href="tel:/.test(html) && !/id="footText" href="sms:/.test(html),
+  'footer links in app.js / index.html');
+ok('L4  the card photo sits on white, not a beige panel around a white canvas',
+  prop(BASE, '.product-image', 'background') === '#fff'
+    && prop(BASE, '.product-image', 'border-bottom') === '1px solid var(--line)',
+  'background=' + prop(BASE, '.product-image', 'background'));
+
 const fails = results.filter((r) => !r.pass);
 results.forEach((r) => console.log((r.pass ? 'PASS  ' : 'FAIL  ') + r.name + (r.pass ? '' : '   [' + r.extra + ']')));
 console.log('\nTOTAL=' + results.length + ' FAIL=' + fails.length);

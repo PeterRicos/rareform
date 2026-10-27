@@ -421,7 +421,15 @@ html.announce-dismissed .announce { display: none; }
   box-shadow: 0 12px 30px rgba(0,0,0,0.06);
 }
 .product-image {
-  background: #edece9;
+  /* The photos already sit on a pure white 1:1 canvas, so a beige panel framed
+     them twice: beige around white inside a white card. White here lets the
+     canvas merge with the card, with a hairline under the photo instead of a
+     frame around it. mix-blend-mode: multiply was the other candidate, but it
+     would tint the white parts of white sneakers beige and darken the five
+     Supreme tee photos, which are not white-canvas shots at all — accuracy
+     beats the editorial tint on a shop page. */
+  background: #fff;
+  border-bottom: 1px solid var(--line);
   aspect-ratio: 1;
   overflow: hidden;
   position: relative;
@@ -703,6 +711,10 @@ html.announce-dismissed .announce { display: none; }
   background: var(--ink);
   color: #fff;
 }
+/* The two banners in #categories sit back-to-back with nothing between them, so
+   two dark gradients read as one giant block. A gap on the second tile — not on
+   the section — separates them without moving the first tile. */
+.category-tile + .category-tile { margin-top: 24px; }
 .category-tile img {
   height: 100%;
   object-position: center 68%;
