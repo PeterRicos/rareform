@@ -1041,6 +1041,14 @@ html.announce-dismissed .announce { display: none; }
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 12px;
+  /* The details column is taller than the gallery on a multi-photo listing
+     (bullets, sizes, call buttons), and .details already takes align-self:
+     start for its sticky position. Without the same here the gallery
+     stretches to the row height and the spare space lands BETWEEN its rows
+     — on the 3-photo Mariano page that read as a whole empty tile-height
+     gap before the third photo. Top-aligned, the gallery is only as tall
+     as its own rows. */
+  align-self: start;
 }
 /* Each shot is a button rather than a bare <img>, so looking closer is reachable with
    Tab and Enter the way every other action on this page is — a click-only <img> is the
