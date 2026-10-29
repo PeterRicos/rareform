@@ -616,6 +616,17 @@ function boot(pathname, hash, base) {
     multiSrcs.length === 3 && multiSrcs.every((s) => s.indexOf('src="/images/') === 0),
     multiGallery.replace(/\s+/g, ' ').slice(0, 300));
 
+  // ---- B19: a mistyped address lands on a branded 404, not GitHub's generic one --
+  // GitHub Pages serves a root 404.html for any unmatched path, so a typo'd
+  // product URL used to dead-end on GitHub's own page with no way back into the
+  // shop. The branded page links home and into the vault; it carries no phone
+  // number literal (test-privacy P7 sweeps it with every other text file).
+  const notFound = fs.existsSync(path.join(__dirname, '404.html'))
+    ? fs.readFileSync(path.join(__dirname, '404.html'), 'utf8') : '';
+  ok('B19  a mistyped address lands on a branded 404 that links back to the shop',
+    notFound.length > 0 && /href="\/"/.test(notFound) && /href="\/#shop"/.test(notFound),
+    notFound.length === 0 ? '404.html missing' : 'links missing from 404.html');
+
   results.forEach((r) => console.log((r.pass ? 'PASS  ' : 'FAIL  ') + r.name +
     (r.pass ? '' : '   [' + r.extra + ']')));
   const failed = results.filter((r) => !r.pass).length;

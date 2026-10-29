@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>404 — Not in the vault · Random Stock</title>
+<meta name="description" content="That page isn't in the vault. Head back to the shop.">
+<link rel="stylesheet" href="/fonts/fonts.css">
+<style>
+  /* Standalone page: GitHub Pages serves this file for any unmatched path, so
+     it cannot depend on the shop's script or stylesheet — everything it needs
+     is inline here, in the shop's own paper and ink. */
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: #f5f4f1;
+    color: #151515;
+    font: 14px/1.5 'Manrope', -apple-system, BlinkMacSystemFont, Arial, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+  }
+  main { max-width: 640px; text-align: center; }
+  .eyebrow {
+    font: 11px/1.3 'DM Mono', monospace;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: #4f4d49;
+  }
+  h1 {
+    font-size: clamp(44px, 9vw, 84px);
+    line-height: 0.95;
+    letter-spacing: -0.06em;
+    margin: 16px 0 20px;
+    font-weight: 800;
+  }
+  p { color: #3f3e3a; font-size: 15px; line-height: 1.6; margin: 0 auto 34px; max-width: 440px; }
+  .btn-row { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+  a.btn {
+    display: inline-block;
+    background: #151515;
+    color: #fff;
+    text-decoration: none;
+    font-weight: 800;
+    font-size: 13px;
+    letter-spacing: 0.02em;
+    padding: 15px 28px;
+    border-radius: 4px;
+  }
+  a.btn.ghost { background: transparent; color: #151515; box-shadow: inset 0 0 0 1px #151515; }
+</style>
+</head>
+<body>
+<main>
+  <span class="eyebrow">404 — Not in the vault</span>
+  <h1>THIS PAGE ISN'T HERE.</h1>
+  <p>The address was mistyped, or the pair moved. The vault is still open — head back and pick up where you left off.</p>
+  <div class="btn-row">
+    <a class="btn" href="/">BACK TO THE SHOP</a>
+    <a class="btn ghost" href="/#shop">BROWSE THE VAULT →</a>
+  </div>
+</main>
+</body>
+</html>
