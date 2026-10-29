@@ -360,6 +360,9 @@ ok('L4  the card photo sits on the darker beige panel the owner wants',
 ok('L5  the listing gallery is top-aligned, so its rows stay a 12px gap apart',
   prop(BASE, '.gallery', 'align-self') === 'start',
   'align-self=' + prop(BASE, '.gallery', 'align-self'));
+ok('L6  the steps banner matches the card photo panels\' darker beige',
+  prop(BASE, '.auth', 'background') === '#d3c9b0',
+  'background=' + prop(BASE, '.auth', 'background'));
 
 const fails = results.filter((r) => !r.pass);
 results.forEach((r) => console.log((r.pass ? 'PASS  ' : 'FAIL  ') + r.name + (r.pass ? '' : '   [' + r.extra + ']')));

@@ -771,8 +771,13 @@ html.announce-dismissed .announce { display: none; }
 }
 
 /* Authenticity Banner */
+/* The banner shares the card photo panels' darker beige: the owner asked
+   2026-10-29 for the steps band to match the #d3c9b0 panels around the items
+   instead of sitting on its old paler greige, which read as a different colour
+   family next to the cards. Both banners (How it works, Our Standard) take it,
+   because they are the same component and a split pair would read as a mistake. */
 .auth {
-  background: #e3e0da;
+  background: #d3c9b0;
   max-width: none;
   border-top: 1px solid var(--line);
   border-bottom: 1px solid var(--line);
