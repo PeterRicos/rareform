@@ -627,6 +627,14 @@ function boot(pathname, hash, base) {
     notFound.length > 0 && /href="\/"/.test(notFound) && /href="\/#shop"/.test(notFound),
     notFound.length === 0 ? '404.html missing' : 'links missing from 404.html');
 
+  // ---- B20: the referrer policy is stated, not left to browser defaults --------
+  // Browsers already default to strict-origin-when-cross-origin, but the policy
+  // is one line and costs nothing, so the homepage states it outright instead
+  // of relying on the default surviving a future browser change.
+  ok('B20  the homepage states a strict-origin-when-cross-origin referrer policy',
+    /<meta name="referrer" content="strict-origin-when-cross-origin">/.test(homeHtml),
+    'referrer meta missing from index.html');
+
   results.forEach((r) => console.log((r.pass ? 'PASS  ' : 'FAIL  ') + r.name +
     (r.pass ? '' : '   [' + r.extra + ']')));
   const failed = results.filter((r) => !r.pass).length;

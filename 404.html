@@ -5,6 +5,9 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>404 — Not in the vault · Random Stock</title>
 <meta name="description" content="That page isn't in the vault. Head back to the shop.">
+<!-- Same referrer policy as the shop pages: cross-origin requests carry only
+     the origin, never the full path. -->
+<meta name="referrer" content="strict-origin-when-cross-origin">
 <link rel="stylesheet" href="/fonts/fonts.css">
 <style>
   /* Standalone page: GitHub Pages serves this file for any unmatched path, so
