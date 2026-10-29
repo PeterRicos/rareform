@@ -421,12 +421,12 @@ html.announce-dismissed .announce { display: none; }
   box-shadow: 0 12px 30px rgba(0,0,0,0.06);
 }
 .product-image {
-  /* Beige panel, darkened at the owner's call: the restored #edece9 read
-     more white than he remembered on desktop, so the panel goes a clear step
-     darker to #d3c9b0 — warm mid-beige, still well clear of brown, and the
+  /* Beige panel, matched to the hero: the owner asked 2026-10-29 for one beige
+     across the page — the hero's #dfdeda — on the steps banner and on the card
+     panels alike, replacing the darker #d3c9b0 the panels took in Ship 8. The
      white-canvas photos still sit cleanly on it. The hairline underneath
      stays from Ship 3. */
-  background: #d3c9b0;
+  background: #dfdeda;
   border-bottom: 1px solid var(--line);
   aspect-ratio: 1;
   overflow: hidden;
@@ -771,13 +771,13 @@ html.announce-dismissed .announce { display: none; }
 }
 
 /* Authenticity Banner */
-/* The banner shares the card photo panels' darker beige: the owner asked
-   2026-10-29 for the steps band to match the #d3c9b0 panels around the items
-   instead of sitting on its old paler greige, which read as a different colour
-   family next to the cards. Both banners (How it works, Our Standard) take it,
-   because they are the same component and a split pair would read as a mistake. */
+/* The banner shares the hero's beige: the owner asked 2026-10-29 for one beige
+   across the page — the hero's #dfdeda — on the steps banner and on the card
+   panels alike, replacing the darker #d3c9b0 this banner took earlier the same
+   day. Both banners (How it works, Our Standard) take it, because they are the
+   same component and a split pair would read as a mistake. */
 .auth {
-  background: #d3c9b0;
+  background: #dfdeda;
   max-width: none;
   border-top: 1px solid var(--line);
   border-bottom: 1px solid var(--line);

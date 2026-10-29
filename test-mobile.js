@@ -353,15 +353,15 @@ ok('L3  the footer contact links are filled from the runtime constant, not typed
     && /\$\('footText'\)/.test(app) && /footText\.href = 'sms:' \+ ORDER_PHONE/.test(app)
     && !/id="footCall" href="tel:/.test(html) && !/id="footText" href="sms:/.test(html),
   'footer links in app.js / index.html');
-ok('L4  the card photo sits on the darker beige panel the owner wants',
-  prop(BASE, '.product-image', 'background') === '#d3c9b0'
+ok('L4  the card photo sits on the hero beige panel the owner wants',
+  prop(BASE, '.product-image', 'background') === '#dfdeda'
     && prop(BASE, '.product-image', 'border-bottom') === '1px solid var(--line)',
   'background=' + prop(BASE, '.product-image', 'background'));
 ok('L5  the listing gallery is top-aligned, so its rows stay a 12px gap apart',
   prop(BASE, '.gallery', 'align-self') === 'start',
   'align-self=' + prop(BASE, '.gallery', 'align-self'));
-ok('L6  the steps banner matches the card photo panels\' darker beige',
-  prop(BASE, '.auth', 'background') === '#d3c9b0',
+ok('L6  the steps banner matches the hero beige, like the card panels',
+  prop(BASE, '.auth', 'background') === '#dfdeda',
   'background=' + prop(BASE, '.auth', 'background'));
 
 const fails = results.filter((r) => !r.pass);
