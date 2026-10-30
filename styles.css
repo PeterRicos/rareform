@@ -529,19 +529,6 @@ html.announce-dismissed .announce { display: none; }
 /* When a size search is what drew this card, the size line is the answer, not the
    pair's run: ink rather than grey, so "US 11" reads as what was found. */
 .p-info .sizes-match { color: var(--ink); font-weight: 700; }
-/* Cards carry no price by design. Saying so on the card beats leaving a gap where a
-   price tag would sit, which is what read as "sold out" or "broken". */
-.p-info .price-note {
-  align-self: flex-start;
-  margin: 0 0 12px;
-  padding: 3px 7px;
-  border: 1px solid var(--line);
-  border-radius: var(--radius);
-  font: 10px/1.2 'DM Mono', monospace;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: var(--muted);
-}
 .quick {
   width: 100%;
   margin-top: auto;

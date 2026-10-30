@@ -338,7 +338,10 @@ const cardIds = (html) => {
   const cardBlock = (html, id) => {
     const i = String(html).indexOf('data-arg="' + id + '"');
     if (i < 0) return '';
-    const j = String(html).indexOf('<div class="price-note"', i);
+    // The card no longer carries a price note (owner decision, Oct 29: the
+    // "Price on request" box is gone from every card), so the slice ends at
+    // the card's quick link instead — it still sits after the sizes line.
+    const j = String(html).indexOf('<a class="quick"', i);
     return String(html).slice(i, j < 0 ? i + 1600 : j);
   };
 

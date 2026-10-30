@@ -316,7 +316,6 @@ function urlKey() {
             <a class="name" href="${href}" data-product-link data-act="openProduct" data-arg="${p.id}">${p.name}</a>
             ${colorRepeatsName(p) ? '' : `<div class="color">${p.color}</div>`}
             ${sizeText ? `<div class="sizes${sizeQuery ? ' sizes-match' : ''}">${sizeText}</div>` : ''}
-            <div class="price-note">Price on request</div>
             <a class="quick" href="${href}" data-product-link data-act="openProduct" data-arg="${p.id}" data-stop="1">
               ${buttonText}
             </a>

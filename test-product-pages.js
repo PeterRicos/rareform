@@ -635,6 +635,14 @@ function boot(pathname, hash, base) {
     /<meta name="referrer" content="strict-origin-when-cross-origin">/.test(homeHtml),
     'referrer meta missing from index.html');
 
+  // ---- B21: no card carries a "Price on request" box -------------------------
+  // The owner asked for the box to go from every card (Oct 29): the shop
+  // carries no prices by design, and the box itself was the complaint, not
+  // a missing price. Cards now run from the size line straight to View Item.
+  ok('B21  no card carries a price note',
+    card.indexOf('price-note') < 0 && card.indexOf('Price on request') < 0,
+    card.replace(/\s+/g, ' ').slice(0, 300));
+
   results.forEach((r) => console.log((r.pass ? 'PASS  ' : 'FAIL  ') + r.name +
     (r.pass ? '' : '   [' + r.extra + ']')));
   const failed = results.filter((r) => !r.pass).length;
