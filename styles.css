@@ -223,13 +223,6 @@ html.announce-dismissed .announce { display: none; }
   overflow: hidden;
   background: #cfceca;
 }
-.hero-image img {
-  height: 100%;
-  object-fit: cover;
-  object-position: center;
-  transition: transform 1.2s cubic-bezier(0.16, 1, 0.3, 1);
-}
-.hero:hover .hero-image img { transform: scale(1.03); }
 .hero-stamp {
   position: absolute;
   bottom: 28px;
@@ -1811,9 +1804,11 @@ footer .logo i { color: #b5b2ac; }
 }
 
 /* ===== Hero video slot =====
-   The still <img> is the base layer and always visible. The clip sits on top and is
-   only faded in by JS once it has decoded, so dropping video/reel.mp4 in place is the
-   whole install. Reduced-motion users keep the still. */
+   There is no still layer any more: the owner asked 2026-10-30 to remove the Jordan
+   photo because it showed while the clip was still loading. The clip sits on the
+   panel's #cfceca background and is only faded in by JS once it has decoded, so
+   dropping video/reel.mp4 in place is the whole install. Reduced-motion users get
+   the blank panel, not the clip. */
 .hero-video {
   position: absolute;
   inset: 0;

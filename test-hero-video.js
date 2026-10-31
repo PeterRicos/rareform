@@ -9,7 +9,7 @@
      1. the tag is live while the file is missing - a failed request and a 404 in the
         console on every single visit, which is why the tag is not simply left on;
      2. the file is in place while the tag is switched off - the hero silently stays a
-        still image, and nothing looks broken;
+        blank panel, and nothing looks broken;
      3. the file is present but is not really a video. An .mp4 that has been through a
         text pipeline keeps a valid-looking header while every byte the pipeline could
         not decode is replaced with U+FFFD, so the browser answers
@@ -92,7 +92,7 @@ if (tagBlock) {
   ok('V4 tag preloads metadata only', /preload="metadata"/.test(tag),
     'without preload="metadata" the browser picks its own - commonly the whole file');
   ok('V4 tag is decorative to assistive tech', /aria-hidden="true"/.test(tag) && /tabindex="-1"/.test(tag),
-    'the clip repeats what the still image and the copy already say, so it must stay out of the tab order and the a11y tree');
+    'the clip repeats what the copy already says, so it must stay out of the tab order and the a11y tree');
   ok('V4 tag is class="hero-video"', /class="hero-video"/.test(tag), 'styles.css only positions .hero-video (absolute inset 0, faded in by .is-ready)');
   ok('V4 source points at ' + CLIP, !!src && src[1].replace(/\?v=[0-9a-f]+$/, '') === CLIP,
     src ? src[1] + ' (the stamp and this harness both look for exactly ' + CLIP + ')' : 'no <source src=... type="video/mp4"> inside the tag');
@@ -104,13 +104,13 @@ if (tagBlock) {
 }
 
 // ------------------------------------------------------- CSS + JS contract
-ok('V5 styles.css still positions .hero-video', /\.hero-video\s*\{[\s\S]*?position:\s*absolute/.test(css), 'the clip is the layer above the still image');
+ok('V5 styles.css still positions .hero-video', /\.hero-video\s*\{[\s\S]*?position:\s*absolute/.test(css), 'the clip is the layer above the panel background');
 ok('V5 styles.css fades it in only when ready', /\.hero-video\.is-ready\s*\{\s*opacity:\s*1/.test(css), 'without this the clip decodes behind an opacity:0 and is never seen');
 ok('V5 styles.css hides it for reduced motion', /prefers-reduced-motion:\s*reduce\s*\)\s*\{\s*\.hero-video\s*\{\s*display:\s*none/.test(css), 'a looping clip is exactly what prefers-reduced-motion is asked to stop');
 ok('V5 app.js still wires the readiness class',
   /\$\('heroVideo'\)/.test(app) && /classList\.add\('is-ready'\)/.test(app) && /classList\.remove\('is-ready'\)/.test(app),
   "initHeroVideo() must look up $('heroVideo'), add is-ready on decode and remove it on error");
-ok('V5 app.js still falls back when the clip fails', /addEventListener\('error',\s*hide\)/.test(app), 'a clip that stops decoding must return to the still image');
+ok('V5 app.js still falls back when the clip fails', /addEventListener\('error',\s*hide\)/.test(app), 'a clip that stops decoding must fade back out to the panel');
 
 // ------------------------------------------------------- the headline is all one ink
 // "LOOKING" in the headline was an outline once: its fill was transparent and a stroke was the
@@ -150,7 +150,7 @@ if (tagBlock && installed) {
 // ------------------------------------------------------- the container itself
 if (!clipThere) {
   ['F1 is really an MP4', 'F2 has not been through a text pipeline', 'F3 duration and picture size are readable', 'F4 fits a static host']
-    .forEach((n) => skip(n, 'no clip at ' + (process.argv[2] ? clipFile : CLIP) + ' - the hero is the still image, as designed'));
+    .forEach((n) => skip(n, 'no clip at ' + (process.argv[2] ? clipFile : CLIP) + ' - the hero panel is blank until a clip is installed, as designed'));
 } else {
   const buf = fs.readFileSync(clipFile);
   const mb = buf.length / 1048576;

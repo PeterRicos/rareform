@@ -52,7 +52,7 @@
       }
     })();
   </script>
-  <link rel="stylesheet" href="styles.css?v=992db703">
+  <link rel="stylesheet" href="styles.css?v=d2a0ac4d">
   <!-- Catalog structured data (schema.org). build-jsonld.js writes the block
        between these markers from products.js, so every listing a crawler can see
        here carries the same SKU, condition, image and availability the shop page
@@ -140,25 +140,12 @@
         </div>
       </div>
       <div class="hero-image">
-        <!-- One photo, three widths, three formats. A phone now gets the 800px AVIF —
-             a fraction of the 154 KB JPEG this used to force on it — and a browser that
-             understands neither AVIF nor WebP still falls back to the JPEG <img>. The
-             width/height pair stays on the <img> so the box is reserved at the source
-             aspect ratio before any of them arrive. Rebuild the derivatives with
-             "node build-images.js" after replacing images/hero.jpg. -->
-        <picture>
-          <source type="image/avif" sizes="(max-width: 820px) 100vw, 43vw"
-                  srcset="images/hero-800.avif 800w, images/hero-1200.avif 1200w, images/hero-1600.avif 1600w">
-          <source type="image/webp" sizes="(max-width: 820px) 100vw, 43vw"
-                  srcset="images/hero-800.webp 800w, images/hero-1200.webp 1200w, images/hero-1600.webp 1600w">
-          <img src="images/hero-1200.jpg"
-               srcset="images/hero-800.jpg 800w, images/hero-1200.jpg 1200w, images/hero-1600.jpg 1600w"
-               sizes="(max-width: 820px) 100vw, 43vw"
-               alt="Air Jordan 1 Retro High OG" width="1600" height="1068" decoding="async" fetchpriority="high">
-        </picture>
         <!-- Hero video slot: drop a ~10 second clip at video/reel.mp4 and it fades in
-             over the still. Until that file exists the still image is the hero, so the
-             page never shows an empty player or a black box.
+             over the panel. There is no still image any more: the owner asked
+             2026-10-30 to remove it because the Jordan photo showed while the clip
+             was still loading, so until the clip decodes the panel is just its
+             #cfceca background. The derivatives in images/hero-* are unreferenced
+             now but left on disk so build-images.js keeps working.
              Install or swap the clip with one file and one push: overwrite
              video/reel.mp4 and commit. The block between the markers below is rewritten
              by stamp-assets.js on every push, and that is what
@@ -544,7 +531,7 @@
   <!-- jsonld.js turns a listing into schema.org data. app.js reads it immediately
        (the first view is rendered on load), so it has to come before app.js. -->
   <script src="jsonld.js?v=d5b7363e" defer></script>
-  <script src="app.js?v=e3bd96ad" defer></script>
+  <script src="app.js?v=93cb9136" defer></script>
   <script src="boot.js?v=c5fe06f4" defer></script>
   
 

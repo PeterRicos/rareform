@@ -1885,8 +1885,9 @@ function urlKey() {
     }
 
     // Initial Render — filters first: renderShop() reads their values to label the count
-    // Hero video: the still image is the hero until the clip actually decodes, so a
-    // missing video/reel.mp4 is invisible rather than a broken player.
+    // Hero video: there is no still layer any more (removed 2026-10-30 at the
+    // owner's ask, because the Jordan photo showed while the clip loaded), so a
+    // missing video/reel.mp4 leaves a blank panel rather than a broken player.
     (function initHeroVideo() {
       const video = $('heroVideo');
       if (!video) return;

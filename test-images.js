@@ -1,7 +1,9 @@
-/* Responsive photos: the hero and the two category tiles (same folder)
+/* Responsive photos: the two category tiles (same folder)
    Run: node test-images.js
 
-   index.html offers each of those three photos in three widths and three formats, so a
+   The hero photo was removed 2026-10-30 at the owner's ask (it showed while the
+   hero clip was still loading), so only the two category tiles remain here.
+   index.html offers each of those two photos in three widths and three formats, so a
    phone stops downloading the 400 KB JPEG a desktop gets. That only works while the
    files it names all exist — a srcset is a list of URLs nobody validates at runtime, and
    a missing one is not a broken layout, it is a blank panel or a silent fallback to the
@@ -48,7 +50,7 @@ ok('D1  no derivative was made from a photo that has since been replaced',
 
 // ---- A/B. every URL the page names exists, in every format -------------------
 const pictures = html.match(/<picture>[\s\S]*?<\/picture>/g) || [];
-ok('A2  the hero and both category tiles are <picture> blocks', pictures.length === 3,
+ok('A2  both category tiles are <picture> blocks (the hero still was removed 2026-10-30)', pictures.length === 2,
   'pictures=' + pictures.length);
 
 const missing = [];
