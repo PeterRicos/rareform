@@ -14,12 +14,14 @@
 # read, and the unfilled CSV those scripts produce). None of the three is read by the
 # site itself, so excluding them changes nothing a shopper sees.
 #
-# This changes only the published copy. All three files stay in the repo and stay
-# readable on GitHub, and nothing about the site itself is affected — index.html,
-# product/, sitemap.xml, styles.css and the scripts are all still served. Excluding
-# them does not scrub git history: the files are still in the commits that put them
-# there, and a copy already scraped cannot be un-scraped this way. Scrubbing history
-# is a rewrite and a force-push, a decision for the repo owner, not a config edit.
+# The three files are local-only now (untracked, gitignored), so new clones never
+# receive them, but they stay readable in git history — and nothing about the site
+# itself is affected: index.html, product/, sitemap.xml, styles.css and the scripts
+# are all still served. The exclude list below stays as a backstop: if a price file
+# is ever re-added, it still never reaches the published site. Excluding them does
+# not scrub git history: the files are still in the commits that put them there, and
+# a copy already scraped cannot be un-scraped this way. Scrubbing history is a
+# rewrite and a force-push, a decision for the repo owner, not a config edit.
 exclude:
   - README.md
   - AGENTS.md

@@ -806,13 +806,6 @@ html.announce-dismissed .announce { display: none; }
   max-width: 1600px;
   margin: auto;
 }
-.foot-grid h4 {
-  font: 11px 'DM Mono', monospace;
-  color: #aaa;
-  letter-spacing: 0.1em;
-  margin: 0 0 16px;
-  text-transform: uppercase;
-}
 .foot-grid a {
   display: block;
   margin: 9px 0;
@@ -1112,13 +1105,6 @@ html.announce-dismissed .announce { display: none; }
   color: #fff;
   border-color: var(--ink);
 }
-.detail-btns {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 10px;
-  margin-top: 8px;
-}
-.detail-btns .btn:first-child { grid-column: span 2; padding: 16px; font-size: 12px; }
 .perks {
   margin: 28px 0;
   border-top: 1px solid var(--line);

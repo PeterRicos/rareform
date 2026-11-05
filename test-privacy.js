@@ -199,10 +199,12 @@ ok('P8  the announcement bar carries a noscript fallback with the number',
 // undoes that rule through the back door — and it was fetchable, with a filled Price
 // column, until the three files below were added to _config.yml's exclude list.
 // Pages publishes every file it is not told to skip, so exclusion is the mechanism,
-// and the already-excluded README.md proves it: it 404s on the live domain while
-// the files stay in the repo for generate_products.py and make_csv.py to read.
-// Same scope limit as the number above: this says nothing about git history, where
-// the files remain in the commits that put them there.
+// and the already-excluded README.md proves it: it 404s on the live domain.
+// The three files are local-only now (untracked, gitignored) but stay on disk for
+// generate_products.py and make_csv.py to read, so the existence check below still
+// holds. Same scope limit as the number above: this says nothing about git history,
+// where the files remain in the commits that put them there — scrubbing history is
+// a rewrite and a force-push, a decision for the repo owner, not a config edit.
 const config = read('_config.yml');
 const excluded = (config.match(/exclude:([\s\S]*)$/) || [,''])[1];
 ok('P9  _config.yml excludes the price list and its source files',

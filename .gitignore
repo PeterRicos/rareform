@@ -8,6 +8,11 @@ __pycache__/
 # Exported data dump (large, regenerable)
 stockx_output.json
 
+# Price data (local-only build inputs; the shop shows no prices)
+sneaker_prices_filled.csv
+sneaker_prices.csv
+yeezys.xlsx
+
 # npm installs (only build-images.js ever needs one: `npm i sharp`)
 node_modules/
 

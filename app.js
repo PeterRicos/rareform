@@ -3,8 +3,6 @@
 // No markup lives here; index.html holds the page structure only.
 
 const products = [];
-const moreProducts = [];
-products.push(...moreProducts);
 products.push(...(window.localProducts || []));
 
 // ---- Product addresses ------------------------------------------------------
@@ -990,7 +988,10 @@ function urlKey() {
         else a.removeAttribute('aria-current');
       });
       if (page === 'product' && current) document.title = current.name + ' — Random Stock';
-      else if (page === 'shop') document.title = 'Shop All Sneakers — Random Stock';
+      else if (page === 'shop') document.title = (shopCategoryFilter === 'clothing' ? 'Shop Clothing & Accessories'
+        : shopCategoryFilter === 'random' ? 'Shop Random Shit'
+        : shopCategoryFilter === 'sneakers' ? 'Shop All Sneakers'
+        : 'The Vault') + ' — Random Stock';
       else if (page === 'about') document.title = 'Our Story — Random Stock';
       else document.title = 'Random Stock — Hand-Checked Sneakers';
     }
