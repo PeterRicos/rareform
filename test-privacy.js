@@ -42,6 +42,7 @@
 const fs = require('fs');
 const path = require('path');
 const vm = require('vm');
+const { execSync } = require('child_process');
 
 const results = [];
 const ok = (name, cond, extra) => results.push({ name, pass: !!cond, extra: cond ? '' : String(extra) });
@@ -201,16 +202,28 @@ ok('P8  the announcement bar carries a noscript fallback with the number',
 // Pages publishes every file it is not told to skip, so exclusion is the mechanism,
 // and the already-excluded README.md proves it: it 404s on the live domain.
 // The three files are local-only now (untracked, gitignored) but stay on disk for
-// generate_products.py and make_csv.py to read, so the existence check below still
-// holds. Same scope limit as the number above: this says nothing about git history,
-// where the files remain in the commits that put them there — scrubbing history is
-// a rewrite and a force-push, a decision for the repo owner, not a config edit.
+// generate_products.py and make_csv.py to read. That is why the old existence check
+// had to go: it measured disk presence, which is true on the owner's machine and
+// false in a fresh checkout for the same correct state — and that false negative
+// is what failed the Refresh run on the untracking commit. The property that
+// matters is tracked-vs-untracked, and that is a git question, so this one check
+// asks git ls-files. Same scope limit as the number above: this says nothing about
+// git history, where the files remain in the commits that put them there —
+// scrubbing history is a rewrite and a force-push, a decision for the repo owner,
+// not a config edit.
 const config = read('_config.yml');
 const excluded = (config.match(/exclude:([\s\S]*)$/) || [,''])[1];
-ok('P9  _config.yml excludes the price list and its source files',
-  ['sneaker_prices_filled.csv', 'sneaker_prices.csv', 'yeezys.xlsx'].every((f) => excluded.indexOf('- ' + f) >= 0)
-    && fs.existsSync(path.join(__dirname, 'sneaker_prices_filled.csv')),
-  excluded.trim());
+const priceFiles = ['sneaker_prices_filled.csv', 'sneaker_prices.csv', 'yeezys.xlsx'];
+let tracked = null;
+try {
+  tracked = execSync('git ls-files', { encoding: 'utf8' }).split('\n');
+} catch (e) {
+  tracked = null;
+}
+ok('P9  _config.yml excludes the price list and its source files, and none of them is tracked',
+  priceFiles.every((f) => excluded.indexOf('- ' + f) >= 0)
+    && tracked !== null && priceFiles.every((f) => tracked.indexOf(f) < 0),
+  tracked === null ? 'git ls-files failed' : excluded.trim());
 
 const fails = results.filter((r) => !r.pass);
 results.forEach((r) => console.log((r.pass ? 'PASS  ' : 'FAIL  ') + r.name + (r.pass ? '' : '   [' + r.extra + ']')));
