@@ -14,6 +14,12 @@
 // rule covers a Women's or grade-school listing held in bare numbers: without
 // a declared group its detail page would read "US Men's sizing" for a women's
 // pair, so those listings declare Women or Youth explicitly.
+//
+// `sold` is optional, and is how a listing that is gone keeps its page: add
+// `sold: true` and the pair renders a CLAIMED badge everywhere it appears and
+// drops out of both searches, but the listing stays in the catalog and its
+// page still renders — never delete the listing to mark it sold, because
+// deletion kills every shared link to it. Mark it here; Pete marks them.
 
 /* == local-products:begin == */
 const localProducts = [

@@ -266,6 +266,12 @@ function urlKey() {
     function productCategory(p) {
       return p.category || (p.brand.toLowerCase() === 'supreme' ? 'clothing' : 'sneakers');
     }
+    // A listing marked sold stays in the catalog so its page keeps working — the
+    // flag is the whole state, so one predicate answers it for the card, the
+    // detail page, both searches and the structured data.
+    function isSold(p) {
+      return !!(p && p.sold);
+    }
     // The hero's own SHOP SNEAKERS tile routes here with 'sneakers', so a shopper
     // coming back from Clothing or Random Shit lands on every pair in the catalog,
     // not on whatever category their last visit left on the shop.
@@ -304,12 +310,13 @@ function urlKey() {
       const href = productHref(p);
       const saved = isSaved(p.id);
       return `
-        <article class="product">
+        <article class="product${isSold(p) ? ' sold' : ''}">
           <a class="product-image" href="${href}" aria-label="View ${p.name}" data-product-link data-act="openProduct" data-arg="${p.id}">
             <img src="${assetURL(p.img)}" alt="${p.name}" loading="lazy" decoding="async" width="400" height="400">
           </a>
           <button type="button" class="save-btn${saved ? ' is-saved' : ''}" data-act="toggleSave" data-arg="${p.id}" aria-pressed="${saved ? 'true' : 'false'}" aria-label="${saved ? 'Remove' : 'Save'} ${esc(p.name)}">${saved ? '★' : '☆'}</button>
           <div class="p-info">
+            ${isSold(p) ? `<div class="claimed-badge">CLAIMED</div>` : ''}
             <div class="brand">${p.brand}</div>
             <a class="name" href="${href}" data-product-link data-act="openProduct" data-arg="${p.id}">${p.name}</a>
             ${colorRepeatsName(p) ? '' : `<div class="color">${p.color}</div>`}
@@ -454,13 +461,18 @@ function urlKey() {
       }));
       const sizeGroupOrder = ['Men', 'Women', 'Youth', 'Apparel', 'Headwear'];
       sizeGroupOrder.forEach(g => sizeGroups[g].sort(compareSizes));
-      // The groups were already there; what they lacked was a reason to open one.
-      // A count on each group ("Men (21)") tells a shopper at a glance which run
-      // holds anything, instead of opening five long lists to find out.
+      // The groups were already there, with a count on each one ("Men (21)") — and
+      // a shopper still could not tell the runs apart. A phone's native picker
+      // flattens the optgroups into one long list, so "US 6" under Men and "US 6"
+      // under Women read as the same choice twice, and "US 8" said nothing about
+      // whose run it was. Every option label now carries its run ("US 6 (Men)",
+      // "US 6 (Women)"), so each choice is unambiguous even when the picker
+      // shows no headers at all. The value is unchanged ("Men|6"), so the
+      // filter logic never has to learn the new label.
       $('sizeFilter').innerHTML = '<option value="">All Sizes</option>' +
         sizeGroupOrder.filter(g => sizeGroups[g].length).map(g =>
           '<optgroup label="' + g + ' (' + sizeGroups[g].length + ')">' +
-          sizeGroups[g].map(s => `<option value="${g}|${s}">${sizeDisplay(s, g)}</option>`).join('') +
+          sizeGroups[g].map(s => `<option value="${g}|${s}">${sizeDisplay(s, g)} (${g})</option>`).join('') +
           '</optgroup>').join('');
 
       // A dropdown whose only option is the filter's own default is noise, so the
@@ -732,6 +744,12 @@ function urlKey() {
       const size = $('sizeFilter')?.value;
       const condition = $('conditionFilter')?.value;
       const sizeQuery = q ? parseSizeQuery(q) : null;
+
+      // A claimed pair still browses — its card carries the badge — but a search
+      // is a shopper asking what can still be bought, so a sold listing never
+      // answers one. Only the text searches filter here and in the header modal;
+      // the unfiltered grid keeps the pair visible as claimed.
+      if (q) list = list.filter(p => !isSold(p));
 
       if (sizeQuery) {
         list = list.filter(p => matchesSize(p, sizeQuery));
@@ -1099,8 +1117,15 @@ function urlKey() {
       // visible supplies the document's single top-level heading. Demoting this to an <h2>
       // whenever the URL is "/" would instead leave the homepage's pair view with no <h1>
       // in the tree at all and an outline that starts at level 2. B14 pins the invariant.
+      // A claimed listing's page still renders — shared links to it keep working —
+      // but it must not invite an order for a pair that is gone. The badge goes
+      // where the call and text buttons would have been, and the order note
+      // becomes a pointer back to the vault instead of an invitation to ask
+      // about availability. updateOrderLinks() already guards the missing
+      // buttons, so nothing else in this function has to learn about it.
       $('details').innerHTML = `
         <span class="eyebrow">${current.brand}</span>
+        ${isSold(current) ? `<div class="claimed-badge">CLAIMED</div>` : ''}
         <h1>${current.name}</h1>
         ${colorRepeatsName(current) ? '' : `<p class="color" style="font-size:14px;color:var(--muted);margin:4px 0 16px">${current.color}</p>`}
         <div class="meta">
@@ -1127,11 +1152,11 @@ function urlKey() {
           </div>
           ${filterMatched.length ? `<p class="size-match-note">This ${itemLabel} is held in the size your filter asked for: ${filterMatched.map(s => sizeDisplay(s, current.sizeGroup)).join(' · ')}.</p>` : (sizeQuery && matchedSizes.length ? `<p class="size-match-note">This ${itemLabel} is held in the sizes your search asked for: ${matchedSizes.map(s => sizeDisplay(s, current.sizeGroup)).join(' · ')}.</p>` : '')}
         </div>` : ''}
-        <div class="order-cta">
+        ${isSold(current) ? `<p class="order-note">This ${itemLabel} has been claimed. Browse the vault for a similar ${itemLabel}.</p>` : `<div class="order-cta">
           <a class="btn" id="orderCall" href="tel:${ORDER_PHONE}">Call about this item</a>
           <a class="btn light" id="orderText" href="sms:${ORDER_PHONE}">Text to ask about this ${itemLabel}</a>
         </div>
-        <p class="order-note">${hasSizes ? `Sizes listed are what we hold right now. Call or text the ${itemLabel} and your size and we will confirm the price, availability, condition and shipping.` : `Call or text about this ${itemLabel} and we will confirm the price, availability, condition and shipping.`}</p>
+        <p class="order-note">${hasSizes ? `Sizes listed are what we hold right now. Call or text the ${itemLabel} and your size and we will confirm the price, availability, condition and shipping.` : `Call or text about this ${itemLabel} and we will confirm the price, availability, condition and shipping.`}</p>`}
         <div class="listing-qr" id="listingQr"></div>
         <div class="perks">
           <p>✓ <b>Authenticity promise:</b> Every item is inspected in hand before listing.</p>
@@ -1225,6 +1250,11 @@ function urlKey() {
       if ($('searchBtn')) $('searchBtn').setAttribute('aria-expanded', 'true');
       trapFocus($('searchModal'));
       setTimeout(() => $('globalSearch').focus(), 150);
+      // One search, two inputs: the overlay opens on whatever the shop is already
+      // asking, so the two can never disagree about the query in flight.
+      const shopQ = ($('filterSearch') && $('filterSearch').value) ||
+        ($('mobileSearch') && $('mobileSearch').value) || '';
+      if ($('globalSearch')) $('globalSearch').value = shopQ;
       globalSearch();
     }
 
@@ -1240,16 +1270,30 @@ function urlKey() {
     // every model whose name happens to contain the digits.
     function globalSearch() {
       const q = ($('globalSearch').value || '').trim().toLowerCase();
+      // The overlay and the shop grid are one search with two inputs: typing here
+      // filters the grid behind the modal live, so its count answers the same
+      // query — it used to show "SEE ALL 6 RESULTS" over a grid still reading
+      // 102 ITEMS AVAILABLE, and the grid only caught up when "see all" was
+      // clicked. The shop boxes hold the query even after the modal closes, and
+      // clearing the overlay clears the grid too. The grid only re-renders when
+      // the query actually changed, so opening the modal on an unfiltered shop
+      // costs nothing.
+      const hadQuery = (($('filterSearch') && $('filterSearch').value) ||
+        ($('mobileSearch') && $('mobileSearch').value) || '').trim() !== '';
+      if ($('filterSearch')) $('filterSearch').value = q;
+      if ($('mobileSearch')) $('mobileSearch').value = q;
+      if (q || hadQuery) renderShop();
       if (!q) {
         $('searchResults').innerHTML = '';
         return;
       }
       const sizeQuery = parseSizeQuery(q);
-      const allMatches = sizeQuery
+      // A claimed pair never answers a search, here or in the shop grid.
+      const allMatches = (sizeQuery
         ? products.filter(p => matchesSize(p, sizeQuery))
         : products.filter(p =>
             (p.brand + ' ' + p.name + ' ' + p.color + ' ' + p.sku).toLowerCase().includes(q)
-          );
+          )).filter(p => !isSold(p));
       // The modal is a shortlist, not the shop: four cards, then a way to the rest.
       // Capping it with no way out hid every match past the fourth, so a search
       // that answered twenty pairs read as if it had answered four.

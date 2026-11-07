@@ -643,6 +643,28 @@ function boot(pathname, hash, base) {
     card.indexOf('price-note') < 0 && card.indexOf('Price on request') < 0,
     card.replace(/\s+/g, ' ').slice(0, 300));
 
+  // ---- C. a claimed listing is OutOfStock in its structured data --------------
+  // A sold pair keeps its page, so a crawler reading that page must not be told
+  // it is still in stock. The builder is the one place the fact is stated, so
+  // the proof runs on it directly with a synthetic listing — no live listing
+  // is sold, and A14 above still pins InStock for every page on disk.
+  const soldNode = structuredData.product(
+    { id: 999, brand: 'Jordan', name: 'Air Jordan 4 Retro Test Claimed', color: 'Test', condition: 'New', sizes: ['11'], img: 'sneaker_images/square/test.jpg', sku: 'TEST999', sold: true },
+    { phone: false });
+  ok('C1  a sold listing reports OutOfStock, not InStock',
+    soldNode.offers && soldNode.offers.availability === 'https://schema.org/OutOfStock',
+    soldNode.offers && soldNode.offers.availability);
+  ok('C2  and its sizes are no longer "in stock"',
+    (soldNode.additionalProperty || []).some((p) => p.name === 'Sizes' && p.value === '11'),
+    JSON.stringify(soldNode.additionalProperty));
+  const liveNode = structuredData.product(
+    { id: 998, brand: 'Jordan', name: 'Air Jordan 4 Retro Test Live', color: 'Test', condition: 'New', sizes: ['11'], img: 'sneaker_images/square/test.jpg', sku: 'TEST998' },
+    { phone: false });
+  ok('C3  an unsold listing still reports InStock with its sizes in stock',
+    liveNode.offers && liveNode.offers.availability === 'https://schema.org/InStock' &&
+      (liveNode.additionalProperty || []).some((p) => p.name === 'Sizes in stock'),
+    liveNode.offers && liveNode.offers.availability);
+
   results.forEach((r) => console.log((r.pass ? 'PASS  ' : 'FAIL  ') + r.name +
     (r.pass ? '' : '   [' + r.extra + ']')));
   const failed = results.filter((r) => !r.pass).length;

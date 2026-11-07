@@ -96,7 +96,8 @@ function descriptionFor(p) {
     'Checked in hand.'
   ];
   const base = parts.filter(Boolean).join(' ').replace(/\s+/g, ' ').trim();
-  const suffix = ' Ask us about availability and price.';
+  // A claimed listing's snippet must not invite an inquiry about availability.
+  const suffix = p.sold ? ' This item has been claimed.' : ' Ask us about availability and price.';
   if (base.length + suffix.length <= 160) return base + suffix;
 
   const budget = 160 - suffix.length - 1; // reserve room for the ellipsis and inquiry cue
@@ -142,8 +143,13 @@ function staticGallery(p) {
 
 function staticDetails(p) {
   const sizes = (p.sizes || []).join(', ');
+  // Twin of the live detail page's claimed state: the static page is what a
+  // shared link lands on with no JavaScript, so it carries the same badge and
+  // the same no-order note — and no noscript line inviting a call that the
+  // live page would not offer for a claimed pair either.
   return `
         <span class="eyebrow">${esc(p.brand)}</span>
+        ${p.sold ? `<div class="claimed-badge">CLAIMED</div>` : ''}
         <h1>${esc(p.name)}</h1>
         ${colorRepeatsName(p) ? '' : `<p class="color" style="font-size:14px;color:var(--muted);margin:4px 0 16px">${esc(p.color)}</p>`}
         <div class="meta">
@@ -153,8 +159,10 @@ function staticDetails(p) {
           ${sizes ? 'SIZES HELD: ' + esc(sizes) + '<br>' : ''}
           PRICE: ON REQUEST — ASK US
         </div>
-        <p class="order-note">Call or text about this item and we will confirm the price, availability, condition and shipping.</p>
-        <noscript><p class="order-note">The call and text buttons on this page need JavaScript. Turn it on and reload to ask about this item.</p></noscript>
+        ${p.sold
+          ? `<p class="order-note">This item has been claimed. Browse the vault for a similar item.</p>`
+          : `<p class="order-note">Call or text about this item and we will confirm the price, availability, condition and shipping.</p>
+        <noscript><p class="order-note">The call and text buttons on this page need JavaScript. Turn it on and reload to ask about this item.</p></noscript>`}
         <div class="perks">
           <p>✓ <b>Authenticity promise:</b> Every item is inspected in hand before listing.</p>
           <p>✓ <b>Insured Express Shipping:</b> Ships double-boxed with tracking in 1-2 business days.</p>

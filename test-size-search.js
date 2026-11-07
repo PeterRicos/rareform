@@ -38,6 +38,7 @@ function makeEl(id) {
     setAttribute: () => {},
     removeAttribute: () => {},
     addEventListener: () => {},
+    removeEventListener: () => {},
     focus: () => {},
     reset: () => {},
     appendChild: () => {},
@@ -258,6 +259,13 @@ const cardIds = (html) => {
     return p && (p.brand + ' ' + p.name).toLowerCase().includes('yeezy');
   }), JSON.stringify(yeezyIds));
 
+  // The header modal mirrors its query into both shop search boxes — one
+  // search, two inputs — so the mobile box still holds "yeezy" here. A test
+  // that clears the desktop box has to clear the mobile one too: the browser
+  // does it through handleSearchSync, which a direct assignment bypasses, and
+  // renderShop reads the desktop box falling back to the mobile one.
+  ev(H, "document.getElementById('mobileSearch').value = '';");
+
   // ---- F. a listing declares the run its size strings can't say ---------------
   // The fitted cap holds 7, 7 1/8 and 7 1/2. The two fractions read as hat sizes on
   // their own, but a bare "7" is a men's shoe size in this catalog, so the listing
@@ -290,6 +298,13 @@ const cardIds = (html) => {
   // built from deduped size strings, so the listing's declared run never reached
   // it. Grouping by the listing instead puts the cap's 7 under Headwear as "7"
   // while the shoe held in 7 stays under Men as "US 7".
+  //
+  // Grouping alone did not finish it: a phone's native picker flattens the
+  // optgroups into one long list, so "US 6" under Men and "US 6" under Women
+  // still read as the same choice twice. Every option label now carries its
+  // run ("US 7 (Men)", "7 (Headwear)"), so a choice is unambiguous even with
+  // no headers on screen. H1/H2 changed with the labels; the grouping they
+  // pin is the same.
   ev(H, 'renderFilterUI();');
   const sizeHtml = String(ev(H, "document.getElementById('sizeFilter').innerHTML"));
   const groupOf = (html, label) => {
@@ -297,15 +312,23 @@ const cardIds = (html) => {
     return m ? m[1] : '';
   };
   ok('H1  the cap\'s bare 7 is a Headwear option, not a men\'s shoe size',
-    /<option value="Headwear\|7">7<\/option>/.test(groupOf(sizeHtml, 'Headwear')), groupOf(sizeHtml, 'Headwear'));
+    /<option value="Headwear\|7">7 \(Headwear\)<\/option>/.test(groupOf(sizeHtml, 'Headwear')), groupOf(sizeHtml, 'Headwear'));
   ok('H2  the shoe held in 7 still reads as a men\'s size',
-    /<option value="Men\|7">US 7<\/option>/.test(groupOf(sizeHtml, 'Men')), groupOf(sizeHtml, 'Men'));
+    /<option value="Men\|7">US 7 \(Men\)<\/option>/.test(groupOf(sizeHtml, 'Men')), groupOf(sizeHtml, 'Men'));
   // The groups were already there; a count on each one is what makes them
   // scannable — a shopper can see which run holds anything without opening
   // five long lists.
   ok('H3  each size group carries its count',
     /<optgroup label="Men \(\d+\)">/.test(sizeHtml) && /<optgroup label="Women \(\d+\)">/.test(sizeHtml)
       && /<optgroup label="Youth \(\d+\)">/.test(sizeHtml), sizeHtml.match(/<optgroup label="[^"]*">/g));
+  // ...and the label is what has to disambiguate, not the header above it: no
+  // two options in the whole dropdown may read the same, so "US 6 (Men)" and
+  // "US 6 (Women)" are different choices even in a flattened picker.
+  const sizeLabels = (sizeHtml.match(/<option value="[^"]*">([^<]*)<\/option>/g) || [])
+    .map((o) => o.replace(/<[^>]+>/g, ''));
+  ok('H4  no two size options read the same — every label names its run',
+    sizeLabels.length > 0 && new Set(sizeLabels).size === sizeLabels.length,
+    JSON.stringify(sizeLabels.filter((l, i) => sizeLabels.indexOf(l) !== i)));
 
   // ---- I. picking a dropdown size filters by run as well as size --------------
   // Grouping the dropdown was only half of it: the option value was still the
@@ -492,6 +515,78 @@ const cardIds = (html) => {
   ok('M2  and the see-all button hands the query to the shop search',
     (() => { ev(H, 'seeAllSearch();'); return String(ev(H, "document.getElementById('filterSearch').value")) === 'yeezy'; })(),
     String(ev(H, "document.getElementById('filterSearch').value")));
+
+  // ---- N. a sold listing keeps its page, wears a badge, leaves search -------
+  // Sold pairs used to be removed from products.js by hand. That killed every
+  // shared link to the pair and left a friend texting about a pair that was
+  // gone. A listing now declares `sold: true` instead: the pair keeps its page
+  // and its card, both wearing CLAIMED, and drops out of both searches.
+  // No live listing is sold, so the proof runs on a synthetic pair pushed into
+  // the shop's own array — the catalog file is never touched — and popped
+  // again at the end of the section.
+  const soldPair = { id: 999, brand: 'Jordan', name: 'Air Jordan 4 Retro Test Claimed', color: 'Test', condition: 'New', box: 'Original Box', sizes: ['11'], img: 'sneaker_images/square/test.jpg', gallery: ['sneaker_images/square/test.jpg'], sku: 'TEST999', sold: true };
+  ev(H, 'products.push(' + JSON.stringify(soldPair) + ');');
+  const jordan4Ids = catalog.filter((p) =>
+    (p.brand + ' ' + p.name + ' ' + p.color + ' ' + p.sku).toLowerCase().includes('jordan 4')).map((p) => p.id);
+  ev(H, "document.getElementById('filterSearch').value = ''; document.getElementById('mobileSearch').value = ''; document.getElementById('sizeFilter').value = ''; renderShop();");
+  const gridUnfiltered = String(ev(H, "document.getElementById('shopProducts').innerHTML"));
+  ok('N1  the unfiltered grid still shows the sold pair — the listing is not deleted',
+    cardIds(gridUnfiltered).indexOf(999) >= 0 && /103 ITEMS AVAILABLE/.test(String(ev(H, "document.getElementById('productTotal').textContent"))),
+    String(ev(H, "document.getElementById('productTotal').textContent")));
+  ok('N2  and its card wears the CLAIMED badge',
+    /claimed-badge">CLAIMED<\//.test(cardBlock(gridUnfiltered, 999)),
+    cardBlock(gridUnfiltered, 999).slice(0, 400));
+  ev(H, "document.getElementById('filterSearch').value = 'jordan 4'; renderShop();");
+  const gridJordan4 = cardIds(ev(H, "document.getElementById('shopProducts').innerHTML"));
+  ok('N3  the shop keyword search drops the sold pair but keeps the rest',
+    gridJordan4.indexOf(999) < 0 && JSON.stringify(gridJordan4) === JSON.stringify(jordan4Ids),
+    JSON.stringify(gridJordan4) + ' want ' + JSON.stringify(jordan4Ids));
+  ev(H, "document.getElementById('filterSearch').value = '11'; renderShop();");
+  const grid11Sold = cardIds(ev(H, "document.getElementById('shopProducts').innerHTML"));
+  ok('N4  the shop size search drops it too, though it is held in 11',
+    grid11Sold.indexOf(999) < 0 && grid11Sold.length > 0, JSON.stringify(grid11Sold));
+  ev(H, "document.getElementById('globalSearch').value = 'jordan 4'; globalSearch();");
+  const modalJordan4 = String(ev(H, "document.getElementById('searchResults').innerHTML"));
+  ok('N5  the header modal drops it as well, and its see-all count excludes it',
+    modalJordan4.indexOf('data-arg="999"') < 0 &&
+      (jordan4Ids.length <= 4 || new RegExp('See all ' + jordan4Ids.length + ' results').test(modalJordan4)),
+    modalJordan4.slice(0, 300));
+  ev(H, "document.getElementById('filterSearch').value = ''; renderShop();");
+  ev(H, 'renderProduct(999)');
+  const soldDetails = String(ev(H, "document.getElementById('details').innerHTML"));
+  ok('N6  its page still renders, with the CLAIMED badge on it',
+    /claimed-badge">CLAIMED<\//.test(soldDetails) && soldDetails.indexOf('Air Jordan 4 Retro Test Claimed') >= 0,
+    soldDetails.slice(0, 300));
+  ok('N7  and the page offers no call or text button for it',
+    soldDetails.indexOf('orderCall') < 0 && soldDetails.indexOf('orderText') < 0 &&
+      /has been claimed/.test(soldDetails),
+    soldDetails.slice(0, 300));
+  ev(H, 'products.pop();');
+  ev(H, "document.getElementById('filterSearch').value = ''; document.getElementById('mobileSearch').value = ''; document.getElementById('globalSearch').value = ''; renderShop();");
+
+  // ---- O. the header search and the shop grid are one search -----------------
+  // Typing in the header modal used to leave the grid behind it untouched: the
+  // modal read "SEE ALL 6 RESULTS" for "Jordan 4" while the grid behind it
+  // still read 102 ITEMS AVAILABLE, and the grid only caught up when "see all"
+  // was clicked. Typing in the modal now filters the grid live, and "see all"
+  // only closes the modal over a grid that already answers the query.
+  ev(H, "document.getElementById('globalSearch').value = 'jordan 4'; globalSearch();");
+  const gridLive = cardIds(ev(H, "document.getElementById('shopProducts').innerHTML"));
+  ok('O1  typing in the modal filters the grid behind it, live and uncapped',
+    JSON.stringify(gridLive) === JSON.stringify(jordan4Ids),
+    JSON.stringify(gridLive) + ' want ' + JSON.stringify(jordan4Ids));
+  ok('O2  and the grid count behind the modal answers the same query',
+    String(ev(H, "document.getElementById('productTotal').textContent")) === jordan4Ids.length + ' ITEMS AVAILABLE',
+    String(ev(H, "document.getElementById('productTotal').textContent")));
+  ok('O3  see-all closes the modal over that same grid',
+    (() => { ev(H, 'searchOpen();'); const wasOpen = ev(H, "document.getElementById('searchModal').classList.contains('open')"); ev(H, 'seeAllSearch();'); return wasOpen && !ev(H, "document.getElementById('searchModal').classList.contains('open')"); })() &&
+      JSON.stringify(cardIds(ev(H, "document.getElementById('shopProducts').innerHTML"))) === JSON.stringify(jordan4Ids),
+    String(ev(H, "document.getElementById('filterSearch').value")));
+  ev(H, "document.getElementById('globalSearch').value = ''; globalSearch();");
+  const gridCleared = cardIds(ev(H, "document.getElementById('shopProducts').innerHTML"));
+  ok('O4  clearing the modal clears the grid too',
+    gridCleared.length === catalog.length && String(ev(H, "document.getElementById('productTotal').textContent")) === catalog.length + ' ITEMS AVAILABLE',
+    String(ev(H, "document.getElementById('productTotal').textContent")));
 
   const fails = results.filter((r) => !r.pass);
   results.forEach((r) => console.log((r.pass ? 'PASS  ' : 'FAIL  ') + r.name + (r.pass ? '' : '   [' + r.extra + ']')));

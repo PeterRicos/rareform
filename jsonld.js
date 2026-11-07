@@ -85,14 +85,17 @@
     return urls;
   }
 
-  // A listing is stock we hold — the shop page removes what is gone rather than
-  // marking it sold — so availability is a fact of being listed, not a guess.
+  // A listing is stock we hold until it is marked sold. The page keeps a
+  // claimed listing so shared links still work, so availability now follows
+  // the sold flag instead of reading InStock for everything on the site.
   function offer(listing, options) {
     const brief = !!(options && options.brief);
     const node = {
       '@type': 'Offer',
       url: productUrl(listing),
-      availability: 'https://schema.org/InStock',
+      availability: (listing && listing.sold)
+        ? 'https://schema.org/OutOfStock'
+        : 'https://schema.org/InStock',
       itemCondition: conditionUrl(listing.condition),
       // A reference, not a repeat of the store details on every one of 83 items.
       // `brief` and `phone: false` both reach the same reference: the first because the
@@ -114,7 +117,8 @@
     const props = [];
     if (listing.box) props.push({ '@type': 'PropertyValue', name: 'Packaging', value: listing.box });
     if ((listing.sizes || []).length) {
-      props.push({ '@type': 'PropertyValue', name: 'Sizes in stock', value: listing.sizes.join(', ') });
+      // A claimed pair was held in these sizes; they are no longer in stock.
+      props.push({ '@type': 'PropertyValue', name: listing.sold ? 'Sizes' : 'Sizes in stock', value: listing.sizes.join(', ') });
     }
     return props;
   }
