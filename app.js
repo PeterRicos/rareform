@@ -691,19 +691,34 @@ function urlKey() {
     // come in half steps, and a shopper typing "11" wants both. A query that already
     // names the half ("11.5") or a specific run ("5.5w", "13k") matches only that
     // exact size, and letter queries ("m", "xl") match the exact apparel size.
-    // A suffixed run never bleeds into a bare number: "11" stays clear of 11W/11K.
+    // A suffixed run never bleeds into a bare number: "11" stays clear of 11W/11K,
+    // and listings whose run is declared on `sizeGroup` ("Women", "Youth",
+    // "Headwear") rather than written onto each size string follow the same rule —
+    // "6" and "7" stay Men's searches (never pulling in Women's 6/7, GS 6.5, or the
+    // size-7 fitted cap), while "6w", "7w", "4.5y" and "6.5y" reach those listings.
+    function effectiveSizeSuffix(rawSuffix, category, queryGroup) {
+      if (rawSuffix) return rawSuffix;
+      if (queryGroup && category === queryGroup) return '';
+      if (category === 'Women') return 'w';
+      if (category === 'Youth') return 'y';
+      if (category === 'Men') return '';
+      return null;
+    }
+
     function matchesSize(product, sizeQuery) {
       return (product.sizes || []).some(s => {
         const st = String(s).trim();
+        const cat = sizeCategory(st, product && product.sizeGroup);
+        if (sizeQuery.group && cat !== sizeQuery.group) return false;
         if (sizeQuery.letters) return st.toLowerCase() === sizeQuery.value;
         const parsed = /^(\d+(?:\.\d+)?)(.*)$/.exec(st);
         if (!parsed) return false;
         const value = parseFloat(parsed[1]);
         if (!Number.isFinite(value)) return false;
-        const suffix = parsed[2].toLowerCase();
-        if (suffix !== sizeQuery.suffix) return false;
+        const suffix = effectiveSizeSuffix(parsed[2].toLowerCase(), cat, sizeQuery.group);
+        if (suffix === null || suffix !== sizeQuery.suffix) return false;
         if (value === sizeQuery.value) return true;
-        return sizeQuery.suffix === '' && sizeQuery.value % 1 === 0 && value === sizeQuery.value + 0.5;
+        return sizeQuery.suffix === '' && !sizeQuery.group && sizeQuery.value % 1 === 0 && value === sizeQuery.value + 0.5;
       });
     }
 
@@ -712,7 +727,8 @@ function urlKey() {
     function matchingSizes(product, sizeQuery) {
       const all = (product && product.sizes) ? product.sizes.slice() : [];
       if (!sizeQuery) return all;
-      return all.filter(s => matchesSize({ sizes: [s] }, sizeQuery));
+      const group = product && product.sizeGroup;
+      return all.filter(s => matchesSize({ sizes: [s], sizeGroup: group }, sizeQuery));
     }
 
     // The size search the shop is running right now, read off the shop's own boxes. The
@@ -807,8 +823,11 @@ function urlKey() {
       // the size — and a hat pick counts in hat language ("7", not "US 7 / 7.5").
       const pickedSize = size ? parseSizeFilter(size) : null;
       const filterSizeQuery = pickedSize ? parseSizeQuery(pickedSize.size.trim().toLowerCase()) : null;
-      if (filterSizeQuery && pickedSize.group === 'Headwear') {
-        filterSizeQuery.display = pickedSize.size;
+      if (filterSizeQuery && pickedSize.group) {
+        filterSizeQuery.group = pickedSize.group;
+        if (pickedSize.group === 'Headwear') {
+          filterSizeQuery.display = pickedSize.size;
+        }
       }
       const shownQuery = sizeQuery || filterSizeQuery;
 

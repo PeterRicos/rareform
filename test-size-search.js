@@ -501,6 +501,35 @@ const cardIds = (html) => {
     (() => { ev(H, "document.getElementById('sizeFilter').value = 'Women|6'; renderShop();"); return cardIds(ev(H, "document.getElementById('shopProducts').innerHTML")).indexOf(32) >= 0; })(),
     'Women 6 grid');
   ev(H, "document.getElementById('sizeFilter').value = '';");
+  // A bare-number search is a men's search, so listings whose bare numbers belong
+  // to Women, Youth or Headwear via `sizeGroup` must not leak into "6" or "7",
+  // and must instead answer "6w", "7w", "12w", "4.5y" and "6.5y".
+  const idsForQuery = (q) => ev(H, 'products.filter(p => matchesSize(p, parseSizeQuery(' + JSON.stringify(q) + '))).map(p => p.id)');
+  const men6 = idsForQuery('6');
+  const men7 = idsForQuery('7');
+  ok('L5  bare-number searches exclude Women, Youth and Headwear sizeGroup listings',
+    men6.indexOf(32) < 0 && men6.indexOf(33) < 0 && men6.indexOf(55) < 0
+      && men7.indexOf(37) < 0 && men7.indexOf(85) < 0,
+    '6=' + JSON.stringify(men6) + ' 7=' + JSON.stringify(men7));
+  const w6 = idsForQuery('6w');
+  const w7 = idsForQuery('7w');
+  const w12 = idsForQuery('12w');
+  ok('L6  "6w", "7w" and "12w" reach the Women sizeGroup listings',
+    w6.indexOf(32) >= 0 && w7.indexOf(37) >= 0 && w12.indexOf(37) >= 0,
+    '6w=' + JSON.stringify(w6) + ' 7w=' + JSON.stringify(w7) + ' 12w=' + JSON.stringify(w12));
+  const y45 = idsForQuery('4.5y');
+  const y65 = idsForQuery('6.5y');
+  ok('L7  "4.5y" and "6.5y" reach the Youth sizeGroup listings',
+    y45.indexOf(33) >= 0 && y45.indexOf(35) >= 0 && y65.indexOf(33) >= 0 && y65.indexOf(55) >= 0,
+    '4.5y=' + JSON.stringify(y45) + ' 6.5y=' + JSON.stringify(y65));
+  ev(H, "document.getElementById('filterSearch').value = '12w'; renderShop();");
+  ev(H, 'renderProduct(37)');
+  const luckyDetail = String(ev(H, "document.getElementById('details').innerHTML"));
+  ok('L8  matchingSizes preserves sizeGroup so a "12w" search selects 12 on listing 37',
+    JSON.stringify(ev(H, 'matchingSizes(window.localProducts.find(p => p.id === 37), parseSizeQuery("12w"))')) === JSON.stringify(['12'])
+      && /<button class="size-btn selected is-match"[^>]*data-arg="12"/.test(luckyDetail),
+    luckyDetail.slice(0, 400));
+  ev(H, "document.getElementById('filterSearch').value = ''; renderShop();");
 
   // ---- M. the site-wide search shows a way to the rest -----------------------
   // The modal caps at four cards. Without a way out, a search answering twenty
