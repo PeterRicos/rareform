@@ -52,7 +52,7 @@
       }
     })();
   </script>
-  <link rel="stylesheet" href="/styles.css?v=c1f634fc">
+  <link rel="stylesheet" href="/styles.css?v=fd2418ee">
   <!-- Catalog structured data (schema.org). build-jsonld.js writes the block
        between these markers from products.js, so every listing a crawler can see
        here carries the same SKU, condition, image and availability the shop page
@@ -179,7 +179,7 @@
         <div>
           <span class="eyebrow">How it works</span>
           <h2>NO CART. NO CHECKOUT. JUST MESSAGE US.</h2>
-          <p>Every pair here is checked before listing. Tell us which one you’re interested in and your size; we’ll confirm availability, price, condition and shipping before you decide.</p>
+          <p>Every pair here is checked before listing. Tell us which one you’re interested in and your size; we’ll confirm availability, F&amp;F pricing, condition and shipping with zero pressure before you decide.</p>
         </div>
         <div class="steps">
           <div class="step"><b>01</b><span>Browse the vault</span></div>
@@ -488,7 +488,9 @@
       <div id="savedItems" class="products saved-list"></div>
       <div class="order-actions saved-actions">
         <a class="btn" id="savedTextBtn" href="#">Text us about these items</a>
+        <button class="btn light" id="savedClearBtn" type="button" data-act="clearSaved">Clear saved</button>
       </div>
+      <p class="order-hint" id="savedHint">Friends &amp; family pricing — text your shortlist with zero pressure.</p>
     </div>
   </section>
 
@@ -563,7 +565,7 @@
   <!-- jsonld.js turns a listing into schema.org data. app.js reads it immediately
        (the first view is rendered on load), so it has to come before app.js. -->
   <script src="/jsonld.js?v=e1b09023" defer></script>
-  <script src="/app.js?v=33492f57" defer></script>
+  <script src="/app.js?v=ce2f0ab1" defer></script>
   <script src="/boot.js?v=c5fe06f4" defer></script>
   
 
