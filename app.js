@@ -2000,6 +2000,14 @@ function urlKey() {
       }
       syncSavedUI();
     }
+    function clearSaved() {
+      try {
+        localStorage.removeItem(SAVED_KEY);
+      } catch (err) {
+        // localStorage blocked
+      }
+      syncSavedUI();
+    }
     function renderSaved() {
       const items = savedProducts();
       const box = $('savedItems');
@@ -2011,6 +2019,10 @@ function urlKey() {
         textBtn.href = smsHref(savedMessage());
         textBtn.style.display = items.length ? '' : 'none';
       }
+      const clearBtn = $('savedClearBtn');
+      if (clearBtn) clearBtn.style.display = items.length ? '' : 'none';
+      const hint = $('savedHint');
+      if (hint) hint.style.display = items.length ? '' : 'none';
       if (box) observeProducts();
     }
     function savedOpen() {
@@ -2124,6 +2136,7 @@ function urlKey() {
       zoomStep: (el, arg) => zoomStep(parseInt(arg, 10)),
       openProduct: (el, arg) => openProduct(parseInt(arg, 10)),
       toggleSave: (el, arg) => toggleSave(parseInt(arg, 10)),
+      clearSaved: () => clearSaved(),
       savedOpen: () => savedOpen(),
       savedClose: () => savedClose(),
       zoomOpen: (el, arg) => zoomOpen(parseInt(arg, 10)),
@@ -2139,6 +2152,10 @@ function urlKey() {
     document.addEventListener('click', e => {
       const el = e.target && e.target.closest ? e.target.closest('[data-act]') : null;
       if (!el) return;
+      if (el.tagName === 'A' && el.hasAttribute('href') &&
+          (e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey)) {
+        return;
+      }
       if (el.hasAttribute('data-pd')) e.preventDefault();
       if (el.hasAttribute('data-stop')) e.stopPropagation();
       runAction(el.getAttribute('data-act'), el);

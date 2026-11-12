@@ -50,7 +50,7 @@ const PAGE = 'index.html';
 // install; this is what turns it on. Hand-editing between the markers is pointless,
 // exactly as it is for the catalog JSON-LD block.
 const HERO_TAG = [
-  '        <video class="hero-video" id="heroVideo" autoplay muted loop playsinline preload="metadata" aria-hidden="true" tabindex="-1">',
+  '        <video class="hero-video" id="heroVideo" autoplay muted loop playsinline preload="metadata" poster="images/hero-poster.jpg" aria-hidden="true" tabindex="-1">',
   '          <source src="' + HERO_CLIP + '" type="video/mp4">',
   '        </video>'
 ].join('\n');
