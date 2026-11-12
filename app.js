@@ -1193,8 +1193,12 @@ function urlKey() {
       // becomes a pointer back to the vault instead of an invitation to ask
       // about availability. updateOrderLinks() already guards the missing
       // buttons, so nothing else in this function has to learn about it.
+      const saved = isSaved(current.id);
       $('details').innerHTML = `
-        <span class="eyebrow">${current.brand}</span>
+        <div class="detail-head">
+          <span class="eyebrow">${current.brand}</span>
+          <button type="button" class="save-btn detail-save-btn${saved ? ' is-saved' : ''}" id="detailSaveBtn" data-act="toggleSave" data-arg="${current.id}" aria-pressed="${saved ? 'true' : 'false'}" aria-label="${saved ? 'Remove' : 'Save'} ${esc(current.name)}">${saved ? '★' : '☆'}</button>
+        </div>
         ${isSold(current) ? `<div class="claimed-badge">CLAIMED</div>` : ''}
         <h1>${current.name}</h1>
         ${colorRepeatsName(current) ? '' : `<p class="color" style="font-size:14px;color:var(--muted);margin:4px 0 16px">${current.color}</p>`}
@@ -1966,13 +1970,19 @@ function urlKey() {
       // a shopper was in the middle of). The header count and the open list
       // follow from the same read.
       const ids = getSavedIds();
-      document.querySelectorAll('.save-btn').forEach((btn) => {
+      const syncBtn = (btn) => {
+        if (!btn || !btn.getAttribute) return;
         const id = parseInt(btn.getAttribute('data-arg'), 10);
+        if (!Number.isFinite(id)) return;
         const on = ids.indexOf(id) >= 0;
+        const item = products.find((p) => p.id === id);
         btn.classList.toggle('is-saved', on);
         btn.setAttribute('aria-pressed', on ? 'true' : 'false');
+        if (item) btn.setAttribute('aria-label', (on ? 'Remove ' : 'Save ') + esc(item.name));
         btn.textContent = on ? '★' : '☆';
-      });
+      };
+      document.querySelectorAll('.save-btn').forEach(syncBtn);
+      if ($('detailSaveBtn')) syncBtn($('detailSaveBtn'));
       const count = $('savedCount');
       if (count) count.textContent = String(ids.length);
       const btn = $('savedBtn');

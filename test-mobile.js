@@ -223,6 +223,9 @@ ok('G3  footer links clear the 24px floor (WCAG 2.5.8)', /\.foot-grid a\s*\{\s*l
 ok('G4  the announcement dismiss button keeps its 40px hit area',
   PX(prop(BASE, '.announce button', 'min-width')) >= 40 && PX(prop(BASE, '.announce button', 'min-height')) >= 40,
   prop(BASE, '.announce button', 'min-width') + ' x ' + prop(BASE, '.announce button', 'min-height'));
+ok('G5  the shortlist star button is 44px in both directions',
+  PX(prop(BASE, '.save-btn', 'width')) >= 44 && PX(prop(BASE, '.save-btn', 'height')) >= 44,
+  prop(BASE, '.save-btn', 'width') + ' x ' + prop(BASE, '.save-btn', 'height'));
 
 // ---- H. the grids ---------------------------------------------------------------
 ok('H1  product grids are 2-up on a phone', prop(M820, '.products', 'grid-template-columns') === 'repeat(2, 1fr)');

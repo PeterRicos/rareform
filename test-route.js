@@ -436,6 +436,22 @@ function boot(initialHash, cfg) {
     ev(O, 'savedMessage()').indexOf('Wave Runner') >= 0
       && ev(O, 'savedMessage()').indexOf('undefined') < 0,
     ev(O, 'savedMessage()'));
+  ev(O, 'renderProduct(17);');
+  const detail17Saved = String(O.getEl('details').innerHTML);
+  ev(O, 'renderProduct(50);');
+  const detail50Unsaved = String(O.getEl('details').innerHTML);
+  ok('O6  the product detail page renders a shortlist save button reflecting saved state',
+    /id="detailSaveBtn"[^>]*data-act="toggleSave" data-arg="17"[^>]*aria-pressed="true"/.test(detail17Saved)
+      && /class="save-btn detail-save-btn is-saved"/.test(detail17Saved)
+      && /id="detailSaveBtn"[^>]*data-act="toggleSave" data-arg="50"[^>]*aria-pressed="false"/.test(detail50Unsaved),
+    detail17Saved.slice(0, 220));
+  const indexHtml = fs.readFileSync(path.join(__dirname, 'index.html'), 'utf8');
+  const maxLenMatch = /<textarea[^>]*id="orderMessage"[^>]*maxlength="(\d+)"/.exec(indexHtml);
+  ev(O, 'localStorage.setItem("randomstock.saved", JSON.stringify([50, 52, 59, 56, 17, 69]));');
+  const sixPairMsg = ev(O, 'savedMessage()');
+  ok('O7  #orderMessage maxlength fits a multi-pair shortlist with room for the shopper to edit',
+    !!maxLenMatch && Number(maxLenMatch[1]) >= 1000 && sixPairMsg.length > 300 && Number(maxLenMatch[1]) > sixPairMsg.length + 200,
+    'maxlength=' + (maxLenMatch && maxLenMatch[1]) + ' sixPairMsg=' + sixPairMsg.length);
 
   // ---- R. category URLs (#shop/<category>), filter reconciliation & search ---
   const R = boot('#shop/clothing');
