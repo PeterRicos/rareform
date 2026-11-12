@@ -437,6 +437,34 @@ function boot(initialHash, cfg) {
       && ev(O, 'savedMessage()').indexOf('undefined') < 0,
     ev(O, 'savedMessage()'));
 
+  // ---- R. category URLs (#shop/<category>), filter reconciliation & search ---
+  const R = boot('#shop/clothing');
+  await sleep(320);
+  ok('R1  deep link to #shop/clothing hydrates the category, title and filter select',
+    R.active() === 'shop' && R.location.hash === '#shop/clothing'
+      && ev(R, 'shopCategoryFilter') === 'clothing'
+      && R.getEl('shopTitle').textContent === 'CLOTHING & ACCESSORIES'
+      && R.getEl('categoryFilter').value === 'clothing',
+    R.location.hash + ' cat=' + ev(R, 'shopCategoryFilter') + ' title=' + R.getEl('shopTitle').textContent);
+  ev(R, 'shopCategory("sneakers")');
+  await sleep(80);
+  R.history.back();
+  await sleep(320);
+  ok('R2  browser back from #shop/sneakers to #shop/clothing restores the clothing view',
+    R.location.hash === '#shop/clothing' && ev(R, 'shopCategoryFilter') === 'clothing'
+      && R.getEl('shopTitle').textContent === 'CLOTHING & ACCESSORIES',
+    R.location.hash + ' cat=' + ev(R, 'shopCategoryFilter') + ' title=' + R.getEl('shopTitle').textContent);
+  ev(R, 'shopCategory("sneakers"); document.getElementById("brandFilter").value = "Supreme"; handleBrandChange();');
+  await sleep(80);
+  ok('R3  picking Supreme in brandFilter on Shop Sneakers drops the sneaker category and shows stock',
+    ev(R, 'shopCategoryFilter') === '' && R.location.hash === '#shop'
+      && R.getEl('productTotal').textContent !== '0 ITEMS AVAILABLE',
+    'cat=' + ev(R, 'shopCategoryFilter') + ' hash=' + R.location.hash + ' total=' + R.getEl('productTotal').textContent);
+  ev(R, 'shopCategory("clothing"); document.getElementById("globalSearch").value = "dunk"; globalSearch();');
+  ok('R4  typing in globalSearch while a category is active clears the category so shop and modal counts agree',
+    ev(R, 'shopCategoryFilter') === '' && R.getEl('productTotal').textContent !== '0 ITEMS AVAILABLE',
+    'cat=' + ev(R, 'shopCategoryFilter') + ' total=' + R.getEl('productTotal').textContent);
+
   const fails = results.filter((r) => !r.pass);
   results.forEach((r) => console.log((r.pass ? 'PASS  ' : 'FAIL  ') + r.name + (r.pass ? '' : '   [' + r.extra + ']')));
   console.log('\nTOTAL=' + results.length + ' FAIL=' + fails.length);

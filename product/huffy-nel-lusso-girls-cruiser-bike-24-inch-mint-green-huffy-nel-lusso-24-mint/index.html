@@ -94,9 +94,9 @@
       </div>
 
       <div class="nav-links">
-        <a data-act="shopCategory" data-arg="sneakers" href="#shop">Shop Sneakers</a>
-        <a data-act="shopCategory" data-arg="clothing" href="#shop">Shop Clothing &amp; Accessories</a>
-        <a data-act="shopCategory" data-arg="random" href="#shop">Random Shit</a>
+        <a data-act="shopCategory" data-arg="sneakers" href="#shop/sneakers">Shop Sneakers</a>
+        <a data-act="shopCategory" data-arg="clothing" href="#shop/clothing">Shop Clothing &amp; Accessories</a>
+        <a data-act="shopCategory" data-arg="random" href="#shop/random">Random Shit</a>
         <a data-act="go" data-arg="about" href="#about">About</a>
       </div>
 
@@ -116,9 +116,9 @@
       <button class="drawer-close" data-act="menuClose" aria-label="Close menu">×</button>
     </div>
     <nav class="mobile-links">
-      <a href="#shop" data-act="menuClose" data-then="shopCategory" data-arg="sneakers">Shop Sneakers <span>→</span></a>
-      <a href="#shop" data-act="menuClose" data-then="shopCategory" data-arg="clothing">Shop Clothing &amp; Accessories <span>→</span></a>
-      <a href="#shop" data-act="menuClose" data-then="shopCategory" data-arg="random">Random Shit <span>→</span></a>
+      <a href="#shop/sneakers" data-act="menuClose" data-then="shopCategory" data-arg="sneakers">Shop Sneakers <span>→</span></a>
+      <a href="#shop/clothing" data-act="menuClose" data-then="shopCategory" data-arg="clothing">Shop Clothing &amp; Accessories <span>→</span></a>
+      <a href="#shop/random" data-act="menuClose" data-then="shopCategory" data-arg="random">Random Shit <span>→</span></a>
       <a href="#about" data-act="menuClose" data-then="go" data-arg="about">About Random Stock <span>→</span></a>
     </nav>
   </div>
@@ -220,7 +220,7 @@
           <h2>BEYOND THE PAIRS</h2>
         </div>
       </div>
-      <a class="category-tile" href="#shop" data-act="shopCategory" data-arg="clothing" data-pd="1" aria-label="Shop Clothing &amp; Accessories">
+      <a class="category-tile" href="#shop/clothing" data-act="shopCategory" data-arg="clothing" data-pd="1" aria-label="Shop Clothing &amp; Accessories">
         <picture>
           <source type="image/avif" sizes="(max-width: 1650px) 92vw, 1488px"
                   srcset="/images/clothing-crew-640.avif 640w, /images/clothing-crew-960.avif 960w, /images/clothing-crew-1376.avif 1376w">
@@ -238,7 +238,7 @@
         </div>
       </a>
 
-      <a class="category-tile" href="#shop" data-act="shopCategory" data-arg="random" data-pd="1" aria-label="Shop Random Shit">
+      <a class="category-tile" href="#shop/random" data-act="shopCategory" data-arg="random" data-pd="1" aria-label="Shop Random Shit">
         <picture>
           <source type="image/avif" sizes="(max-width: 1650px) 92vw, 1488px"
                   srcset="/images/randomshit-room-640.avif 640w, /images/randomshit-room-960.avif 960w, /images/randomshit-room-1376.avif 1376w">
@@ -292,7 +292,7 @@
           <span class="eyebrow">Street Wear</span>
           <h2>CLOTHING & ACCESSORIES</h2>
         </div>
-        <a class="text-link" href="#shop" data-act="shopCategory" data-arg="clothing">BROWSE THE COLLECTION →</a>
+        <a class="text-link" href="#shop/clothing" data-act="shopCategory" data-arg="clothing">BROWSE THE COLLECTION →</a>
       </div>
       <div class="products" id="clothing-accessories"></div>
     </section>
@@ -304,7 +304,7 @@
           <span class="eyebrow">Other Goods</span>
           <h2>RANDOM SHIT</h2>
         </div>
-        <a class="text-link" href="#shop" data-act="shopCategory" data-arg="random" data-pd="1">BROWSE ALL →</a>
+        <a class="text-link" href="#shop/random" data-act="shopCategory" data-arg="random" data-pd="1">BROWSE ALL →</a>
       </div>
       <div class="products" id="random-shit"></div>
     </section>
@@ -330,8 +330,17 @@
             <input id="filterSearch" placeholder="Search brand, SKU or size..." data-input="handleSearchSync" data-arg="desktop">
           </div>
           <div class="filter">
+            <label for="categoryFilter">CATEGORY</label>
+            <select id="categoryFilter" data-change="handleCategoryChange">
+              <option value="">All Categories</option>
+              <option value="sneakers">Sneakers</option>
+              <option value="clothing">Clothing &amp; Accessories</option>
+              <option value="random">Random Shit</option>
+            </select>
+          </div>
+          <div class="filter">
             <label for="brandFilter">BRAND</label>
-            <select id="brandFilter" data-change="renderShop"></select>
+            <select id="brandFilter" data-change="handleBrandChange"></select>
           </div>
           <div class="filter">
             <label for="conditionFilter">CONDITION</label>
@@ -428,8 +437,8 @@
         <h2 class="foot-head">The Vault</h2>
         <nav class="foot-links" aria-label="Footer">
           <a href="#shop" data-act="shopNav" data-arg="all" data-pd="1">The whole vault</a>
-          <a href="#shop" data-act="shopCategory" data-arg="clothing" data-pd="1">Clothing &amp; Accessories</a>
-          <a href="#shop" data-act="shopCategory" data-arg="random" data-pd="1">Random Shit</a>
+          <a href="#shop/clothing" data-act="shopCategory" data-arg="clothing" data-pd="1">Clothing &amp; Accessories</a>
+          <a href="#shop/random" data-act="shopCategory" data-arg="random" data-pd="1">Random Shit</a>
           <a href="#about" data-act="go" data-arg="about" data-pd="1">About</a>
         </nav>
       </div>
@@ -554,7 +563,7 @@
   <!-- jsonld.js turns a listing into schema.org data. app.js reads it immediately
        (the first view is rendered on load), so it has to come before app.js. -->
   <script src="/jsonld.js?v=e1b09023" defer></script>
-  <script src="/app.js?v=9e093eac" defer></script>
+  <script src="/app.js?v=6344a89d" defer></script>
   <script src="/boot.js?v=c5fe06f4" defer></script>
   
 

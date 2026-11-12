@@ -754,6 +754,9 @@ function urlKey() {
     // Render Shop with Active Filters & Sorter
     function renderShop() {
       shopRendered = true;
+      if ($('categoryFilter') && $('categoryFilter').value !== (shopCategoryFilter || '')) {
+        $('categoryFilter').value = shopCategoryFilter || '';
+      }
       let list = [...products];
       const q = ($('filterSearch')?.value || $('mobileSearch')?.value || '').trim().toLowerCase();
       const brand = $('brandFilter')?.value;
@@ -857,8 +860,41 @@ function urlKey() {
     function updateFilterCount() {
       const btn = $('filterToggle');
       if (!btn) return;
-      const n = ['brandFilter', 'conditionFilter'].filter(id => $(id) && $(id).value).length;
+      const n = (shopCategoryFilter ? 1 : 0) + ['brandFilter', 'conditionFilter'].filter(id => $(id) && $(id).value).length;
       btn.textContent = n ? 'More Filters (' + n + ')' : 'More Filters';
+    }
+
+    function syncShopRouteState() {
+      syncRouteUI();
+      const active = document.querySelector('.page.active');
+      if (active && active.dataset.view === 'shop') {
+        const resolved = hstate(window.scrollY);
+        hreplace(resolved, urlFor(resolved));
+      }
+    }
+
+    function handleCategoryChange() {
+      shopCategoryFilter = ($('categoryFilter') && $('categoryFilter').value) || '';
+      renderShop();
+      syncShopRouteState();
+    }
+
+    // Picking a brand in the shop sidebar should show that brand's stock even if the
+    // shopper entered the shop via a category link that holds none of it (e.g. picking
+    // Supreme, Bearbrick or Huffy after opening Shop Sneakers, or Jordan after Clothing).
+    function handleBrandChange() {
+      const brand = ($('brandFilter') && $('brandFilter').value) || '';
+      if (brand && shopCategoryFilter) {
+        const inCat = products.some(p =>
+          productCategory(p) === shopCategoryFilter && matchesBrand(brand, p)
+        );
+        if (!inCat && products.some(p => matchesBrand(brand, p))) {
+          shopCategoryFilter = '';
+          if ($('categoryFilter')) $('categoryFilter').value = '';
+        }
+      }
+      renderShop();
+      syncShopRouteState();
     }
 
     // Resetting the controls and redrawing the grid are two jobs. The category tiles below
@@ -867,7 +903,7 @@ function urlKey() {
     // still display:none, then threw those cards — and the image requests they start — away
     // a moment later for the four the shopper had actually asked for.
     function resetFilters() {
-      ['filterSearch', 'mobileSearch', 'brandFilter', 'sizeFilter', 'conditionFilter'].forEach(id => {
+      ['filterSearch', 'mobileSearch', 'categoryFilter', 'brandFilter', 'sizeFilter', 'conditionFilter'].forEach(id => {
         const el = $(id);
         if (el) el.value = '';
       });
@@ -879,6 +915,7 @@ function urlKey() {
     function clearFilters() {
       resetFilters();
       renderShop();
+      syncShopRouteState();
     }
 
     // Brand Tile Click Handler
@@ -939,8 +976,9 @@ function urlKey() {
     }
 
     // Build the canonical hash URL for a view
-    function hashURL(page, pid, section) {
+    function hashURL(page, pid, section, category) {
       if (page === 'product' && pid != null) return '#product/' + pid;
+      if (page === 'shop' && category && CATEGORY_TITLES[category]) return '#shop/' + category;
       if (page === 'home') return '#' + (section || 'home');
       return '#' + (page || 'home');
     }
@@ -950,6 +988,12 @@ function urlKey() {
       const h = String(raw || '').replace(/^#/, '');
       if (!h || h === 'home') return { page: 'home', pid: null, section: null };
       if (h === 'shop' || h === 'about') return { page: h, pid: null, section: null };
+      if (h.indexOf('shop/') === 0) {
+        const cat = h.slice('shop/'.length);
+        return CATEGORY_TITLES[cat]
+          ? { page: 'shop', pid: null, section: null, category: cat }
+          : { page: 'shop', pid: null, section: null };
+      }
       if (h === 'product') return { page: 'product', pid: null, section: null };
       if (h.indexOf('product/') === 0) {
         const pid = Number(h.slice('product/'.length));
@@ -958,14 +1002,16 @@ function urlKey() {
       return { page: 'home', pid: null, section: h };   // plain anchors
     }
 
-    function hstate(y, section) {
+    function hstate(y, section, category) {
       const active = document.querySelector('.page.active');
       const page = (active && active.dataset.view) || 'home';
       const sec = (section === undefined) ? activeSection : section;
+      const cat = (category === undefined) ? shopCategoryFilter : category;
       return {
         page: page,
         pid: (page === 'product' && current) ? current.id : null,
         section: (page === 'home' && sec) ? sec : null,
+        category: (page === 'shop' && cat && CATEGORY_TITLES[cat]) ? cat : null,
         y: Math.round(y || 0)
       };
     }
@@ -980,7 +1026,7 @@ function urlKey() {
         const p = products.find(x => x.id === s.pid);
         if (p && slugger) return productHref(p);
       }
-      const hash = hashURL(s.page, s.pid, s.section);
+      const hash = hashURL(s.page, s.pid, s.section, s.category);
       return onProductPath() ? '/' + hash : hash;
     }
 
@@ -1036,12 +1082,16 @@ function urlKey() {
     function go(page) {
       const activeEl = document.querySelector('.page.active');
       const from = (activeEl && activeEl.dataset.view) || 'home';
-      const prev = hstate(window.scrollY);
+      const prevCat = (history.state && history.state.page === from)
+        ? (history.state.category || null)
+        : null;
+      const prev = hstate(window.scrollY, undefined, prevCat);
       activeSection = null;                       // leaving home clears any section anchor
       hreplace(prev, urlFor(prev));               // remember where we came from
       showPage(page, null, false);
-      if (!(from === page && window.scrollY < 2)) {
-        hpush(hstate(0), urlFor(hstate(0)));      // new entry, new URL
+      const next = hstate(0);
+      if (!(from === page && prev.category === next.category && window.scrollY < 2)) {
+        hpush(next, urlFor(next));                // new entry, new URL
       }
       window.scrollTo({ top: 0, behavior: 'instant' });
     }
@@ -1058,6 +1108,7 @@ function urlKey() {
     function shopCategory(category) {
       resetFilters();
       shopCategoryFilter = category;
+      if ($('categoryFilter')) $('categoryFilter').value = category;
       go('shop');
       renderShop();
     }
@@ -1301,6 +1352,13 @@ function urlKey() {
         ($('mobileSearch') && $('mobileSearch').value) || '').trim() !== '';
       if ($('filterSearch')) $('filterSearch').value = q;
       if ($('mobileSearch')) $('mobileSearch').value = q;
+      if (q) {
+        if ($('categoryFilter')) $('categoryFilter').value = '';
+        if ($('brandFilter')) $('brandFilter').value = '';
+        if ($('sizeFilter')) $('sizeFilter').value = '';
+        if ($('conditionFilter')) $('conditionFilter').value = '';
+        shopCategoryFilter = '';
+      }
       if (q || hadQuery) renderShop();
       if (!q) {
         $('searchResults').innerHTML = '';
@@ -1674,7 +1732,15 @@ function urlKey() {
       lastHash = key;
       isRestoring = true;
       activeSection = route.section || null;
+      let catChanged = false;
+      if (route.page === 'shop') {
+        const nextCat = (route.category && CATEGORY_TITLES[route.category]) ? route.category : '';
+        catChanged = shopCategoryFilter !== nextCat;
+        shopCategoryFilter = nextCat;
+        if ($('categoryFilter')) $('categoryFilter').value = nextCat;
+      }
       showPage(route.page, route.pid, true);
+      if (route.page === 'shop' && catChanged) renderShop();
 
       // Always (re)write the entry: canonicalises the URL (unknown product id,
       // bare '#product', empty hash…) and keeps the scroll offset in the state.
@@ -1712,6 +1778,10 @@ function urlKey() {
       }
       isRestoring = true;
       activeSection = route.section;
+      if (route.page === 'shop') {
+        shopCategoryFilter = (route.category && CATEGORY_TITLES[route.category]) ? route.category : '';
+        if ($('categoryFilter')) $('categoryFilter').value = shopCategoryFilter;
+      }
       showPage(route.page, route.pid, true);
       // Rewrite the entry with the resolved route (canonicalises bad product ids)
       const resolved = hstate(0, route.section || null);
@@ -2077,6 +2147,8 @@ function urlKey() {
       if (fn) fn(el, el.getAttribute('data-arg'));
     });
     const CHANGE_ACTIONS = {
+      handleBrandChange: () => handleBrandChange(),
+      handleCategoryChange: () => handleCategoryChange(),
       renderShop: () => renderShop()
     };
     document.addEventListener('change', e => {
