@@ -47,7 +47,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 20
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
         with:
           # main, not the triggering sha: the stamp check compares the live page against the
           # index.html in this checkout, and stamp-assets.yml can commit a newer stamp than
@@ -57,7 +57,7 @@ jobs:
 
       # Node 22 for the global WebSocket the DevTools driver uses. ubuntu-latest is not
       # guaranteed to ship it, and this repo has no package.json to pin it in.
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@39370e3970a6d050c480ffad4ff0ed4d3fdee5af # v4.1.0
         with:
           node-version: 22
 
@@ -94,7 +94,7 @@ jobs:
 
       - name: Keep the screenshot from a failed sweep
         if: failure()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
           name: live-sweep-failure
           path: sweep-*.png

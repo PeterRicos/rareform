@@ -3,6 +3,13 @@
   "name": "visit-counters",
   "main": "visit-counter-worker.js",
   "compatibility_date": "2026-10-01",
+  "workers_dev": false,
+  "routes": [
+    {
+      "pattern": "stats.randomstock.shop/*",
+      "zone_name": "randomstock.shop"
+    }
+  ],
   "observability": {
     "enabled": false
   },

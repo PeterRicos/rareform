@@ -74,7 +74,7 @@ jobs:
   stamp:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
         with:
           # Full history so the retry below can rebase onto a branch that moved.
           fetch-depth: 0
@@ -134,6 +134,7 @@ jobs:
       - name: Commit the regenerated HTML when it was stale
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_REPO: ${{ github.repository }}
         run: |
           # index.html carries the ?v= stamps and the catalog block; product/ carries one
           # page per listing; sitemap.xml lists them. All three are written above and all
@@ -156,5 +157,5 @@ jobs:
 
           # Commits pushed with the workflow token do not reliably start the Pages
           # build, so ask for one. Harmless if the push already started it.
-          gh api -X POST "repos/${{ github.repository }}/pages/builds" \
+          gh api -X POST "repos/${GH_REPO}/pages/builds" \
             || echo "Pages build request ignored (the push may have started one)"

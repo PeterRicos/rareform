@@ -5,9 +5,8 @@
 // paint). Deferred, so this runs after app.js and before load.
 
     (function countVisit() {
-      // Worker URL from the Cloudflare dashboard:
-      // https://visit-counters.marra-pete.workers.dev
-      var VISIT_ENDPOINT = "https://visit-counters.marra-pete.workers.dev";
+      // Custom zone route behind Cloudflare WAF/rate limiting (see tools/wrangler.jsonc).
+      var VISIT_ENDPOINT = "https://stats.randomstock.shop";
 
       if (!VISIT_ENDPOINT) return; // not configured yet, so do nothing at all
 

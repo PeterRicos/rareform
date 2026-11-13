@@ -1,32 +1,44 @@
 /**
  * visit-counter-worker.js  —  all-time page view counter for randomstock.shop
  *
- * Paste this into a Cloudflare Worker (Workers & Pages -> Create -> Worker -> Edit code),
- * bind a KV namespace to the variable name VISITS, and set STATS_KEY as an encrypted
- * secret. The page itself fires a fire-and-forget request at /hit, so the counter is
- * invisible to visitors: no script tag in the <head>, no cookie, no layout shift.
+ * Deployed on a custom zone route (stats.randomstock.shop/*) behind Cloudflare WAF
+ * and rate-limiting rules (see tools/wrangler.jsonc). Bind a KV namespace to VISITS
+ * and set STATS_KEY as an encrypted secret.
  *
- * Privacy: this records the page path and nothing else. No IP address, no user agent,
- * no referrer, no fingerprint. That's why it needs no cookie banner.
+ * Privacy: records only normalized site routes ("/", "/product/<slug>/", or "/other").
+ * No IP address, no user agent, no referrer, no query string, no fingerprint.
  *
  * Endpoints
- *   GET|POST /hit?u=/path     count one view, returns 204 (used by the page)
- *   GET /stats?key=<secret>   JSON: all-time total, today, last 30 days, top paths
- *   GET /                     service info
+ *   GET|POST /hit?u=/path     count one view, returns 204 (used by boot.js)
+ *   GET /stats                JSON: all-time total, today, last 30 days, top paths
+ *                             Auth: Authorization: Bearer <STATS_KEY> (or X-Stats-Key)
  *
- * NOTE: this file is in a PUBLIC repo, so the stats key must live in a Cloudflare
- * secret (Settings -> Variables and Secrets -> type "Secret"), never in this code.
- * If STATS_KEY is unset, /stats refuses every request.
+ * Storage model: a single JSON document ("visits:v1") holds { allTime, days, paths }
+ * so /hit takes 2 KV ops (1 get + 1 put) and /stats takes 1 KV read (zero N+1 loops).
+ *
+ * Cloudflare Dashboard WAF Rate Limiting (recommended on zone randomstock.shop):
+ *   - /hit*   : e.g. 30 requests / 10 seconds per IP -> Block / Managed Challenge
+ *   - /stats* : e.g. 5 requests / 1 minute per IP -> Block
  */
 
-const CORS = {
-  "access-control-allow-origin": "*",
-  "access-control-allow-methods": "GET, POST, OPTIONS",
-  "access-control-max-age": "86400",
+const ALLOWED_ORIGIN = "https://randomstock.shop";
+const MAX_PATHS = 500;
+const STORE_KEY = "visits:v1";
+
+const SECURITY_HEADERS = {
+  "x-content-type-options": "nosniff",
+  "referrer-policy": "no-referrer",
+  "content-security-policy": "default-src 'none'; frame-ancestors 'none'",
 };
 
-/** Cap how many distinct paths we track, so the KV key space can't grow forever. */
-const MAX_PATHS = 500;
+function hitCorsHeaders() {
+  return {
+    "access-control-allow-origin": ALLOWED_ORIGIN,
+    "access-control-allow-methods": "GET, POST, OPTIONS",
+    "access-control-max-age": "86400",
+    "vary": "Origin",
+  };
+}
 
 function json(data, status = 200) {
   return new Response(JSON.stringify(data, null, 2), {
@@ -34,7 +46,7 @@ function json(data, status = 200) {
     headers: {
       "content-type": "application/json; charset=utf-8",
       "cache-control": "no-store",
-      ...CORS,
+      ...SECURITY_HEADERS,
     },
   });
 }
@@ -45,103 +57,138 @@ function dayKey(date = new Date()) {
 }
 
 /**
- * Keep only the path: no query string, no hash, bounded length. Query strings can
- * carry personal data, and an unbounded key length is a cheap way to blow up KV.
+ * Normalize and allowlist site paths: "/" (including "/index.html") or
+ * "/product/<slug>/" matching lowercase slug characters. Unknown paths bucket
+ * into "/other" so arbitrary ?u= strings cannot pollute KV.
  */
 function cleanPath(raw) {
   if (!raw) return "/";
-  let path = String(raw).split("#")[0].split("?")[0] || "/";
+  let path = String(raw).split("#")[0].split("?")[0].trim() || "/";
   if (!path.startsWith("/")) path = "/" + path;
-  return path.slice(0, 120);
+  if (path === "/" || path === "/index.html") return "/";
+  if (/^\/product\/[a-z0-9-]{1,100}\/?$/.test(path)) {
+    return path.endsWith("/") ? path : path + "/";
+  }
+  return "/other";
 }
 
-/**
- * KV has no atomic increment, so this read-then-write can lose a hit when two
- * requests land in the same instant. That is fine here: the numbers are directional,
- * and a single flat key is far cheaper than per-day key churn.
- */
-async function bump(env, key) {
-  const current = parseInt((await env.VISITS.get(key)) || "0", 10);
-  const next = (Number.isFinite(current) ? current : 0) + 1;
-  await env.VISITS.put(key, String(next));
-  return next;
+async function sha256(str) {
+  const bytes = new TextEncoder().encode(str);
+  return crypto.subtle.digest("SHA-256", bytes);
+}
+
+async function timingSafeEquals(a, b) {
+  if (typeof a !== "string" || typeof b !== "string" || !a || !b) return false;
+  const [da, db] = await Promise.all([sha256(a), sha256(b)]);
+  return crypto.subtle.timingSafeEqual(da, db);
+}
+
+async function loadStore(env) {
+  const raw = await env.VISITS.get(STORE_KEY, "json");
+  if (raw && typeof raw === "object") {
+    return {
+      allTime: Number.isFinite(raw.allTime) ? raw.allTime : 0,
+      days: raw.days && typeof raw.days === "object" ? raw.days : {},
+      paths: raw.paths && typeof raw.paths === "object" ? raw.paths : {},
+    };
+  }
+  return { allTime: 0, days: {}, paths: {} };
 }
 
 async function handleHit(request, env) {
-  const url = new URL(request.url);
-  const path = cleanPath(url.searchParams.get("u"));
+  if (request.method !== "GET" && request.method !== "POST") {
+    return json({ error: "method not allowed" }, 405);
+  }
 
-  await Promise.all([
-    bump(env, "total"),
-    bump(env, `d:${dayKey()}`),
-    bump(env, `p:${path}`),
-  ]);
-
-  return new Response(null, {
-    status: 204,
-    headers: { "cache-control": "no-store", ...CORS },
-  });
-}
-
-async function handleStats(request, env) {
-  const supplied = new URL(request.url).searchParams.get("key");
-
-  // No secret configured, or wrong secret -> refuse. Never log or echo the key.
-  if (!env.STATS_KEY || supplied !== env.STATS_KEY) {
+  const origin = request.headers.get("origin");
+  if (origin && origin !== ALLOWED_ORIGIN) {
     return json({ error: "forbidden" }, 403);
   }
 
-  const readAll = async (prefix) => {
-    const listed = await env.VISITS.list({ prefix });
-    const out = [];
-    for (const key of listed.keys) {
-      const views = parseInt((await env.VISITS.get(key.name)) || "0", 10) || 0;
-      out.push([key.name.slice(prefix.length), views]);
-    }
-    return out;
-  };
+  const url = new URL(request.url);
+  let path = cleanPath(url.searchParams.get("u"));
+  const today = dayKey();
 
-  const [dayRows, pathRows, totalKey] = await Promise.all([
-    readAll("d:"),
-    readAll("p:"),
-    env.VISITS.get("total"),
-  ]);
+  const store = await loadStore(env);
+  store.allTime += 1;
+  store.days[today] = (store.days[today] || 0) + 1;
 
-  const days = Object.fromEntries(dayRows);
-  const ordered = Object.keys(days).sort();
-  const topPaths = pathRows
+  if (!(path in store.paths) && Object.keys(store.paths).length >= MAX_PATHS) {
+    path = "/other";
+  }
+  store.paths[path] = (store.paths[path] || 0) + 1;
+
+  await env.VISITS.put(STORE_KEY, JSON.stringify(store));
+
+  return new Response(null, {
+    status: 204,
+    headers: {
+      "cache-control": "no-store",
+      ...SECURITY_HEADERS,
+      ...hitCorsHeaders(),
+    },
+  });
+}
+
+function readAuthKey(request) {
+  const auth = request.headers.get("authorization") || "";
+  const m = auth.match(/^Bearer\s+(.+)$/i);
+  if (m) return m[1].trim();
+  const hdr = request.headers.get("x-stats-key");
+  return hdr ? hdr.trim() : "";
+}
+
+async function handleStats(request, env) {
+  if (request.method !== "GET") {
+    return json({ error: "method not allowed" }, 405);
+  }
+
+  const supplied = readAuthKey(request);
+  if (!env.STATS_KEY || !(await timingSafeEquals(supplied, env.STATS_KEY))) {
+    return json({ error: "forbidden" }, 403);
+  }
+
+  const store = await loadStore(env);
+  const ordered = Object.keys(store.days).sort();
+  const topPaths = Object.entries(store.paths)
     .map(([path, views]) => ({ path, views }))
     .sort((a, b) => b.views - a.views);
 
   return json({
-    allTime: parseInt(totalKey || "0", 10) || 0,
-    today: days[dayKey()] || 0,
+    allTime: store.allTime,
+    today: store.days[dayKey()] || 0,
     daysTracked: ordered.length,
     firstDay: ordered[0] || null,
-    last30: ordered.slice(-30).map((date) => ({ date, views: days[date] })),
+    last30: ordered.slice(-30).map((date) => ({ date, views: store.days[date] })),
     topPaths: topPaths.slice(0, 25),
   });
 }
 
 export default {
   async fetch(request, env) {
-    const url = new URL(request.url);
+    try {
+      const url = new URL(request.url);
 
-    if (request.method === "OPTIONS") {
-      return new Response(null, { status: 204, headers: CORS });
-    }
+      if (request.method === "OPTIONS") {
+        if (url.pathname === "/hit") {
+          return new Response(null, {
+            status: 204,
+            headers: { ...SECURITY_HEADERS, ...hitCorsHeaders() },
+          });
+        }
+        return new Response(null, { status: 405, headers: SECURITY_HEADERS });
+      }
 
-    switch (url.pathname) {
-      // POST is included because navigator.sendBeacon() always uses POST.
-      case "/hit":
-        return handleHit(request, env);
-      case "/stats":
-        return handleStats(request, env);
-      default:
-        return json({
-          service: "randomstock.shop visit counter",
-          endpoints: ["/hit?u=/path", "/stats?key=<secret>"],
-        });
+      switch (url.pathname) {
+        case "/hit":
+          return await handleHit(request, env);
+        case "/stats":
+          return await handleStats(request, env);
+        default:
+          return json({ error: "not found" }, 404);
+      }
+    } catch (_err) {
+      return json({ error: "service unavailable" }, 503);
     }
   },
 };

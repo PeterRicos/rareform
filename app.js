@@ -27,9 +27,11 @@ const slugger = (typeof window !== 'undefined' && window.RandomStockSlugs) || nu
 // any pushState, so the first photo and the rest can no longer disagree. The site
 // is served from the domain root, so a root-relative path is always right here.
 function assetURL(src) {
-  const s = String(src == null ? '' : src);
-  if (!s) return s;
-  if (s.charAt(0) === '/' || /^[a-z][a-z0-9+.-]*:/i.test(s) || s.indexOf('//') === 0) return s;
+  const s = String(src == null ? '' : src).trim();
+  if (!s) return '';
+  if (/^[a-z][a-z0-9+.-]*:/i.test(s)) return /^https?:/i.test(s) ? s : '';
+  if (s.indexOf('//') === 0) return '';
+  if (s.charAt(0) === '/') return s;
   return '/' + s;
 }
 
@@ -54,8 +56,12 @@ function onProductPath() {
 // The listing this document was served for, or null on the homepage.
 function pathProduct() {
   if (!onProductPath() || !slugger) return null;
-  const slug = decodeURIComponent((location.pathname || '').replace(/^\/product\//, '').replace(/\/.*$/, ''));
-  return products.find(p => productSlugOf(p) === slug) || null;
+  try {
+    const slug = decodeURIComponent((location.pathname || '').replace(/^\/product\//, '').replace(/\/.*$/, ''));
+    return products.find(p => productSlugOf(p) === slug) || null;
+  } catch (err) {
+    return null;
+  }
 }
 
 // The identity of the current history entry. A listing lives at a path and every other
@@ -215,7 +221,7 @@ function urlKey() {
       box.innerHTML =
         '<div class="listing-qr-code">' +
           qrSvg(smsHref(message), 'QR code that opens a text to ' + ORDER_PHONE_DISPLAY +
-            ' about ' + esc(orderSummary()), true, LISTING_QR_MODULE_PX) +
+            ' about ' + orderSummary(), true, LISTING_QR_MODULE_PX) +
         '</div>' +
         '<div class="listing-qr-note">' +
           '<b>On a computer?</b> Scan the code with your phone camera — it opens a text to ' +
@@ -311,18 +317,18 @@ function urlKey() {
       const saved = isSaved(p.id);
       return `
         <article class="product${isSold(p) ? ' sold' : ''}">
-          <a class="product-image" href="${href}" aria-label="View ${p.name}" data-product-link data-act="openProduct" data-arg="${p.id}">
-            <img src="${assetURL(p.img)}" alt="${p.name}" loading="lazy" decoding="async" width="400" height="400">
+          <a class="product-image" href="${esc(href)}" aria-label="View ${esc(p.name)}" data-product-link data-act="openProduct" data-arg="${esc(p.id)}">
+            <img src="${esc(assetURL(p.img))}" alt="${esc(p.name)}" loading="lazy" decoding="async" width="400" height="400">
           </a>
-          <button type="button" class="save-btn${saved ? ' is-saved' : ''}" data-act="toggleSave" data-arg="${p.id}" aria-pressed="${saved ? 'true' : 'false'}" aria-label="${saved ? 'Remove' : 'Save'} ${esc(p.name)}">${saved ? '★' : '☆'}</button>
+          <button type="button" class="save-btn${saved ? ' is-saved' : ''}" data-act="toggleSave" data-arg="${esc(p.id)}" aria-pressed="${saved ? 'true' : 'false'}" aria-label="${saved ? 'Remove' : 'Save'} ${esc(p.name)}">${saved ? '★' : '☆'}</button>
           <div class="p-info">
             ${isSold(p) ? `<div class="claimed-badge">CLAIMED</div>` : ''}
-            <div class="brand">${p.brand}</div>
-            <a class="name" href="${href}" data-product-link data-act="openProduct" data-arg="${p.id}">${p.name}</a>
-            ${colorRepeatsName(p) ? '' : `<div class="color">${p.color}</div>`}
-            ${sizeText ? `<div class="sizes${sizeQuery ? ' sizes-match' : ''}">${sizeText}</div>` : ''}
-            <a class="quick" href="${href}" data-product-link data-act="openProduct" data-arg="${p.id}" data-stop="1">
-              ${buttonText}
+            <div class="brand">${esc(p.brand)}</div>
+            <a class="name" href="${esc(href)}" data-product-link data-act="openProduct" data-arg="${esc(p.id)}">${esc(p.name)}</a>
+            ${colorRepeatsName(p) ? '' : `<div class="color">${esc(p.color)}</div>`}
+            ${sizeText ? `<div class="sizes${sizeQuery ? ' sizes-match' : ''}">${esc(sizeText)}</div>` : ''}
+            <a class="quick" href="${esc(href)}" data-product-link data-act="openProduct" data-arg="${esc(p.id)}" data-stop="1">
+              ${esc(buttonText)}
             </a>
           </div>
         </article>
@@ -442,7 +448,7 @@ function urlKey() {
       TILE_BRANDS = tiles;
 
       $('brandFilter').innerHTML = '<option value="">All Brands</option>' +
-        tiles.map(b => `<option value="${b}">${b}</option>`).join('');
+        tiles.map(b => `<option value="${esc(b)}">${esc(b)}</option>`).join('');
 
       // Group sizes by the run they belong to, so "2Y" is not offered as if it were
       // a men's size next to "US 10", a "S" isn't passed off as a men's shoe, and a
@@ -471,8 +477,8 @@ function urlKey() {
       // filter logic never has to learn the new label.
       $('sizeFilter').innerHTML = '<option value="">All Sizes</option>' +
         sizeGroupOrder.filter(g => sizeGroups[g].length).map(g =>
-          '<optgroup label="' + g + ' (' + sizeGroups[g].length + ')">' +
-          sizeGroups[g].map(s => `<option value="${g}|${s}">${sizeDisplay(s, g)} (${g})</option>`).join('') +
+          '<optgroup label="' + esc(g) + ' (' + sizeGroups[g].length + ')">' +
+          sizeGroups[g].map(s => `<option value="${esc(g)}|${esc(s)}">${esc(sizeDisplay(s, g))} (${esc(g)})</option>`).join('') +
           '</optgroup>').join('');
 
       // A dropdown whose only option is the filter's own default is noise, so the
@@ -481,7 +487,7 @@ function urlKey() {
       const conditionRow = conditionSelect.closest('.filter');
       if (conditions.length > 1) {
         conditionSelect.innerHTML = '<option value="">All Conditions</option>' +
-          conditions.map(c => `<option value="${c}">${c === 'New' ? 'Brand New (Deadstock)' : c}</option>`).join('');
+          conditions.map(c => `<option value="${esc(c)}">${c === 'New' ? 'Brand New (Deadstock)' : esc(c)}</option>`).join('');
         if (conditionRow) conditionRow.style.display = '';
       } else {
         conditionSelect.innerHTML = '<option value="">All Conditions</option>';
@@ -512,7 +518,7 @@ function urlKey() {
       // Chips follow the stricter rule — only brands that can actually return a
       // result. A suggestion chip that finds nothing is the worst kind of dead end.
       $('searchChips').innerHTML = CATALOG_BRANDS.slice(0, 5).map((b, i) =>
-        `<button type="button" data-act="setSearchBrand" data-arg="${i}">${b}</button>`).join('');
+        `<button type="button" data-act="setSearchBrand" data-arg="${i}">${esc(b)}</button>`).join('');
     }
 
     // Tiles and chips pass an index instead of a quoted brand string, so a brand
@@ -836,7 +842,7 @@ function urlKey() {
 
       $('shopProducts').innerHTML = list.length
         ? list.map(p => productCard(p, shownQuery)).join('')
-        : `<div class="empty-state"><p>${emptyCopy}</p><button class="btn light" data-act="clearFilters">Reset All Filters</button></div>`;
+        : `<div class="empty-state"><p>${esc(emptyCopy)}</p><button class="btn light" data-act="clearFilters">Reset All Filters</button></div>`;
 
       // And the count says which sizes are on screen, so a shopper who typed 11 and sees
       // "US 11 · 11.5" on every card knows the grid answered them.
@@ -1170,7 +1176,7 @@ function urlKey() {
       $('gallery').innerHTML = galleryList.map((shot, i) => `
         <button class="gallery-shot" type="button" data-act="zoomOpen" data-arg="${i}"
                 aria-label="Zoom in on ${esc(shot.alt)}">
-          <img src="${shot.src}" alt="${esc(shot.alt)}" ${i === 0 ? 'loading="eager" fetchpriority="high"' : 'loading="lazy"'} decoding="async">
+          <img src="${esc(shot.src)}" alt="${esc(shot.alt)}" ${i === 0 ? 'loading="eager" fetchpriority="high"' : 'loading="lazy"'} decoding="async">
         </button>
       `).join('');
 
@@ -1196,35 +1202,35 @@ function urlKey() {
       const saved = isSaved(current.id);
       $('details').innerHTML = `
         <div class="detail-head">
-          <span class="eyebrow">${current.brand}</span>
-          <button type="button" class="save-btn detail-save-btn${saved ? ' is-saved' : ''}" id="detailSaveBtn" data-act="toggleSave" data-arg="${current.id}" aria-pressed="${saved ? 'true' : 'false'}" aria-label="${saved ? 'Remove' : 'Save'} ${esc(current.name)}">${saved ? '★' : '☆'}</button>
+          <span class="eyebrow">${esc(current.brand)}</span>
+          <button type="button" class="save-btn detail-save-btn${saved ? ' is-saved' : ''}" id="detailSaveBtn" data-act="toggleSave" data-arg="${esc(current.id)}" aria-pressed="${saved ? 'true' : 'false'}" aria-label="${saved ? 'Remove' : 'Save'} ${esc(current.name)}">${saved ? '★' : '☆'}</button>
         </div>
         ${isSold(current) ? `<div class="claimed-badge">CLAIMED</div>` : ''}
-        <h1>${current.name}</h1>
-        ${colorRepeatsName(current) ? '' : `<p class="color" style="font-size:14px;color:var(--muted);margin:4px 0 16px">${current.color}</p>`}
+        <h1>${esc(current.name)}</h1>
+        ${colorRepeatsName(current) ? '' : `<p class="color" style="font-size:14px;color:var(--muted);margin:4px 0 16px">${esc(current.color)}</p>`}
         <div class="meta">
-          SKU: ${current.sku}<br>
-          CONDITION: ${current.condition}<br>
-          PACKAGING: ${current.box || 'Original Box'}<br>
+          SKU: ${esc(current.sku)}<br>
+          CONDITION: ${esc(current.condition)}<br>
+          PACKAGING: ${esc(current.box || 'Original Box')}<br>
           PRICE: ON REQUEST — CALL OR TEXT US
         </div>
-        ${current.details ? `<ul class="product-details">${current.details.map(d => `<li>${d}</li>`).join('')}</ul>` : ''}
+        ${current.details ? `<ul class="product-details">${current.details.map(d => `<li>${esc(d)}</li>`).join('')}</ul>` : ''}
         ${hasSizes ? `<div style="margin-top: 24px">
           <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px">
-            <span class="eyebrow" style="color:var(--ink); font-weight:700">${sizeLabel}</span>
-            <span class="eyebrow">${sizeCategoryLabel(current)}</span>
+            <span class="eyebrow" style="color:var(--ink); font-weight:700">${esc(sizeLabel)}</span>
+            <span class="eyebrow">${esc(sizeCategoryLabel(current))}</span>
           </div>
           <div class="size-grid">
             ${current.sizes.map(s => `
               <button class="size-btn${s === selectedSize ? ' selected' : ''}${(sizeQuery && matchedSizes.indexOf(s) >= 0) || filterMatched.indexOf(s) >= 0 ? ' is-match' : ''}"
-                      data-act="selectSize" data-arg="${s}"
+                      data-act="selectSize" data-arg="${esc(s)}"
                       aria-pressed="${s === selectedSize ? 'true' : 'false'}"
-                      aria-label="${sizeAriaLabel} ${s}">
-                ${s}
+                      aria-label="${esc(sizeAriaLabel)} ${esc(s)}">
+                ${esc(s)}
               </button>
             `).join('')}
           </div>
-          ${filterMatched.length ? `<p class="size-match-note">This ${itemLabel} is held in the size your filter asked for: ${filterMatched.map(s => sizeDisplay(s, current.sizeGroup)).join(' · ')}.</p>` : (sizeQuery && matchedSizes.length ? `<p class="size-match-note">This ${itemLabel} is held in the sizes your search asked for: ${matchedSizes.map(s => sizeDisplay(s, current.sizeGroup)).join(' · ')}.</p>` : '')}
+          ${filterMatched.length ? `<p class="size-match-note">This ${itemLabel} is held in the size your filter asked for: ${filterMatched.map(s => esc(sizeDisplay(s, current.sizeGroup))).join(' · ')}.</p>` : (sizeQuery && matchedSizes.length ? `<p class="size-match-note">This ${itemLabel} is held in the sizes your search asked for: ${matchedSizes.map(s => esc(sizeDisplay(s, current.sizeGroup))).join(' · ')}.</p>` : '')}
         </div>` : ''}
         ${isSold(current) ? `<p class="order-note">This ${itemLabel} has been claimed. Browse the vault for a similar ${itemLabel}.</p>` : `<div class="order-cta">
           <a class="btn" id="orderCall" href="tel:${ORDER_PHONE}">Call about this item</a>
@@ -1382,7 +1388,7 @@ function urlKey() {
 
       if (!matches.length) {
         $('searchResults').innerHTML = sizeQuery
-          ? '<p style="grid-column: 1/-1; color: var(--muted); padding: 20px 0;">Nothing in ' + sizeQuery.display + ' right now — try another size.</p>'
+          ? '<p style="grid-column: 1/-1; color: var(--muted); padding: 20px 0;">Nothing in ' + esc(sizeQuery.display) + ' right now — try another size.</p>'
           : '<p style="grid-column: 1/-1; color: var(--muted); padding: 20px 0;">No matching sneakers found.</p>';
       } else {
         $('searchResults').innerHTML = matches.map(p => productCard(p, sizeQuery)).join('') +
@@ -1546,7 +1552,7 @@ function urlKey() {
         const size = count + quiet * 2;
         const box = modulePx ? ' width="' + size * modulePx + '" height="' + size * modulePx + '"' : '';
         return '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ' + size + ' ' + size + '"' + box +
-          ' role="img" aria-label="' + label + '" shape-rendering="crispEdges">' +
+          ' role="img" aria-label="' + esc(label) + '" shape-rendering="crispEdges">' +
           '<rect width="' + size + '" height="' + size + '" fill="#ffffff"/>' +
           '<path d="' + runs.join('') + '" fill="#151515"/></svg>';
       } catch (err) {

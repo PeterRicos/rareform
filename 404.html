@@ -8,6 +8,7 @@
 <!-- Same referrer policy as the shop pages: cross-origin requests carry only
      the origin, never the full path. -->
 <meta name="referrer" content="strict-origin-when-cross-origin">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'none'; style-src 'unsafe-inline'; font-src 'self'; object-src 'none'; base-uri 'self'; form-action 'none'">
 <link rel="stylesheet" href="/fonts/fonts.css">
 <style>
   /* Standalone page: GitHub Pages serves this file for any unmatched path, so

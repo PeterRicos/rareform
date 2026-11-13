@@ -144,8 +144,8 @@ which is why two odd-looking things exist:
 - `sw.js` fetches navigations with `cache: "no-store"`, so the HTML's own inline handlers
   and asset URLs always belong to the same deploy.
 
-The other four workflows (`auto-bot.yml`, `cline-responder.yml`, `manual-test.yml`,
-`test-trigger.yml`) exist for issue replies and AI experiments; none of them touch the site.
+The other two non-deploy workflows (`manual-test.yml`, `test-trigger.yml`) are gated
+utilities and AI experiments; none of them touch the site.
 
 ## Decisions that are deliberate
 

@@ -5,12 +5,12 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="description" content="Air Jordan 1 Retro High OG in Chicago Lost and Found. New, Original Box. Sizes held: 10.5. Checked in hand. Ask us about availability and price.">
   <meta name="theme-color" content="#151515">
-  <!-- Explicit, matching what browsers already default to: cross-origin requests
-       carry only the origin, never the full path. Added 2026-10-29; the CSP half
-       of that critique was deliberately skipped — it would have needed
-       'unsafe-inline' for the head script and styles, and default-src 'self'
-       would have silently killed the visit-counter beacon. -->
+  <!-- Cross-origin requests carry only the origin, never the full path.
+       CSP locks scripts to same-origin files plus the exact SHA-256 of the
+       inline announceMemory() script in <head>, and restricts connect-src
+       to same-origin plus the visit-counter endpoint. -->
   <meta name="referrer" content="strict-origin-when-cross-origin">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-ZrIkwePe2bn1gqiEpvrnSWEszJ8Fcb1qj3tLGowObh0='; style-src 'self' 'unsafe-inline'; img-src 'self' data:; media-src 'self'; font-src 'self'; connect-src 'self' https://stats.randomstock.shop; object-src 'none'; base-uri 'self'; form-action 'none'">
   <link rel="icon" href="/favicon.ico" sizes="any">
   <link rel="icon" href="/favicon.svg" type="image/svg+xml">
   <link rel="apple-touch-icon" href="/apple-touch-icon.png">
@@ -562,8 +562,8 @@
   <!-- jsonld.js turns a listing into schema.org data. app.js reads it immediately
        (the first view is rendered on load), so it has to come before app.js. -->
   <script src="/jsonld.js?v=e1b09023" defer></script>
-  <script src="/app.js?v=ce2f0ab1" defer></script>
-  <script src="/boot.js?v=c5fe06f4" defer></script>
+  <script src="/app.js?v=5fa9cd7d" defer></script>
+  <script src="/boot.js?v=b6d2be29" defer></script>
   
 
 

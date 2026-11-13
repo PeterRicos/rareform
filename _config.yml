@@ -28,6 +28,33 @@ exclude:
   - sneaker_prices_filled.csv
   - sneaker_prices.csv
   - yeezys.xlsx
+  - tools
+  - website_ready_supreme
+  - icon-preview.html
+  - images/derivatives.json
+  - build-images.js
+  - build-jsonld.js
+  - check-console.js
+  - prerender-products.js
+  - redirects.js
+  - stamp-assets.js
+  - validate-catalog.js
+  - generate_products.py
+  - make_csv.py
+  - repad_squares.py
+  - swap_block.py
+  - test-brand-tiles.js
+  - test-fonts.js
+  - test-hero-video.js
+  - test-images.js
+  - test-listing-qr.js
+  - test-mobile.js
+  - test-privacy.js
+  - test-product-pages.js
+  - test-reveal.js
+  - test-route.js
+  - test-size-search.js
+  - test-zoom.js
   - node_modules
   - vendor
   - Gemfile
