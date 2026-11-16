@@ -27,7 +27,7 @@ const slugger = (typeof window !== 'undefined' && window.RandomStockSlugs) || nu
 // any pushState, so the first photo and the rest can no longer disagree. The site
 // is served from the domain root, so a root-relative path is always right here.
 function assetURL(src) {
-  const s = String(src == null ? '' : src).trim();
+  const s = String(src == null ? '' : src).replace(/[\u0000-\u001f\u007f]+/g, '').trim();
   if (!s) return '';
   if (/^[a-z][a-z0-9+.-]*:/i.test(s)) return /^https?:/i.test(s) ? s : '';
   if (s.indexOf('//') === 0) return '';
@@ -191,11 +191,12 @@ function urlKey() {
     // Multicolor"), and the note below prints the order sentence, so the sentence is
     // escaped on the way into the markup rather than trusted to be markup-safe.
     function esc(text) {
-      return String(text)
+      return String(text == null ? '' : text)
         .replace(/&/g, '&amp;')
         .replace(/</g, '&lt;')
         .replace(/>/g, '&gt;')
-        .replace(/"/g, '&quot;');
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
     }
 
     // The code that sits in the listing itself. A desktop has nowhere to put an sms:
@@ -270,7 +271,7 @@ function urlKey() {
 
     // Listings default to sneakers; Supreme is clothing; anything else sets `category`.
     function productCategory(p) {
-      return p.category || (p.brand.toLowerCase() === 'supreme' ? 'clothing' : 'sneakers');
+      return (p && p.category) || (((p && p.brand) || '').toLowerCase() === 'supreme' ? 'clothing' : 'sneakers');
     }
     // A listing marked sold stays in the catalog so its page keeps working — the
     // flag is the whole state, so one predicate answers it for the card, the
@@ -779,8 +780,8 @@ function urlKey() {
       if (sizeQuery) {
         list = list.filter(p => matchesSize(p, sizeQuery));
       } else if (q) {
-        list = list.filter(p => 
-          (p.brand + ' ' + p.name + ' ' + p.color + ' ' + p.sku).toLowerCase().includes(q)
+        list = list.filter(p =>
+          ((p.brand || '') + ' ' + (p.name || '') + ' ' + (p.color || '') + ' ' + (p.sku || '')).toLowerCase().includes(q)
         );
       }
       if (shopCategoryFilter) {
@@ -1379,7 +1380,7 @@ function urlKey() {
       const allMatches = (sizeQuery
         ? products.filter(p => matchesSize(p, sizeQuery))
         : products.filter(p =>
-            (p.brand + ' ' + p.name + ' ' + p.color + ' ' + p.sku).toLowerCase().includes(q)
+            ((p.brand || '') + ' ' + (p.name || '') + ' ' + (p.color || '') + ' ' + (p.sku || '')).toLowerCase().includes(q)
           )).filter(p => !isSold(p));
       // The modal is a shortlist, not the shop: four cards, then a way to the rest.
       // Capping it with no way out hid every match past the fourth, so a search
@@ -1508,7 +1509,7 @@ function urlKey() {
     // collapse into single rectangles instead, which is the same picture with a
     // fraction of the markup.
     function qrFallbackNote(reason) {
-      return '<p class="order-qr-note">' + reason + '</p>';
+      return '<p class="order-qr-note">' + esc(reason) + '</p>';
     }
 
     // modulePx, when given, draws each module that many CSS pixels across and puts the
