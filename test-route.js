@@ -534,6 +534,17 @@ function boot(initialHash, cfg) {
   ok('S6  picking Women|6 in sizeFilter writes a compact shareable #shop?size=6W URL',
     S2.location.hash === '#shop?size=6W',
     'hash=' + S2.location.hash);
+  let badHashErr = null;
+  let S3 = null;
+  try {
+    S3 = boot('#shop?q=%E0%A4%A&size=10');
+    await sleep(320);
+  } catch (err) {
+    badHashErr = err;
+  }
+  ok('S7  malformed percent-encoding in #shop query does not throw URIError and keeps valid params',
+    !badHashErr && !!S3 && S3.active() === 'shop' && S3.getEl('sizeFilter').value === 'Men|10' && S3.location.hash === '#shop?size=10',
+    badHashErr ? badHashErr.message : (S3 ? S3.location.hash + ' size=' + S3.getEl('sizeFilter').value : 'no boot'));
 
   const fails = results.filter((r) => !r.pass);
   results.forEach((r) => console.log((r.pass ? 'PASS  ' : 'FAIL  ') + r.name + (r.pass ? '' : '   [' + r.extra + ']')));

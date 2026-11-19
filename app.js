@@ -1101,8 +1101,16 @@ function urlKey() {
           queryPart.split('&').forEach(pair => {
             if (!pair) return;
             const eq = pair.indexOf('=');
-            const k = decodeURIComponent(eq < 0 ? pair : pair.slice(0, eq)).trim().toLowerCase();
-            const v = eq < 0 ? '' : decodeURIComponent(pair.slice(eq + 1).replace(/\+/g, ' ')).trim();
+            let k = '';
+            let v = '';
+            try {
+              k = decodeURIComponent(eq < 0 ? pair : pair.slice(0, eq)).trim().toLowerCase();
+              v = eq < 0 ? '' : decodeURIComponent(pair.slice(eq + 1).replace(/\+/g, ' ')).trim();
+            } catch (err) {
+              // Malformed percent-encoding in a broken/pasted link: skip the bad param
+              // instead of throwing URIError and halting boot before listeners attach.
+              return;
+            }
             if (!v) return;
             if (k === 'brand') rawBrand = v;
             else if (k === 'size') rawSize = v;
