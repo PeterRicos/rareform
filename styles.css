@@ -186,7 +186,7 @@ html.announce-dismissed .announce { display: none; }
   min-height: calc(100vh - 114px);
   display: grid;
   grid-template-columns: 1.15fr 0.85fr;
-  background: #dfdeda;
+  background: #d3c9b0;
   position: relative;
   border-bottom: 1px solid var(--line);
 }
@@ -221,7 +221,7 @@ html.announce-dismissed .announce { display: none; }
   min-height: 520px;
   position: relative;
   overflow: hidden;
-  background: #cfceca url('images/hero-poster.jpg') center / cover no-repeat;
+  background: #d3c9b0 url('images/hero-poster.jpg') center / cover no-repeat;
 }
 .hero-stamp {
   position: absolute;
@@ -427,12 +427,11 @@ html.announce-dismissed .announce { display: none; }
   margin-bottom: 6px;
 }
 .product-image {
-  /* Beige panel, matched to the hero: the owner asked 2026-10-29 for one beige
-     across the page — the hero's #dfdeda — on the steps banner and on the card
-     panels alike, replacing the darker #d3c9b0 the panels took in Ship 8. The
-     white-canvas photos still sit cleanly on it. The hairline underneath
-     stays from Ship 3. */
-  background: #dfdeda;
+  /* Warm sandy beige panel: restored at the owner's request (2026-11-19) across
+     the hero, steps banners, and card panels alike — replacing the greyer #dfdeda
+     so the site reads clearly warm beige alongside cream (#f5f4f1) and black.
+     The white-canvas photos still sit cleanly on it. */
+  background: #d3c9b0;
   border-bottom: 1px solid var(--line);
   aspect-ratio: 1;
   overflow: hidden;
@@ -774,13 +773,11 @@ html.announce-dismissed .announce { display: none; }
 }
 
 /* Authenticity Banner */
-/* The banner shares the hero's beige: the owner asked 2026-10-29 for one beige
-   across the page — the hero's #dfdeda — on the steps banner and on the card
-   panels alike, replacing the darker #d3c9b0 this banner took earlier the same
-   day. Both banners (How it works, Our Standard) take it, because they are the
-   same component and a split pair would read as a mistake. */
+/* Warm sandy beige (#d3c9b0) shared with the hero and card panels: restored at the
+   owner's request (2026-11-19) so both banners (How it works, Our Standard) match
+   the warm beige palette instead of the greyer #dfdeda. */
 .auth {
-  background: #dfdeda;
+  background: #d3c9b0;
   max-width: none;
   border-top: 1px solid var(--line);
   border-bottom: 1px solid var(--line);
