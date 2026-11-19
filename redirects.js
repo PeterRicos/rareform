@@ -36,5 +36,21 @@ module.exports = {
   // the listing photos and confirmed against the GS style codes (153265-070
   // University Gold, DH0905-005 Dark Concord).
   'air-jordan-12-retro-grade-school-153265-070': '153265-070',
-  'air-jordan-12-retro-grade-school-dh0905-005': 'DH0905-005'
+  'air-jordan-12-retro-grade-school-dh0905-005': 'DH0905-005',
+  // Catalog cleanup: full model + colorway names for generic or mismatched titles,
+  // verified against style codes and listing photos.
+  'women-s-air-jordan-1-low-dc0774-114': 'DC0774-114',
+  'air-jordan-1-retro-high-og-555088-404': '555088-404',
+  'hyper-royal-light-smoke-grey-white-575441-402': '575441-402',
+  'jordan-1-lucky-green-white-sail-black-db4612-300': 'DB4612-300',
+  'jordan-4-retro-gs-white-cement-dj4699-100': 'DJ4699-100',
+  'jordan-4-white-cement-ct8527-100': 'CT8527-100',
+  'air-max-90-cw6018-001': 'CW6018-001',
+  'air-jordan-1-low-grade-school-553560-606': '553560-606',
+  'air-jordan-1-retro-high-og-555088-032': '555088-032',
+  'air-jordan-1-retro-high-og-555088-033': '555088-033',
+  'air-jordan-5-retro-grade-school-cz2989-001': 'CZ2989-001',
+  'jordan-1-high-og-preschool-cu0449-300': 'CU0449-300',
+  'jordan-1-high-og-toddler-cu0450-300': 'CU0450-300',
+  'jordan-1-retro-high-og-toddler-aq2665-063': 'AQ2665-063'
 };

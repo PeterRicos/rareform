@@ -1288,7 +1288,8 @@ function urlKey() {
         s === filterPicked.size && (!filterPicked.group || sizeCategory(s, current.sizeGroup) === filterPicked.group)))
         ? [filterPicked.size] : [];
       const preferredSizes = filterMatched.length ? filterMatched : matchedSizes;
-      selectedSize = preferredSizes[0] || current.sizes[0]; // initialize default selected size
+      const remembered = getSavedSize(current.id);
+      selectedSize = preferredSizes[0] || remembered || current.sizes[0]; // initialize default selected size
 
       // Update breadcrumb
       if ($('breadcrumbProduct')) $('breadcrumbProduct').textContent = current.name;
@@ -1398,6 +1399,10 @@ function urlKey() {
       });
       el.classList.add('selected');
       if (el.setAttribute) el.setAttribute('aria-pressed', 'true');
+      if (current && isSaved(current.id)) {
+        setSavedSize(current.id, size);
+        syncSavedUI();
+      }
       updateOrderLinks();
     }
 
@@ -2113,6 +2118,7 @@ function urlKey() {
     // one pair. A pair removed from the catalog by hand drops out of the list
     // the same way it drops out of a rail, instead of breaking it.
     const SAVED_KEY = 'randomstock.saved';
+    const SAVED_SIZES_KEY = 'randomstock.savedSizes';
     function getSavedIds() {
       try {
         const v = JSON.parse(localStorage.getItem(SAVED_KEY) || '[]');
@@ -2120,6 +2126,60 @@ function urlKey() {
       } catch (err) {
         return [];
       }
+    }
+    function getSavedSizesMap() {
+      try {
+        const v = JSON.parse(localStorage.getItem(SAVED_SIZES_KEY) || '{}');
+        return (v && typeof v === 'object' && !Array.isArray(v)) ? v : {};
+      } catch (err) {
+        return {};
+      }
+    }
+    function getSavedSize(id) {
+      const p = products.find((x) => x.id === id);
+      if (!p || !Array.isArray(p.sizes) || !p.sizes.length) return '';
+      const map = getSavedSizesMap();
+      const chosen = map[String(id)];
+      return (chosen && p.sizes.indexOf(String(chosen)) >= 0) ? String(chosen) : '';
+    }
+    function setSavedSize(id, size) {
+      try {
+        const map = getSavedSizesMap();
+        if (size) map[String(id)] = String(size);
+        else delete map[String(id)];
+        localStorage.setItem(SAVED_SIZES_KEY, JSON.stringify(map));
+      } catch (err) {
+        // localStorage blocked
+      }
+    }
+    // Determine the size context when a shopper stars an item:
+    //  1. On that item's detail page (or when `current` is that item and selectedSize is valid),
+    //     use the selected size chip (`selectedSize`).
+    //  2. Otherwise, if a shop size dropdown or size search is active and matches a single size
+    //     on that item, remember that matched size.
+    function inferSavedSize(id, el) {
+      const p = products.find((x) => x.id === id);
+      if (!p || !Array.isArray(p.sizes) || !p.sizes.length) return '';
+      const onDetail = (el && el.id === 'detailSaveBtn') ||
+        (document.querySelector('.page.active') && document.querySelector('.page.active').dataset.view === 'product');
+      if (onDetail && current && current.id === id && selectedSize && p.sizes.indexOf(selectedSize) >= 0) {
+        return selectedSize;
+      }
+      const filterVal = $('sizeFilter') ? $('sizeFilter').value : '';
+      if (filterVal) {
+        const picked = parseSizeFilter(filterVal);
+        const hit = p.sizes.find(s => s === picked.size && (!picked.group || sizeCategory(s, p.sizeGroup) === picked.group));
+        if (hit) return hit;
+      }
+      const q = (($('globalSearch') && $('globalSearch').value) ||
+        ($('filterSearch') && $('filterSearch').value) ||
+        ($('mobileSearch') && $('mobileSearch').value) || '').trim().toLowerCase();
+      const sq = q ? parseSizeQuery(q) : null;
+      if (sq) {
+        const hits = matchingSizes(p, sq);
+        if (hits.length === 1) return hits[0];
+      }
+      return '';
     }
     function savedProducts() {
       return getSavedIds().map((id) => products.find((p) => p.id === id)).filter(Boolean);
@@ -2129,6 +2189,10 @@ function urlKey() {
       const items = savedProducts();
       if (!items.length) return '';
       const lines = items.map((p) => {
+        const chosen = getSavedSize(p.id);
+        if (chosen) {
+          return '- ' + p.name + ' (SKU ' + p.sku + '), size ' + sizeDisplay(chosen, p.sizeGroup);
+        }
         const sizes = (p.sizes || []).map((s) => sizeDisplay(s, p.sizeGroup)).join('/');
         return '- ' + p.name + ' (SKU ' + p.sku + ')' + (sizes ? ', sizes ' + sizes : '');
       });
@@ -2159,11 +2223,19 @@ function urlKey() {
       if (btn) btn.setAttribute('aria-label', 'Open your saved items' + (ids.length ? ' (' + ids.length + ' saved)' : ''));
       if ($('savedModal') && $('savedModal').classList.contains('open')) renderSaved();
     }
-    function toggleSave(id) {
+    function toggleSave(id, el) {
+      let adding = false;
       try {
         let ids = getSavedIds();
-        ids = ids.indexOf(id) >= 0 ? ids.filter((x) => x !== id) : ids.concat([id]);
+        adding = ids.indexOf(id) < 0;
+        ids = adding ? ids.concat([id]) : ids.filter((x) => x !== id);
         localStorage.setItem(SAVED_KEY, JSON.stringify(ids));
+        if (adding) {
+          const pickedSize = inferSavedSize(id, el);
+          if (pickedSize) setSavedSize(id, pickedSize);
+        } else {
+          setSavedSize(id, '');
+        }
       } catch (err) {
         // localStorage blocked — the star still cannot persist, so say so plainly
         // in the next render rather than pretending it saved.
@@ -2173,6 +2245,7 @@ function urlKey() {
     function clearSaved() {
       try {
         localStorage.removeItem(SAVED_KEY);
+        localStorage.removeItem(SAVED_SIZES_KEY);
       } catch (err) {
         // localStorage blocked
       }
@@ -2181,7 +2254,17 @@ function urlKey() {
     function renderSaved() {
       const items = savedProducts();
       const box = $('savedItems');
-      if (box) box.innerHTML = items.map((p) => productCard(p)).join('');
+      if (box) box.innerHTML = items.map((p) => {
+        const chosen = getSavedSize(p.id);
+        const sq = chosen ? {
+          value: /^[a-z]+$/i.test(chosen) ? chosen.toLowerCase() : parseFloat(chosen),
+          suffix: (/^(\d+(?:\.\d+)?)([a-z]*)$/i.exec(chosen) || ['', '', ''])[2].toLowerCase(),
+          letters: /^[a-z]+$/i.test(chosen),
+          group: sizeCategory(chosen, p.sizeGroup),
+          display: sizeDisplay(chosen, p.sizeGroup)
+        } : null;
+        return productCard(p, sq);
+      }).join('');
       const empty = $('savedEmpty');
       if (empty) empty.style.display = items.length ? 'none' : '';
       const textBtn = $('savedTextBtn');
@@ -2305,7 +2388,7 @@ function urlKey() {
       zoomClose: () => zoomClose(),
       zoomStep: (el, arg) => zoomStep(parseInt(arg, 10)),
       openProduct: (el, arg) => openProduct(parseInt(arg, 10)),
-      toggleSave: (el, arg) => toggleSave(parseInt(arg, 10)),
+      toggleSave: (el, arg) => toggleSave(parseInt(arg, 10), el),
       clearSaved: () => clearSaved(),
       savedOpen: () => savedOpen(),
       savedClose: () => savedClose(),

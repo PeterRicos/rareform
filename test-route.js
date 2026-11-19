@@ -408,7 +408,8 @@ function boot(initialHash, cfg) {
   O.ctx.localStorage = {
     store: {},
     getItem(k) { return this.store[k] || null; },
-    setItem(k, v) { this.store[k] = String(v); }
+    setItem(k, v) { this.store[k] = String(v); },
+    removeItem(k) { delete this.store[k]; }
   };
   const card50 = ev(O, 'productCard(products.find(p => p.id === 50))');
   ok('O1  a card carries a save star for its listing, unpressed at first',
@@ -452,6 +453,21 @@ function boot(initialHash, cfg) {
   ok('O7  #orderMessage maxlength fits a multi-pair shortlist with room for the shopper to edit',
     !!maxLenMatch && Number(maxLenMatch[1]) >= 1000 && sixPairMsg.length > 300 && Number(maxLenMatch[1]) > sixPairMsg.length + 200,
     'maxlength=' + (maxLenMatch && maxLenMatch[1]) + ' sixPairMsg=' + sixPairMsg.length);
+  ev(O, 'clearSaved(); openProduct(39); selectSize("11", { classList: { add: function () {} } }); toggleSave(39);');
+  const msgWithSize = ev(O, 'savedMessage()');
+  ok('O8  saving a pair on its detail page remembers the selected size in savedMessage()',
+    msgWithSize.indexOf('size US 11') >= 0 && msgWithSize.indexOf('US 7.5') < 0,
+    msgWithSize);
+  ev(O, 'selectSize("13", { classList: { add: function () {} } });');
+  const msgUpdatedSize = ev(O, 'savedMessage()');
+  ok('O9  switching size on an already-saved pair updates its remembered size in the shortlist',
+    msgUpdatedSize.indexOf('size US 13') >= 0 && msgUpdatedSize.indexOf('size US 11') < 0,
+    msgUpdatedSize);
+  ev(O, 'go("shop"); document.getElementById("sizeFilter").value = "Men|11"; renderShop(); toggleSave(17);');
+  const msgFromFilter = ev(O, 'savedMessage()');
+  ok('O10 saving a pair from a size-filtered grid remembers the filtered size',
+    msgFromFilter.indexOf('Wave Runner (SKU B75571), size US 11') >= 0 && msgFromFilter.indexOf('US 7') < 0,
+    msgFromFilter);
 
   // ---- R. category URLs (#shop/<category>), filter reconciliation & search ---
   const R = boot('#shop/clothing');

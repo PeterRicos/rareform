@@ -398,7 +398,7 @@ const localProducts = [
   {
     id: 32,
     brand: "Jordan",
-    name: "Women's Air Jordan 1 Low",
+    name: "Women's Air Jordan 1 Low Marina Blue",
     color: "Marina Blue (Women's)",
     condition: "New",
     box: "Original Box",
@@ -424,7 +424,7 @@ const localProducts = [
   {
     id: 34,
     brand: "Jordan",
-    name: "Air Jordan 1 Retro High OG",
+    name: "Air Jordan 1 Retro High OG Dark Marina Blue",
     color: "Dark Marina Blue",
     condition: "New",
     box: "Original Box",
@@ -436,7 +436,7 @@ const localProducts = [
   {
     id: 35,
     brand: "Jordan",
-    name: "Hyper Royal/Light Smoke Grey-White",
+    name: "Air Jordan 1 Retro High OG Hyper Royal (GS)",
     color: "Hyper Royal Smoke Grey (GS)",
     condition: "New",
     box: "Original Box",
@@ -461,7 +461,7 @@ const localProducts = [
   {
     id: 37,
     brand: "Jordan",
-    name: "Jordan 1 Lucky Green/White-Sail-Black",
+    name: "Women's Air Jordan 1 High OG Lucky Green",
     color: "Lucky Green (Women's)",
     condition: "New",
     box: "Original Box",
@@ -678,7 +678,7 @@ const localProducts = [
   {
     id: 55,
     brand: "Jordan",
-    name: "Jordan 4 Retro (GS) White Cement",
+    name: "Jordan 4 Retro White Oreo (2021) (GS)",
     color: "White Oreo (2021) (GS)",
     condition: "New",
     box: "Original Box",
@@ -691,7 +691,7 @@ const localProducts = [
   {
     id: 56,
     brand: "Jordan",
-    name: "Jordan 4 White Cement",
+    name: "Jordan 4 Retro White Oreo (2021)",
     color: "White Oreo (2021)",
     condition: "New",
     box: "Original Box",
@@ -787,7 +787,7 @@ const localProducts = [
   {
     id: 64,
     brand: "Nike",
-    name: "Air Max 90",
+    name: "Air Max 90 Supernova (2020)",
     color: "Supernova (2020)",
     condition: "New",
     box: "Original Box",
@@ -1158,8 +1158,8 @@ const localProducts = [
   {
     id: 88,
     brand: "Jordan",
-    name: "Air Jordan 1 Low Grade School",
-    color: "Grade School",
+    name: "Air Jordan 1 Low Grade School Bred Toe",
+    color: "Bred Toe (Grade School)",
     condition: "New",
     box: "Original Box",
     sizes: ["6Y", "6.5Y"],
@@ -1170,8 +1170,8 @@ const localProducts = [
   {
     id: 89,
     brand: "Jordan",
-    name: "Air Jordan 1 Retro High OG",
-    color: "Lost and Found",
+    name: "Air Jordan 1 Retro High OG Black Metallic Gold",
+    color: "Black Metallic Gold (2020)",
     condition: "New",
     box: "Original Box",
     sizes: ["8"],
@@ -1182,8 +1182,8 @@ const localProducts = [
   {
     id: 90,
     brand: "Jordan",
-    name: "Air Jordan 1 Retro High OG",
-    color: "Chicago Lost and Found",
+    name: "Air Jordan 1 Retro High OG Patina",
+    color: "Patina / Rust Shadow",
     condition: "New",
     box: "Original Box",
     sizes: ["10.5"],
@@ -1194,8 +1194,8 @@ const localProducts = [
   {
     id: 91,
     brand: "Jordan",
-    name: "Air Jordan 5 Retro Grade School",
-    color: "Grade School",
+    name: "Air Jordan 5 Retro Grade School Fire Red Black Tongue",
+    color: "Fire Red Black Tongue (GS)",
     condition: "New",
     box: "Original Box",
     sizes: ["5Y"],
@@ -1218,8 +1218,8 @@ const localProducts = [
   {
     id: 93,
     brand: "Jordan",
-    name: "Jordan 1 High OG PreSchool",
-    color: "PreSchool",
+    name: "Jordan 1 High OG Lucky Green (PS)",
+    color: "Lucky Green (PreSchool)",
     condition: "New",
     box: "Original Box",
     sizes: ["11C"],
@@ -1230,8 +1230,8 @@ const localProducts = [
   {
     id: 94,
     brand: "Jordan",
-    name: "Jordan 1 High OG Toddler",
-    color: "Toddler",
+    name: "Jordan 1 High OG Lucky Green (TD)",
+    color: "Lucky Green (Toddler)",
     condition: "New",
     box: "Original Box",
     sizes: ["10C"],
@@ -1242,8 +1242,8 @@ const localProducts = [
   {
     id: 95,
     brand: "Jordan",
-    name: "Jordan 1 Retro High OG Toddler",
-    color: "Bred (Toddler)",
+    name: "Jordan 1 Retro High OG Patent Bred (TD)",
+    color: "Patent Bred (Toddler)",
     condition: "New",
     box: "Original Box",
     sizes: ["8C"],
