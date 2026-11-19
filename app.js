@@ -661,6 +661,7 @@ function urlKey() {
         $('filterSearch').value = $('mobileSearch').value;
       }
       renderShop();
+      syncShopRouteState();
     }
 
     // A bare number used to be treated as a keyword, so searching "11" matched any
@@ -886,6 +887,11 @@ function urlKey() {
       syncShopRouteState();
     }
 
+    function handleSizeChange() {
+      renderShop();
+      syncShopRouteState();
+    }
+
     // Picking a brand in the shop sidebar should show that brand's stock even if the
     // shopper entered the shop via a category link that holds none of it (e.g. picking
     // Supreme, Bearbrick or Huffy after opening Shop Sneakers, or Jordan after Clothing).
@@ -982,24 +988,136 @@ function urlKey() {
       syncRouteUI();
     }
 
+    // Turn an internal sizeFilter value ("Men|10", "Women|6", "Women|9W", "Youth|4.5",
+    // "Headwear|7", "Headwear|7 1/4", "Apparel|L") into a compact shareable URL token
+    // ("10", "6W", "9W", "4.5Y", "Headwear|7", "7 1/4", "L") so a link pasted into a
+    // message reads `#shop?size=10` or `#shop?size=6W` rather than `#shop?size=Men%7C10`.
+    function formatSizeParam(sizeVal) {
+      const s = String(sizeVal || '').trim();
+      if (!s) return '';
+      if (s.indexOf('|') < 0) return s;
+      const picked = parseSizeFilter(s);
+      const g = picked.group;
+      const sz = picked.size;
+      if (g === 'Men') return sz;
+      if (g === 'Women') return /w$/i.test(sz) ? sz : sz + 'W';
+      if (g === 'Youth') return /[ykc]$/i.test(sz) ? sz : sz + 'Y';
+      if (g === 'Apparel') return sz;
+      if (g === 'Headwear') return /^\d+\s+\d+\/\d+$/.test(sz) ? sz : s;
+      return s;
+    }
+
     // Build the canonical hash URL for a view
-    function hashURL(page, pid, section, category) {
+    function hashURL(page, pid, section, category, filters) {
       if (page === 'product' && pid != null) return '#product/' + pid;
-      if (page === 'shop' && category && CATEGORY_TITLES[category]) return '#shop/' + category;
+      if (page === 'shop') {
+        const base = (category && CATEGORY_TITLES[category]) ? '#shop/' + category : '#shop';
+        const f = filters || {};
+        const params = [];
+        if (f.brand) params.push('brand=' + encodeURIComponent(f.brand));
+        if (f.size) params.push('size=' + encodeURIComponent(formatSizeParam(f.size)));
+        if (f.q) params.push('q=' + encodeURIComponent(f.q));
+        return params.length ? base + '?' + params.join('&') : base;
+      }
       if (page === 'home') return '#' + (section || 'home');
       return '#' + (page || 'home');
+    }
+
+    // Match a shared size parameter ("10", "6w", "4.5y", "7 1/4", "M", or "Men|10")
+    // to a real #sizeFilter dropdown value ("Men|10") when one exists; otherwise
+    // return null so the caller can hand it to the size/keyword search box (which
+    // also covers half-size queries like "10" → 10 / 10.5 when 10 itself isn't an option).
+    function resolveSizeFilterValue(rawSize) {
+      const s = String(rawSize || '').trim();
+      if (!s) return '';
+      // If it already names the run ("Men|10"), verify a matching listing holds it.
+      if (s.indexOf('|') >= 0) {
+        const picked = parseSizeFilter(s);
+        const match = products.some(p => (p.sizes || []).some(sz =>
+          sz === picked.size && (!picked.group || sizeCategory(sz, p.sizeGroup) === picked.group)));
+        return match ? s : '';
+      }
+      // Friendly URL values: "10" → Men|10, "6w" → Women|6 or Women|6W, "4.5y" → Youth|4.5 or Youth|4.5Y,
+      // "7 1/4" → Headwear|7 1/4, "L" → Apparel|L.
+      const lower = s.toLowerCase();
+      let wantGroup = '';
+      let bare = s;
+      if (/^\d+\s+\d+\/\d+$/.test(s)) {
+        wantGroup = 'Headwear';
+      } else if (/^[a-z]+$/i.test(s) && APPAREL_SIZES.indexOf(lower) >= 0) {
+        wantGroup = 'Apparel';
+        bare = s.toUpperCase();
+      } else {
+        const m = /^(\d+(?:\.\d+)?)([wykc]?)$/i.exec(s);
+        if (m) {
+          const suf = m[2].toLowerCase();
+          wantGroup = suf === 'w' ? 'Women' : (suf === 'y' || suf === 'k' || suf === 'c') ? 'Youth' : 'Men';
+          bare = m[1];
+        }
+      }
+      if (!wantGroup) return '';
+      let found = '';
+      products.forEach(p => (p.sizes || []).forEach(sz => {
+        if (found) return;
+        const g = sizeCategory(sz, p.sizeGroup);
+        if (g !== wantGroup) return;
+        if (sz.toLowerCase() === lower || sz.toLowerCase() === bare.toLowerCase()) {
+          found = g + '|' + sz;
+        }
+      }));
+      return found;
+    }
+
+    function resolveBrandFilterValue(rawBrand) {
+      const b = String(rawBrand || '').trim().toLowerCase();
+      if (!b) return '';
+      const pool = (TILE_BRANDS && TILE_BRANDS.length) ? TILE_BRANDS : BRAND_TILES;
+      const hit = pool.find(t => t.toLowerCase() === b);
+      if (hit) return hit;
+      const catHit = products.find(p => String(p.brand || '').trim().toLowerCase() === b);
+      return catHit ? catHit.brand : '';
     }
 
     // Read a hash URL back into a route descriptor
     function parseHash(raw) {
       const h = String(raw || '').replace(/^#/, '');
       if (!h || h === 'home') return { page: 'home', pid: null, section: null };
-      if (h === 'shop' || h === 'about') return { page: h, pid: null, section: null };
-      if (h.indexOf('shop/') === 0) {
-        const cat = h.slice('shop/'.length);
-        return CATEGORY_TITLES[cat]
-          ? { page: 'shop', pid: null, section: null, category: cat }
-          : { page: 'shop', pid: null, section: null };
+      if (h === 'about') return { page: 'about', pid: null, section: null };
+      if (h === 'shop' || h.indexOf('shop/') === 0 || h.indexOf('shop?') === 0) {
+        const qIdx = h.indexOf('?');
+        const pathPart = qIdx < 0 ? h : h.slice(0, qIdx);
+        const queryPart = qIdx < 0 ? '' : h.slice(qIdx + 1);
+        const cat = pathPart.indexOf('shop/') === 0 ? pathPart.slice('shop/'.length) : '';
+        const route = {
+          page: 'shop',
+          pid: null,
+          section: null,
+          category: (cat && CATEGORY_TITLES[cat]) ? cat : null
+        };
+        if (queryPart) {
+          let rawBrand = '';
+          let rawSize = '';
+          let rawQ = '';
+          queryPart.split('&').forEach(pair => {
+            if (!pair) return;
+            const eq = pair.indexOf('=');
+            const k = decodeURIComponent(eq < 0 ? pair : pair.slice(0, eq)).trim().toLowerCase();
+            const v = eq < 0 ? '' : decodeURIComponent(pair.slice(eq + 1).replace(/\+/g, ' ')).trim();
+            if (!v) return;
+            if (k === 'brand') rawBrand = v;
+            else if (k === 'size') rawSize = v;
+            else if (k === 'q' || k === 'search') rawQ = v;
+          });
+          const resolvedBrand = resolveBrandFilterValue(rawBrand);
+          if (resolvedBrand) route.brand = resolvedBrand;
+          if (rawSize) {
+            const resolvedSize = resolveSizeFilterValue(rawSize);
+            if (resolvedSize) route.size = resolvedSize;
+            else if (!rawQ) rawQ = rawSize;
+          }
+          if (rawQ) route.q = rawQ;
+        }
+        return route;
       }
       if (h === 'product') return { page: 'product', pid: null, section: null };
       if (h.indexOf('product/') === 0) {
@@ -1009,16 +1127,32 @@ function urlKey() {
       return { page: 'home', pid: null, section: h };   // plain anchors
     }
 
-    function hstate(y, section, category) {
+    function currentShopFilters() {
+      const brand = ($('brandFilter') && $('brandFilter').value) || '';
+      const size = ($('sizeFilter') && $('sizeFilter').value) || '';
+      const q = (($('filterSearch') && $('filterSearch').value) ||
+        ($('mobileSearch') && $('mobileSearch').value) || '').trim();
+      return {
+        brand: brand || null,
+        size: size || null,
+        q: q || null
+      };
+    }
+
+    function hstate(y, section, category, filters) {
       const active = document.querySelector('.page.active');
       const page = (active && active.dataset.view) || 'home';
       const sec = (section === undefined) ? activeSection : section;
       const cat = (category === undefined) ? shopCategoryFilter : category;
+      const f = (filters === undefined) ? currentShopFilters() : (filters || {});
       return {
         page: page,
         pid: (page === 'product' && current) ? current.id : null,
         section: (page === 'home' && sec) ? sec : null,
         category: (page === 'shop' && cat && CATEGORY_TITLES[cat]) ? cat : null,
+        brand: (page === 'shop' && f.brand) ? f.brand : null,
+        size: (page === 'shop' && f.size) ? f.size : null,
+        q: (page === 'shop' && f.q) ? f.q : null,
         y: Math.round(y || 0)
       };
     }
@@ -1033,7 +1167,7 @@ function urlKey() {
         const p = products.find(x => x.id === s.pid);
         if (p && slugger) return productHref(p);
       }
-      const hash = hashURL(s.page, s.pid, s.section, s.category);
+      const hash = hashURL(s.page, s.pid, s.section, s.category, s);
       return onProductPath() ? '/' + hash : hash;
     }
 
@@ -1092,12 +1226,20 @@ function urlKey() {
       const prevCat = (history.state && history.state.page === from)
         ? (history.state.category || null)
         : null;
-      const prev = hstate(window.scrollY, undefined, prevCat);
+      const prevFilters = (history.state && history.state.page === from)
+        ? { brand: history.state.brand || null, size: history.state.size || null, q: history.state.q || null }
+        : undefined;
+      const prev = hstate(window.scrollY, undefined, prevCat, prevFilters);
       activeSection = null;                       // leaving home clears any section anchor
       hreplace(prev, urlFor(prev));               // remember where we came from
       showPage(page, null, false);
       const next = hstate(0);
-      if (!(from === page && prev.category === next.category && window.scrollY < 2)) {
+      const sameShop = from === page &&
+        prev.category === next.category &&
+        prev.brand === next.brand &&
+        prev.size === next.size &&
+        prev.q === next.q;
+      if (!(sameShop && window.scrollY < 2)) {
         hpush(next, urlFor(next));                // new entry, new URL
       }
       window.scrollTo({ top: 0, behavior: 'instant' });
@@ -1370,7 +1512,10 @@ function urlKey() {
         if ($('conditionFilter')) $('conditionFilter').value = '';
         shopCategoryFilter = '';
       }
-      if (q || hadQuery) renderShop();
+      if (q || hadQuery) {
+        renderShop();
+        syncShopRouteState();
+      }
       if (!q) {
         $('searchResults').innerHTML = '';
         return;
@@ -1736,6 +1881,28 @@ function urlKey() {
     let scrollTimeout;
     if ('scrollRestoration' in history) history.scrollRestoration = 'manual';
 
+    function applyRouteFilters(route) {
+      const nextCat = (route.category && CATEGORY_TITLES[route.category]) ? route.category : '';
+      const nextBrand = route.brand || '';
+      const nextSize = route.size || '';
+      const nextQ = route.q || '';
+      const prevBrand = ($('brandFilter') && $('brandFilter').value) || '';
+      const prevSize = ($('sizeFilter') && $('sizeFilter').value) || '';
+      const prevQ = (($('filterSearch') && $('filterSearch').value) ||
+        ($('mobileSearch') && $('mobileSearch').value) || '').trim();
+      const changed = shopCategoryFilter !== nextCat ||
+        prevBrand !== nextBrand ||
+        prevSize !== nextSize ||
+        prevQ !== nextQ;
+      shopCategoryFilter = nextCat;
+      if ($('categoryFilter')) $('categoryFilter').value = nextCat;
+      if ($('brandFilter')) $('brandFilter').value = nextBrand;
+      if ($('sizeFilter')) $('sizeFilter').value = nextSize;
+      if ($('filterSearch')) $('filterSearch').value = nextQ;
+      if ($('mobileSearch')) $('mobileSearch').value = nextQ;
+      return changed;
+    }
+
     // Apply a route that came from the URL (refresh, deep link, back/forward, manual edit)
     function applyRoute(route, force) {
       const key = urlKey();
@@ -1743,15 +1910,12 @@ function urlKey() {
       lastHash = key;
       isRestoring = true;
       activeSection = route.section || null;
-      let catChanged = false;
+      let shopChanged = false;
       if (route.page === 'shop') {
-        const nextCat = (route.category && CATEGORY_TITLES[route.category]) ? route.category : '';
-        catChanged = shopCategoryFilter !== nextCat;
-        shopCategoryFilter = nextCat;
-        if ($('categoryFilter')) $('categoryFilter').value = nextCat;
+        shopChanged = applyRouteFilters(route);
       }
       showPage(route.page, route.pid, true);
-      if (route.page === 'shop' && catChanged) renderShop();
+      if (route.page === 'shop' && shopChanged) renderShop();
 
       // Always (re)write the entry: canonicalises the URL (unknown product id,
       // bare '#product', empty hash…) and keeps the scroll offset in the state.
@@ -1790,8 +1954,7 @@ function urlKey() {
       isRestoring = true;
       activeSection = route.section;
       if (route.page === 'shop') {
-        shopCategoryFilter = (route.category && CATEGORY_TITLES[route.category]) ? route.category : '';
-        if ($('categoryFilter')) $('categoryFilter').value = shopCategoryFilter;
+        applyRouteFilters(route);
       }
       showPage(route.page, route.pid, true);
       // Rewrite the entry with the resolved route (canonicalises bad product ids)
@@ -2183,6 +2346,7 @@ function urlKey() {
     const CHANGE_ACTIONS = {
       handleBrandChange: () => handleBrandChange(),
       handleCategoryChange: () => handleCategoryChange(),
+      handleSizeChange: () => handleSizeChange(),
       renderShop: () => renderShop()
     };
     document.addEventListener('change', e => {

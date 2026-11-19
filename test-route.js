@@ -472,14 +472,52 @@ function boot(initialHash, cfg) {
     R.location.hash + ' cat=' + ev(R, 'shopCategoryFilter') + ' title=' + R.getEl('shopTitle').textContent);
   ev(R, 'shopCategory("sneakers"); document.getElementById("brandFilter").value = "Supreme"; handleBrandChange();');
   await sleep(80);
+  // Picking Supreme on Shop Sneakers drops the sneaker category and writes the active
+  // brand filter into the shareable shop URL (#shop?brand=Supreme instead of #shop/sneakers).
   ok('R3  picking Supreme in brandFilter on Shop Sneakers drops the sneaker category and shows stock',
-    ev(R, 'shopCategoryFilter') === '' && R.location.hash === '#shop'
+    ev(R, 'shopCategoryFilter') === '' && R.location.hash === '#shop?brand=Supreme'
       && R.getEl('productTotal').textContent !== '0 ITEMS AVAILABLE',
     'cat=' + ev(R, 'shopCategoryFilter') + ' hash=' + R.location.hash + ' total=' + R.getEl('productTotal').textContent);
   ev(R, 'shopCategory("clothing"); document.getElementById("globalSearch").value = "dunk"; globalSearch();');
   ok('R4  typing in globalSearch while a category is active clears the category so shop and modal counts agree',
     ev(R, 'shopCategoryFilter') === '' && R.getEl('productTotal').textContent !== '0 ITEMS AVAILABLE',
     'cat=' + ev(R, 'shopCategoryFilter') + ' total=' + R.getEl('productTotal').textContent);
+
+  // ---- S. shareable shop filter URLs (#shop?size=..., #shop?brand=..., #shop?q=...) ---
+  const S1 = boot('#shop?size=10');
+  await sleep(320);
+  ok('S1  deep link to #shop?size=10 hydrates Men|10 in sizeFilter and filters the grid',
+    S1.active() === 'shop' && S1.getEl('sizeFilter').value === 'Men|10'
+      && S1.location.hash === '#shop?size=10'
+      && /ITEMS IN US 10 \/ 10\.5/.test(S1.getEl('productTotal').textContent),
+    'hash=' + S1.location.hash + ' size=' + S1.getEl('sizeFilter').value + ' total=' + S1.getEl('productTotal').textContent);
+  ev(S1, 'openProduct(96)'); // Jordan 6 Retro Hare, sizes ["8", "10"]
+  await sleep(80);
+  ok('S2  opening a pair from #shop?size=10 pre-selects size 10 for the order message',
+    ev(S1, 'selectedSize') === '10' && /size US 10/.test(ev(S1, 'defaultOrderMessage()')),
+    'selectedSize=' + ev(S1, 'selectedSize') + ' msg=' + ev(S1, 'defaultOrderMessage()'));
+  S1.history.back();
+  await sleep(320);
+  ok('S3  browser back from product returns to #shop?size=10 with the size filter intact',
+    S1.active() === 'shop' && S1.location.hash === '#shop?size=10' && S1.getEl('sizeFilter').value === 'Men|10',
+    'hash=' + S1.location.hash + ' size=' + S1.getEl('sizeFilter').value);
+
+  const S2 = boot('#shop/clothing?brand=Supreme&size=L');
+  await sleep(320);
+  ok('S4  combined category + brand + apparel size URL hydrates all three controls',
+    S2.active() === 'shop' && ev(S2, 'shopCategoryFilter') === 'clothing'
+      && S2.getEl('brandFilter').value === 'SUPREME'
+      && S2.getEl('sizeFilter').value === 'Apparel|L'
+      && S2.location.hash === '#shop/clothing?brand=SUPREME&size=L',
+    'hash=' + S2.location.hash + ' brand=' + S2.getEl('brandFilter').value + ' size=' + S2.getEl('sizeFilter').value);
+  ev(S2, 'clearFilters()');
+  ok('S5  clearing filters strips the query string back to #shop',
+    S2.location.hash === '#shop' && S2.getEl('brandFilter').value === '' && S2.getEl('sizeFilter').value === '',
+    'hash=' + S2.location.hash);
+  ev(S2, 'document.getElementById("sizeFilter").value = "Women|6"; handleSizeChange();');
+  ok('S6  picking Women|6 in sizeFilter writes a compact shareable #shop?size=6W URL',
+    S2.location.hash === '#shop?size=6W',
+    'hash=' + S2.location.hash);
 
   const fails = results.filter((r) => !r.pass);
   results.forEach((r) => console.log((r.pass ? 'PASS  ' : 'FAIL  ') + r.name + (r.pass ? '' : '   [' + r.extra + ']')));

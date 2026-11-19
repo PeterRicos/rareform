@@ -353,7 +353,7 @@
         <div>
           <div class="shop-actions">
             <input id="mobileSearch" aria-label="Search the vault" placeholder="Search the vault, SKU, color or size..." data-input="handleSearchSync" data-arg="mobile">
-            <select id="sizeFilter" data-change="renderShop" aria-label="Filter by size"></select>
+            <select id="sizeFilter" data-change="handleSizeChange" aria-label="Filter by size"></select>
             <button class="filter-toggle" id="filterToggle" type="button" data-act="toggleFilters" aria-expanded="false" aria-controls="filtersPanel">More Filters</button>
             <select id="sort" data-change="renderShop" aria-label="Sort products">
               <option value="featured">Featured</option>
@@ -565,7 +565,7 @@
   <!-- jsonld.js turns a listing into schema.org data. app.js reads it immediately
        (the first view is rendered on load), so it has to come before app.js. -->
   <script src="/jsonld.js?v=e1b09023" defer></script>
-  <script src="/app.js?v=8724fbb8" defer></script>
+  <script src="/app.js?v=be9d1b5f" defer></script>
   <script src="/boot.js?v=b6d2be29" defer></script>
   
 
